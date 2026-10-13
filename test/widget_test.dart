@@ -10,7 +10,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('planova'), findsNothing);
     expect(find.text('DEMO'), findsOneWidget);
-    expect(find.text('Make room\nfor progress.'), findsOneWidget);
+    expect(find.text('Make room for progress.'), findsOneWidget);
     expect(find.bySemanticsLabel('Planova logo'), findsOneWidget);
     await tester.ensureVisible(find.text('View session'));
     await tester.pumpAndSettle();
@@ -76,6 +76,52 @@ void main() {
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
     await tester.pumpAndSettle();
     expect(find.text('A little breathing room.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    for (final tab in ['Tasks', 'Progress']) {
+      await tester.tap(find.text(tab));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('Calendar selection survives switching tabs', (tester) async {
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Plan'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('day-3')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tasks'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Plan'));
+    await tester.pumpAndSettle();
+    expect(find.text('60 min of study'), findsOneWidget);
+    expect(find.text('Outline the project report'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Tasks opens sample details and Progress shows shared totals', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tasks'));
+    await tester.pumpAndSettle();
+    expect(find.text('4 active · 1 completed'), findsOneWidget);
+    await tester.tap(find.text('Database assignment'));
+    await tester.pumpAndSettle();
+    expect(find.text('SAMPLE TASK'), findsOneWidget);
+    expect(find.textContaining('25% complete'), findsOneWidget);
+    await tester.tap(find.text('Back'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Progress'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 of 5 tasks completed'), findsOneWidget);
+    expect(find.textContaining('3h 30m', findRichText: true), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }
