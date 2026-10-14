@@ -17,6 +17,12 @@ class _MyAppState extends State<MyApp> {
       widget.dependencies ?? AppDependencies.demo();
 
   @override
+  void dispose() {
+    if (widget.dependencies == null) _dependencies.tasks.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'Planova',
     debugShowCheckedModeBanner: false,

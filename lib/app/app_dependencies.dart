@@ -11,11 +11,14 @@ class AppDependencies {
     required this.study,
     required this.clock,
   });
-  factory AppDependencies.demo() => AppDependencies(
-    tasks: MockTaskRepository(),
-    study: MockStudyRepository(),
-    clock: const DemoClock(),
-  );
+  factory AppDependencies.demo() {
+    final tasks = MockTaskRepository();
+    return AppDependencies(
+      tasks: tasks,
+      study: MockStudyRepository(tasks: tasks),
+      clock: const DemoClock(),
+    );
+  }
   final TaskRepository tasks;
   final StudyRepository study;
   final AppClock clock;

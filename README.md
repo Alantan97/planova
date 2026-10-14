@@ -6,14 +6,17 @@ Read `PLANOVA_CONTEXT.md` for the product direction and `AGENTS.md` for developm
 ## Current prototype
 
 - Today: upcoming session, daily agenda, next deadline, and sample weekly progress.
-- Tasks: read-only academic task list and details.
+- Tasks: add, edit, delete, complete, and reopen academic tasks with validated forms.
 - Plan: browse days and weeks; inspect study sessions and fixed commitments.
 - Progress: sample study time and task completion totals.
 
 All data is local and synthetic. The demo clock is fixed at 14 October 2026,
 13:00, so rehearsals are reproducible. There is no Firebase, Python API,
 LambdaMART, GA implementation, or generated schedule in this phase.
-Task editing and simulated scheduling are later phases.
+Task changes last for the current app session; restarting restores the demo fixtures.
+Prioritization and simulated scheduling remain later phases.
+Completing a task changes its status without inventing recorded study time.
+Completed or deleted tasks no longer show planned sample sessions; recorded study history remains.
 
 ## Structure
 
@@ -37,6 +40,12 @@ flutter run
 flutter analyze
 flutter test
 ```
+
+When changing model fields, repository inheritance, or application initialization,
+use a **hot restart**, rather than hot reload, to recreate the in-memory demo state.
+In VS Code, run `Flutter: Hot Restart` from the Command Palette. In a terminal
+running `flutter run`, press uppercase `R`. If the debugger remains paused on an
+old exception, stop debugging and start the app again.
 
 Android currently retains the template application ID and debug signing for release builds.
 Showcase packaging and physical-device validation will be handled in the final preparation phase.

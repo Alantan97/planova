@@ -1,10 +1,13 @@
 import '../../core/time/demo_clock.dart';
 import '../../models/study_session.dart';
 import '../repositories/study_repository.dart';
+import '../repositories/task_repository.dart';
 import 'demo_sessions.dart';
 
 class MockStudyRepository implements StudyRepository {
-  MockStudyRepository() : _sessions = List.unmodifiable(demoSessions());
+  MockStudyRepository({required this.tasks})
+    : _sessions = List.unmodifiable(demoSessions());
+  final TaskRepository tasks;
   final List<StudySession> _sessions;
 
   @override
@@ -18,7 +21,11 @@ class MockStudyRepository implements StudyRepository {
               (session) =>
                   session.startsAt.year == date.year &&
                   session.startsAt.month == date.month &&
-                  session.startsAt.day == date.day,
+                  session.startsAt.day == date.day &&
+                  (session.commitment ||
+                      session.status != SessionStatus.planned ||
+                      (tasks.taskById(session.taskId ?? '') != null &&
+                          !tasks.taskById(session.taskId ?? '')!.isCompleted)),
             )
             .toList()
           ..sort((a, b) => a.startsAt.compareTo(b.startsAt));

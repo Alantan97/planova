@@ -6,6 +6,7 @@ import '../../../core/widgets/session_widgets.dart';
 import '../../../core/widgets/task_card.dart';
 import '../../../core/widgets/progress_summary.dart';
 import '../view_models/today_view_model.dart';
+import '../../tasks/screens/task_details_screen.dart';
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({
@@ -60,7 +61,21 @@ class TodayScreen extends StatelessWidget {
         const SectionTitle('Coming up'),
         const SizedBox(height: 16),
         if (viewModel.upcomingTask != null)
-          TaskCard(task: viewModel.upcomingTask!),
+          TaskCard(
+            task: viewModel.upcomingTask!,
+            onTap: () => openTaskDetails(
+              context,
+              viewModel.taskRepository,
+              viewModel.clock,
+              viewModel.upcomingTask!.id,
+            ),
+          )
+        else
+          const Panel(
+            child: Text(
+              'You are all caught up. Add a task from the Tasks tab.',
+            ),
+          ),
         const SizedBox(height: 24),
         const SectionTitle('Small steps add up'),
         const SizedBox(height: 16),

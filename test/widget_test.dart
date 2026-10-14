@@ -114,9 +114,9 @@ void main() {
     expect(find.text('4 active · 1 completed'), findsOneWidget);
     await tester.tap(find.text('Database assignment'));
     await tester.pumpAndSettle();
-    expect(find.text('SAMPLE TASK'), findsOneWidget);
+    expect(find.text('ACADEMIC TASK'), findsOneWidget);
     expect(find.textContaining('25% complete'), findsOneWidget);
-    await tester.tap(find.text('Back'));
+    await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Progress'));
     await tester.pumpAndSettle();

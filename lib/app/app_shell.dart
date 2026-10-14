@@ -45,72 +45,81 @@ class _AppShellState extends State<AppShell> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    body: SafeArea(
-      bottom: false,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 640),
-          child: CustomScrollView(
-            key: PageStorageKey('tab-$_tab'),
-            controller: _scrollControllers[_tab],
-            primary: false,
-            slivers: [
-              const SliverToBoxAdapter(child: _BrandHeader()),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
-                sliver: SliverToBoxAdapter(
-                  child: switch (_tab) {
-                    0 => TodayScreen(viewModel: _today, onViewPlan: _viewPlan),
-                    1 => TasksScreen(repository: widget.dependencies.tasks),
-                    2 => ListenableBuilder(
-                      listenable: _planner,
-                      builder: (context, _) =>
-                          PlannerScreen(viewModel: _planner),
-                    ),
-                    _ => ProgressScreen(
-                      studyRepository: widget.dependencies.study,
-                      taskRepository: widget.dependencies.tasks,
-                      clock: widget.dependencies.clock,
-                    ),
-                  },
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: widget.dependencies.tasks,
+    builder: (context, _) => Scaffold(
+      body: SafeArea(
+        bottom: false,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 640),
+            child: CustomScrollView(
+              key: PageStorageKey('tab-$_tab'),
+              controller: _scrollControllers[_tab],
+              primary: false,
+              slivers: [
+                const SliverToBoxAdapter(child: _BrandHeader()),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
+                  sliver: SliverToBoxAdapter(
+                    child: switch (_tab) {
+                      0 => TodayScreen(
+                        viewModel: _today,
+                        onViewPlan: _viewPlan,
+                      ),
+                      1 => TasksScreen(
+                        repository: widget.dependencies.tasks,
+                        clock: widget.dependencies.clock,
+                      ),
+                      2 => ListenableBuilder(
+                        listenable: _planner,
+                        builder: (context, _) =>
+                            PlannerScreen(viewModel: _planner),
+                      ),
+                      _ => ProgressScreen(
+                        studyRepository: widget.dependencies.study,
+                        taskRepository: widget.dependencies.tasks,
+                        clock: widget.dependencies.clock,
+                      ),
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-    bottomNavigationBar: DecoratedBox(
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFFE6E6E6))),
-      ),
-      child: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (index) => setState(() => _tab = index),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.wb_sunny_outlined),
-            selectedIcon: Icon(Icons.wb_sunny_rounded),
-            label: 'Today',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.assignment_outlined),
-            selectedIcon: Icon(Icons.assignment_rounded),
-            label: 'Tasks',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_month_outlined),
-            selectedIcon: Icon(Icons.calendar_month_rounded),
-            label: 'Plan',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.pie_chart_outline_rounded),
-            selectedIcon: Icon(Icons.pie_chart_rounded),
-            label: 'Progress',
-          ),
-        ],
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: Color(0xFFE6E6E6))),
+        ),
+        child: NavigationBar(
+          selectedIndex: _tab,
+          onDestinationSelected: (index) => setState(() => _tab = index),
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.wb_sunny_outlined),
+              selectedIcon: Icon(Icons.wb_sunny_rounded),
+              label: 'Today',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.assignment_outlined),
+              selectedIcon: Icon(Icons.assignment_rounded),
+              label: 'Tasks',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.calendar_month_outlined),
+              selectedIcon: Icon(Icons.calendar_month_rounded),
+              label: 'Plan',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.pie_chart_outline_rounded),
+              selectedIcon: Icon(Icons.pie_chart_rounded),
+              label: 'Progress',
+            ),
+          ],
+        ),
       ),
     ),
   );
