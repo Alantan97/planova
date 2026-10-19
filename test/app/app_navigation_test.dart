@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:planova/main.dart';
+import 'package:planova/app/planova_app.dart';
+import 'package:planova/app/app_dependencies.dart';
 
 void main() {
   testWidgets('Today shows branding and opens sample session details', (
     tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    final dependencies = AppDependencies.demo();
+    addTearDown(dependencies.tasks.dispose);
+    await tester.pumpWidget(MyApp(dependencies: dependencies));
     await tester.pumpAndSettle();
     expect(find.text('planova'), findsNothing);
-    expect(find.text('DEMO'), findsOneWidget);
-    expect(find.text('Make room for progress.'), findsOneWidget);
+    expect(find.text('Sample study session'), findsOneWidget);
+    expect(find.text('Today’s overview'), findsOneWidget);
     expect(find.bySemanticsLabel('Planova logo'), findsOneWidget);
     await tester.ensureVisible(find.text('View session'));
     await tester.pumpAndSettle();
@@ -18,7 +21,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('SAMPLE SESSION'), findsOneWidget);
     expect(find.textContaining('No study time'), findsOneWidget);
-    await tester.tap(find.text('Back to schedule'));
+    await tester.tap(find.text('Close preview'));
     await tester.pumpAndSettle();
     expect(find.text('SAMPLE SESSION'), findsNothing);
     expect(tester.takeException(), isNull);
@@ -27,7 +30,9 @@ void main() {
   testWidgets(
     'Plan browses days and weeks and excludes lectures from study time',
     (tester) async {
-      await tester.pumpWidget(const MyApp());
+      final dependencies = AppDependencies.demo();
+      addTearDown(dependencies.tasks.dispose);
+      await tester.pumpWidget(MyApp(dependencies: dependencies));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Plan'));
       await tester.pumpAndSettle();
@@ -62,7 +67,9 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     tester.platformDispatcher.textScaleFactorTestValue = 1.3;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-    await tester.pumpWidget(const MyApp());
+    final dependencies = AppDependencies.demo();
+    addTearDown(dependencies.tasks.dispose);
+    await tester.pumpWidget(MyApp(dependencies: dependencies));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('Plan'));
@@ -89,7 +96,9 @@ void main() {
   });
 
   testWidgets('Calendar selection survives switching tabs', (tester) async {
-    await tester.pumpWidget(const MyApp());
+    final dependencies = AppDependencies.demo();
+    addTearDown(dependencies.tasks.dispose);
+    await tester.pumpWidget(MyApp(dependencies: dependencies));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Plan'));
     await tester.pumpAndSettle();
@@ -107,16 +116,18 @@ void main() {
   testWidgets('Tasks opens sample details and Progress shows shared totals', (
     tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    final dependencies = AppDependencies.demo();
+    addTearDown(dependencies.tasks.dispose);
+    await tester.pumpWidget(MyApp(dependencies: dependencies));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Tasks'));
     await tester.pumpAndSettle();
     expect(find.text('4 active · 1 completed'), findsOneWidget);
     await tester.tap(find.text('Database assignment'));
     await tester.pumpAndSettle();
-    expect(find.text('SAMPLE TASK'), findsOneWidget);
-    expect(find.textContaining('25% complete'), findsOneWidget);
-    await tester.tap(find.text('Back'));
+    expect(find.text('ACADEMIC TASK'), findsOneWidget);
+    expect(find.text('25% of estimated time recorded'), findsOneWidget);
+    await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Progress'));
     await tester.pumpAndSettle();

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../core/time/demo_clock.dart';
+import '../../../core/time/app_clock.dart';
+import '../../../core/time/date_time_helpers.dart';
 import '../../../data/repositories/study_repository.dart';
 import '../../../models/study_session.dart';
 

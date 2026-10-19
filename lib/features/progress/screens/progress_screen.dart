@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../../../core/time/demo_clock.dart';
+import '../../../core/time/app_clock.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../core/widgets/progress_summary.dart';
 import '../../../data/repositories/study_repository.dart';
@@ -36,6 +36,7 @@ class ProgressScreen extends StatelessWidget {
       ),
       const SizedBox(height: 24),
       ProgressSummary(
+        featured: true,
         minutes: studyRepository.completedMinutesInWeek(clock.now()),
         goalMinutes: studyRepository.weeklyGoalMinutes,
       ),
@@ -52,7 +53,7 @@ class ProgressScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Sample totals across your academic tasks.',
+              'Across your saved tasks. Completing a task does not add study hours.',
               style: TextStyle(color: planovaMuted),
             ),
           ],

@@ -6,6 +6,7 @@ import '../../../core/widgets/session_widgets.dart';
 import '../../../core/widgets/task_card.dart';
 import '../../../core/widgets/progress_summary.dart';
 import '../view_models/today_view_model.dart';
+import '../../tasks/screens/task_details_screen.dart';
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({
@@ -22,24 +23,31 @@ class TodayScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Eyebrow(viewModel.dateLabel),
-        const SizedBox(height: 10),
-        const Text(
-          'Make room for progress.',
-          style: TextStyle(
-            fontSize: 38,
-            height: 1.12,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -1.5,
-          ),
-        ),
-        const SizedBox(height: 12),
-        const Text(
-          'A little focus. A step closer.',
-          style: TextStyle(fontSize: 16, color: planovaMuted),
-        ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 8),
+        const PageHeading(title: 'Today’s overview'),
+        const SizedBox(height: 20),
         if (viewModel.nextSession != null)
           NextSessionCard(viewModel.nextSession!),
+        const SizedBox(height: 20),
+        const SectionTitle('Next deadline'),
+        const SizedBox(height: 12),
+        if (viewModel.upcomingTask != null)
+          TaskCard(
+            task: viewModel.upcomingTask!,
+            now: viewModel.clock.now(),
+            onTap: () => openTaskDetails(
+              context,
+              viewModel.taskRepository,
+              viewModel.clock,
+              viewModel.upcomingTask!.id,
+            ),
+          )
+        else
+          const Panel(
+            child: Text(
+              'You are all caught up. Add a task from the Tasks tab.',
+            ),
+          ),
         const SizedBox(height: 28),
         SectionTitle(
           'Your day',
@@ -57,12 +65,7 @@ class TodayScreen extends StatelessWidget {
         const SizedBox(height: 16),
         ...sessions.map((session) => SessionRow(session)),
         const SizedBox(height: 24),
-        const SectionTitle('Coming up'),
-        const SizedBox(height: 16),
-        if (viewModel.upcomingTask != null)
-          TaskCard(task: viewModel.upcomingTask!),
-        const SizedBox(height: 24),
-        const SectionTitle('Small steps add up'),
+        const SectionTitle('Sample study week'),
         const SizedBox(height: 16),
         ProgressSummary(
           minutes: viewModel.completedMinutes,

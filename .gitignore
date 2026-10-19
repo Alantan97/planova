@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Local research documents, participant responses, and collection drafts.
+# Review and explicitly select any anonymized material before publishing it.
+/research/
