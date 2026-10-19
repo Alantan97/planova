@@ -2,61 +2,166 @@ import 'package:flutter/material.dart';
 
 import '../../models/academic_task.dart';
 import '../theme/app_theme.dart';
-import '../time/demo_clock.dart';
+import '../time/date_time_helpers.dart';
 
 class TaskCard extends StatelessWidget {
-  const TaskCard({super.key, required this.task, required this.onTap});
+  const TaskCard({
+    super.key,
+    required this.task,
+    required this.now,
+    required this.onTap,
+  });
   final AcademicTask task;
+  final DateTime now;
   final VoidCallback onTap;
 
+  String _deadline(BuildContext context) {
+    if (DateUtils.isSameDay(task.deadline, now)) {
+      return 'Today · ${TimeOfDay.fromDateTime(task.deadline).format(context)}';
+    }
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    if (DateUtils.isSameDay(task.deadline, tomorrow)) return 'Tomorrow';
+    return '${task.deadline.day} ${months[task.deadline.month - 1]}${task.deadline.year != now.year ? ' ${task.deadline.year}' : ''}';
+  }
+
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: Material(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: Color(0xFFE6E6E6)),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                task.subject,
-                style: const TextStyle(color: planovaMuted, fontSize: 13),
+  Widget build(BuildContext context) {
+    final overdue = !task.isCompleted && task.deadline.isBefore(now);
+    final statusColor = overdue ? planovaActionOrange : planovaMuted;
+    final remaining = (task.estimatedMinutes - task.completedMinutes).clamp(
+      0,
+      task.estimatedMinutes,
+    );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Semantics(
+        button: true,
+        child: Material(
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: planovaBorder),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          task.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                            height: 1.3,
+                            color: task.isCompleted ? planovaMuted : planovaInk,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        size: 20,
+                        color: planovaMuted,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    task.subject,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: planovaMuted,
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 8,
+                    children: [
+                      _TaskMeta(
+                        icon: task.isCompleted
+                            ? Icons.check_circle_outline_rounded
+                            : overdue
+                            ? Icons.error_outline_rounded
+                            : Icons.event_outlined,
+                        text: task.isCompleted
+                            ? 'Completed'
+                            : '${overdue ? 'Overdue' : 'Due'} · ${_deadline(context)}',
+                        color: statusColor,
+                      ),
+                      if (!task.isCompleted)
+                        _TaskMeta(
+                          icon: Icons.schedule_outlined,
+                          text: '${formatDuration(remaining)} remaining',
+                        ),
+                    ],
+                  ),
+                  if (!task.isCompleted && task.completedMinutes > 0) ...[
+                    const SizedBox(height: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: ExcludeSemantics(
+                        child: LinearProgressIndicator(
+                          value: task.progress,
+                          minHeight: 4,
+                          color: planovaOrange,
+                          backgroundColor: planovaBorder,
+                          semanticsLabel: '${task.title} progress',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${formatDuration(task.completedMinutes)} recorded · ${(task.progress * 100).round()}% of estimate',
+                      style: const TextStyle(color: planovaMuted, fontSize: 12),
+                    ),
+                  ],
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                task.title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                task.isCompleted
-                    ? 'Completed · Sample task'
-                    : 'Due ${task.deadline.day} ${months[task.deadline.month - 1]} · ${formatDuration(task.estimatedMinutes)} estimated',
-                style: const TextStyle(color: planovaMuted, fontSize: 13),
-              ),
-              const SizedBox(height: 12),
-              LinearProgressIndicator(
-                value: task.progress,
-                minHeight: 4,
-                color: planovaOrange,
-                backgroundColor: const Color(0xFFE6E6E6),
-                semanticsLabel: '${task.title} progress',
-              ),
-            ],
+            ),
           ),
         ),
       ),
-    ),
+    );
+  }
+}
+
+class _TaskMeta extends StatelessWidget {
+  const _TaskMeta({
+    required this.icon,
+    required this.text,
+    this.color = planovaMuted,
+  });
+  final IconData icon;
+  final String text;
+  final Color color;
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icon, size: 16, color: color),
+      const SizedBox(width: 5),
+      Flexible(
+        child: Text(
+          text,
+          style: TextStyle(
+            color: color,
+            fontSize: 13,
+            height: 1.4,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    ],
   );
 }

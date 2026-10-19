@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
 const planovaOrange = Color(0xFFFF6600);
+// Deeper orange keeps white button text and orange labels readable.
+const planovaActionOrange = Color(0xFFC74700);
 const planovaInk = Color(0xFF111111);
 const planovaMuted = Color(0xFF5F6672);
+const planovaBorder = Color(0xFFE6E6E6);
+const planovaSurface = Color(0xFFF7F8FA);
 // Brand rule: orange surfaces always use white text and icons.
 const planovaOnOrange = Colors.white;
 
@@ -10,9 +14,9 @@ ThemeData buildPlanovaTheme() => ThemeData(
   useMaterial3: true,
   colorScheme: ColorScheme.fromSeed(
     seedColor: planovaOrange,
-    primary: planovaOrange,
+    primary: planovaActionOrange,
     onPrimary: planovaOnOrange,
-    secondary: planovaOrange,
+    secondary: planovaActionOrange,
     onSecondary: planovaOnOrange,
     tertiary: planovaInk,
     surface: Colors.white,
@@ -21,7 +25,7 @@ ThemeData buildPlanovaTheme() => ThemeData(
   scaffoldBackgroundColor: Colors.white,
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: const Color(0xFFF7F8FA),
+    fillColor: planovaSurface,
     contentPadding: const EdgeInsets.all(16),
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
     enabledBorder: OutlineInputBorder(
@@ -35,14 +39,28 @@ ThemeData buildPlanovaTheme() => ThemeData(
   ),
   filledButtonTheme: FilledButtonThemeData(
     style: FilledButton.styleFrom(
-      backgroundColor: planovaInk,
+      backgroundColor: planovaActionOrange,
       foregroundColor: Colors.white,
-      minimumSize: const Size(0, 52),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      minimumSize: const Size(0, 48),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
   ),
+  outlinedButtonTheme: OutlinedButtonThemeData(
+    style: OutlinedButton.styleFrom(
+      foregroundColor: planovaInk,
+      minimumSize: const Size(0, 48),
+      side: const BorderSide(color: planovaBorder),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+    ),
+  ),
+  iconButtonTheme: IconButtonThemeData(
+    style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
+  ),
   textButtonTheme: TextButtonThemeData(
-    style: TextButton.styleFrom(foregroundColor: planovaInk),
+    style: TextButton.styleFrom(
+      foregroundColor: planovaInk,
+      minimumSize: const Size(48, 48),
+    ),
   ),
   navigationBarTheme: NavigationBarThemeData(
     backgroundColor: Colors.white,
@@ -51,7 +69,7 @@ ThemeData buildPlanovaTheme() => ThemeData(
     iconTheme: WidgetStateProperty.resolveWith(
       (states) => IconThemeData(
         color: states.contains(WidgetState.selected)
-            ? planovaOrange
+            ? planovaActionOrange
             : planovaInk,
         size: 28,
       ),
@@ -60,7 +78,7 @@ ThemeData buildPlanovaTheme() => ThemeData(
       (states) => TextStyle(
         fontSize: 12,
         color: states.contains(WidgetState.selected)
-            ? planovaOrange
+            ? planovaActionOrange
             : planovaInk,
         fontWeight: states.contains(WidgetState.selected)
             ? FontWeight.w700

@@ -1,4 +1,7 @@
 import '../../models/academic_task.dart';
+import '../../models/academic_course.dart';
+import '../repositories/academic_records.dart';
+import '../../models/proforma.dart';
 import '../repositories/task_repository.dart';
 
 class MockTaskRepository extends TaskRepository {
@@ -60,7 +63,51 @@ class MockTaskRepository extends TaskRepository {
     ),
   ];
 
+  List<AcademicSemester> _semesters = [];
+  List<AcademicCourse> _courses = [];
+  @override
+  List<AcademicSemester> get semesters => List.unmodifiable(_semesters);
+  @override
+  List<AcademicCourse> get courses => List.unmodifiable(_courses);
+  Future<T> _catalogChange<T>(T Function(AcademicRecords) change) async {
+    final records = AcademicRecords(
+      tasks: _tasks,
+      semesters: _semesters,
+      courses: _courses,
+    );
+    final result = change(records);
+    records.validate();
+    _tasks
+      ..clear()
+      ..addAll(records.tasks);
+    _semesters = records.semesters;
+    _courses = records.courses;
+    notifyListeners();
+    return result;
+  }
+
+  @override
+  Future<void> saveSemester(AcademicSemester semester, {required bool isNew}) =>
+      _catalogChange((r) => r.saveSemester(semester, isNew: isNew));
+  @override
+  Future<ProformaImportResult> importProforma(
+    AcademicCourse course,
+    List<AcademicTask> tasks,
+  ) => _catalogChange((r) => r.importProforma(course, tasks));
+  @override
+  Future<void> saveCourse(AcademicCourse course, {required bool isNew}) =>
+      _catalogChange((r) => r.saveCourse(course, isNew: isNew));
+  @override
+  Future<void> deleteSemester(String id) =>
+      _catalogChange((r) => r.deleteSemester(id));
+  @override
+  Future<void> deleteCourse(String id) =>
+      _catalogChange((r) => r.deleteCourse(id));
+
   void _validate(AcademicTask task) {
+    if (task.courseId != null && courseById(task.courseId) == null) {
+      throw const FormatException('The selected course no longer exists.');
+    }
     if (task.title.trim().isEmpty ||
         task.subject.trim().isEmpty ||
         task.estimatedMinutes <= 0 ||
@@ -74,6 +121,8 @@ class MockTaskRepository extends TaskRepository {
   @override
   Future<void> add(AcademicTask task) async {
     _validate(task);
+    final course = courseById(task.courseId);
+    if (course != null) task = task.copyWith(subject: course.label);
     if (taskById(task.id) != null) {
       throw StateError('This task already exists.');
     }
@@ -84,6 +133,8 @@ class MockTaskRepository extends TaskRepository {
   @override
   Future<void> update(AcademicTask task) async {
     _validate(task);
+    final course = courseById(task.courseId);
+    if (course != null) task = task.copyWith(subject: course.label);
     final index = _tasks.indexWhere((item) => item.id == task.id);
     if (index < 0) throw StateError('This task no longer exists.');
     _tasks[index] = task;

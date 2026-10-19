@@ -19,9 +19,11 @@ You are assisting in the development of Planova, an AI-powered adaptive study pl
 - Fix errors introduced by your changes.
 
 ## Current Priority
-Prepare an interactive, polished Android prototype for the 31 October 2026 innovation showcase.
-
-Focus on the interface, navigation, and realistic demonstration flows before implementing the actual AI models or backend.
+The 31 October 2026 innovation showcase has been cancelled.
+Focus on a well-defined, functional FYP application and an evaluated planning approach.
+Clarify the student workflow, data requirements, scheduling constraints, and evaluation before expanding features.
+Keep the existing interface as a foundation and develop in small end-to-end increments.
+AI algorithms and backend integration should follow the agreed development plan; do not describe mock behavior as trained AI.
 
 ## Workflow
 - Work incrementally rather than implementing the entire application in one task.

@@ -10,6 +10,9 @@
 
 **Target Users:** University students
 
+Initial local target: Universiti Pendidikan Sultan Idris (UPSI) undergraduates in Software Engineering, Information Technology, and Creative Multimedia, using the student's supplied programme names. Official programme labels and coverage should be confirmed before research distribution.
+Faculty: Faculty of Computing & Meta-Technology, as supplied by the student.
+
 **Primary Platform:** Android, with potential future iOS support
 
 **Framework:** Flutter (Dart)
@@ -97,7 +100,7 @@ Planned development stages:
 3. Study Planning Module
 4. Dashboard, Analytics, and Refinement
 
-For the upcoming innovation showcase, interface prototyping is being prioritized as a practical demonstration milestone. This does not replace the intended full development methodology.
+The innovation showcase has been cancelled. Interface work already completed remains a foundation for full FYP development. The next priority is product definition, scheduling rules, data feasibility, and a functional baseline before AI integration. See `docs/development_plan.md` for the proposed roadmap.
 
 ## 7. Behavioral Foundation
 
@@ -109,33 +112,40 @@ Planova supports:
 - Reflecting on completed and missed activities.
 - Adjusting future study plans.
 
-## 8. Current Innovation Prototype
+## 8. Current Development Direction
 
-**Showcase Date: 31 October 2026**
+The 31 October 2026 event has been cancelled. Development is no longer driven by a showcase deadline.
 
-The immediate goal is to build a polished, interactive Flutter prototype demonstrating the intended user experience.
+Implemented foundation:
+- Flutter navigation and consistent orange, white, and black styling.
+- Academic task creation, editing, deletion, completion, and reopening.
+- Sample calendar, study sessions, and progress displays.
+- Persistent local task records, seeded once with sample tasks; edits survive restart.
+- Persistent semesters (name and dates) and courses (code, name, semester ID), managed under Tasks. Tasks may link to a course or retain a manual subject. Existing records upgrade without guessed course links; referenced records cannot be deleted.
+- Sample study data remains separate from saved tasks. Storage startup failures offer retry without resetting records.
+- Narrow local proforma import: text extraction for the inspected bilingual UPSI Course Info / assessment template, editable course/task review, explicit deadlines and effort, source references, atomic save, and duplicate-row protection on repeat import. No OCR, topic extraction, backend, or trained AI is used.
 
-Prototype priorities:
-- Professional interface and coherent design system.
-- Dashboard and academic task overview.
-- Task creation and management.
-- Priority ranking visualization.
-- Generated study schedule demonstration.
-- Calendar interface.
-- Simulated adaptive rescheduling when a study session is missed.
-- Simple progress analytics.
+Not yet implemented:
+- Real schedule generation and adaptive rescheduling.
+- Broader proforma formats, OCR, and weekly topic/workload extraction.
+- Trained task ranking, Python API, and Firebase.
 
-Use realistic mock data and local prototype logic where necessary.
+A supervisor suggested importing course proformas to reduce manual setup and inform study planning. The student has chosen this as a central workflow for their own university's students. Exact extraction scope needs confirmation with representative documents. A proforma may not contain exact deadlines or class times; extracted drafts must be reviewed before becoming confirmed tasks. University-specific fit is the intended contribution; document upload alone should not be claimed as unique among all existing planners.
 
-**Important:** Do not represent mock prioritization or simulated rescheduling as completed LambdaMART or GA implementations. Clearly distinguish prototype behavior from production AI functionality.
+The intended scheduling target is the student's personal study sessions around fixed commitments, not changing the university's official timetable. Confirm this scope with the supervisor.
 
-Full AI model training, backend deployment, and Firebase integration can be implemented in later development stages.
+Current priority (20 October 2026): the student has paused new functionality to refine UI/UX. Today, Tasks, shared typography/buttons/cards, and sample-data labels have been refined. Add/Edit Task now puts the title first, groups related fields, explains total versus remaining effort, collapses optional notes, and keeps Save above the keyboard. Existing task data, validation, and save behavior are preserved. Proforma review now uses Course, Assessments, and Confirm steps with persistent actions, expandable extraction notes and source evidence, and a final import summary. Existing validation, explicit deadlines/effort, atomic save and duplicate protection are preserved. Courses & semesters now has a compact academic summary, clearer semester/course hierarchy, prominent import/add actions, and overflow menus for edit/delete. Course and semester forms keep Save above the keyboard. Existing record protection and task links are preserved. Task details now separates remaining work and recorded progress from manual completion, groups deadline and settings, collapses notes/source evidence, and keeps primary actions above notifications. Deletion remains confirmed in an overflow menu. The final UI consistency pass improves selected-calendar contrast, 48-pixel date/text/icon-button targets, calendar screen-reader labels, progress wording, larger-text heading/header wrapping, and selectable source evidence. Main-tab accessibility guideline and double-text-size regressions are covered; full assistive-technology/device evaluation remains future work. Project organization: runtime branding is in `assets/branding/`, supporting documents in `docs/`, tests grouped by app/data/feature/service with `test/support/` fixtures, and clock/formatting/error helpers separated in `lib/core/`. See `docs/project_structure.md`. Functional development follows the roadmap when resumed; algorithm selections remain proposed pending data feasibility and supervisor requirements.
+
+The student has confirmed that the ranking target is students' stated task-priority choices. These labels are not an objective ground truth for optimal academic decisions or improved grades. Local proformas and an academic calendar have been supplied in `research/`. Draft collection materials and source review are in `research/data_collection/`; they are local research files, excluded from Git, and no live questionnaire has been published.
+
+Clearly distinguish mock behavior, rule-based baselines, trained ranking, and scheduling optimization throughout development.
 
 ## 9. Product Direction
 
 Planova should feel like a modern student productivity application.
 
 Design principles:
+- Use black selectively for one focal summary/action panel on a screen, with white text, muted light secondary text, and orange accents. Keep routine cards, forms, lists, and page backgrounds light; avoid turning every section black.
 - Clean, modern, polished, and intuitive.
 - Student-friendly but professional.
 - Consistent typography, spacing, navigation, and color system.
@@ -144,7 +154,7 @@ Design principles:
 - Support for light and dark themes where practical.
 - Meaningful empty, loading, and success states.
 
-The interface should make task prioritization and adaptive scheduling easy to understand, especially during a live demonstration.
+The interface should make task prioritization and adaptive scheduling easy to understand, during everyday use.
 
 ## 10. Important Constraints
 

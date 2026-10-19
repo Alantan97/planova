@@ -1,28 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:planova/app/app_dependencies.dart';
-import 'package:planova/main.dart';
+import 'package:planova/app/planova_app.dart';
+import 'package:planova/core/theme/app_theme.dart';
+import 'package:planova/features/tasks/screens/task_details_screen.dart';
 
-Future<void> tapVisible(WidgetTester tester, Finder finder) async {
-  FocusManager.instance.primaryFocus?.unfocus();
-  await tester.pumpAndSettle();
-  if (finder.evaluate().isEmpty) {
-    await tester.scrollUntilVisible(
-      finder,
-      300,
-      scrollable: find
-          .byWidgetPredicate(
-            (widget) =>
-                widget is Scrollable && widget.restorationId != 'editable',
-          )
-          .last,
-    );
-  }
-  await tester.ensureVisible(finder);
-  await tester.pumpAndSettle();
-  await tester.tap(finder);
-  await tester.pumpAndSettle();
-}
+import '../../support/widget_actions.dart';
 
 void main() {
   testWidgets(
@@ -73,10 +56,12 @@ void main() {
       await tapVisible(tester, find.text('Review related work'));
       await tapVisible(tester, find.text('Mark active'));
       expect(dependencies.tasks.tasks.last.isCompleted, isFalse);
+      await tapVisible(tester, find.byTooltip('Task options'));
       await tapVisible(tester, find.text('Delete task'));
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       expect(dependencies.tasks.tasks.length, 6);
+      await tapVisible(tester, find.byTooltip('Task options'));
       await tapVisible(tester, find.text('Delete task'));
       await tester.tap(find.text('Delete'));
       await tester.pumpAndSettle();
@@ -124,6 +109,65 @@ void main() {
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();
       expect(dependencies.tasks.tasks.length, 5);
+    },
+  );
+
+  testWidgets(
+    'Task details fit larger text and completion preserves recorded time',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 740);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final dependencies = AppDependencies.demo();
+      addTearDown(dependencies.close);
+      final task = dependencies.tasks.taskById('database')!;
+      await dependencies.tasks.update(
+        task.copyWith(
+          title: 'Prepare and review the database assignment before submission',
+          deadline: DateTime(2026, 10, 13),
+          description: 'Review the query examples and confirm the submission requirements.',
+        ),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildPlanovaTheme(),
+          home: TaskDetailsScreen(
+            repository: dependencies.tasks,
+            clock: dependencies.clock,
+            taskId: task.id,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.text('OVERDUE'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('3h remaining'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tapVisible(tester, find.text('Notes'));
+      expect(
+        find.text(
+          'Review the query examples and confirm the submission requirements.',
+        ),
+        findsOneWidget,
+      );
+      await tapVisible(tester, find.text('Mark complete'));
+      await tester.scrollUntilVisible(
+        find.text('Task completed'),
+        -200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('Marked complete'), findsOneWidget);
+      expect(dependencies.tasks.taskById(task.id)!.completedMinutes, 60);
+      await tapVisible(tester, find.text('Mark active'));
+      expect(dependencies.tasks.taskById(task.id)!.isCompleted, isFalse);
+      expect(dependencies.tasks.taskById(task.id)!.completedMinutes, 60);
+      expect(tester.takeException(), isNull);
     },
   );
 

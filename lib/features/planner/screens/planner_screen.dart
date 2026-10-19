@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../../../core/time/demo_clock.dart';
+import '../../../core/time/date_time_helpers.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../core/widgets/session_widgets.dart';
 import '../view_models/planner_view_model.dart';
@@ -81,13 +81,18 @@ class PlannerScreen extends StatelessWidget {
                 final selected = viewModel.selectedDay == index;
                 final hasSession = viewModel.hasSessions(index);
                 return SizedBox(
-                  width: ((constraints.maxWidth - 24) / 7).clamp(44.0, 88.0),
+                  width: ((constraints.maxWidth - 24) / 7).clamp(48.0, 88.0),
                   child: Semantics(
+                    button: true,
                     selected: selected,
+                    excludeSemantics: true,
+                    onTap: () => viewModel.selectDay(index),
                     label:
-                        '${weekdays[index]} ${day.day} ${months[day.month - 1]}',
+                        '${weekdays[index]}, ${day.day} ${months[day.month - 1]} ${day.year}${hasSession ? ', has sample sessions' : ''}',
                     child: Material(
-                      color: selected ? planovaOrange : const Color(0xFFF5F5F5),
+                      color: selected
+                          ? planovaActionOrange
+                          : const Color(0xFFF5F5F5),
                       borderRadius: BorderRadius.circular(16),
                       child: InkWell(
                         key: ValueKey('day-$index'),
@@ -143,7 +148,7 @@ class PlannerScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
-        Panel(
+        FeaturedPanel(
           child: Row(
             children: [
               const Icon(Icons.auto_stories_outlined, color: planovaOrange),
@@ -161,8 +166,12 @@ class PlannerScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      'Fixed commitments shown separately',
-                      style: TextStyle(color: planovaMuted, fontSize: 12),
+                      'Sample plan · Fixed commitments shown separately',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
                     ),
                   ],
                 ),

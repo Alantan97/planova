@@ -66,7 +66,7 @@ void showSessionDetails(BuildContext context, StudySession session) {
               width: double.infinity,
               child: FilledButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Back to schedule'),
+                child: const Text('Close preview'),
               ),
             ),
           ],
@@ -80,109 +80,67 @@ class NextSessionCard extends StatelessWidget {
   const NextSessionCard(this.session, {super.key});
   final StudySession session;
   @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    clipBehavior: Clip.antiAlias,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      border: Border.all(color: const Color(0xFFE6E6E6)),
-      borderRadius: BorderRadius.circular(24),
-    ),
+  Widget build(BuildContext context) => FeaturedPanel(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: planovaInk,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.bolt_rounded, size: 18, color: planovaOrange),
-                    SizedBox(width: 6),
-                    Text(
-                      'UP NEXT',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 11,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
+        const Row(
+          children: [
+            Icon(Icons.bolt_rounded, size: 20, color: planovaOrange),
+            SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'Sample study session',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 22),
-              Text(
-                session.subject,
-                style: const TextStyle(
-                  color: planovaMuted,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                session.title,
-                style: const TextStyle(
-                  fontSize: 27,
-                  height: 1.15,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.6,
-                ),
-              ),
-              const SizedBox(height: 18),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.schedule_rounded,
-                    size: 17,
-                    color: planovaOrange,
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      '${session.time} · ${session.minutes} min',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text(
+          session.title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            height: 1.2,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.4,
           ),
         ),
-        Container(
-          width: double.infinity,
-          color: planovaInk,
-          padding: const EdgeInsets.all(16),
-          child: FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: planovaOrange,
-              foregroundColor: planovaOnOrange,
-            ),
-            onPressed: () => showSessionDetails(context, session),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Text(
-                    'View session',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
+        const SizedBox(height: 6),
+        Text(
+          session.subject,
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            const Icon(Icons.schedule_rounded, size: 18, color: planovaOrange),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                '${session.time} · ${session.minutes} min',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
-                SizedBox(width: 10),
-                Icon(Icons.arrow_forward_rounded, size: 18),
-              ],
+              ),
             ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: () => showSessionDetails(context, session),
+            iconAlignment: IconAlignment.end,
+            icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+            label: const Text('View session'),
           ),
         ),
       ],

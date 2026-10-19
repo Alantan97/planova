@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../core/widgets/study_components.dart';
+import '../core/time/date_time_helpers.dart';
+import '../core/theme/app_theme.dart';
+
 import '../features/today/screens/today_screen.dart';
 import '../features/today/view_models/today_view_model.dart';
 import '../features/planner/screens/planner_screen.dart';
@@ -59,9 +61,11 @@ class _AppShellState extends State<AppShell> {
               controller: _scrollControllers[_tab],
               primary: false,
               slivers: [
-                const SliverToBoxAdapter(child: _BrandHeader()),
+                SliverToBoxAdapter(
+                  child: _BrandHeader(date: widget.dependencies.clock.now()),
+                ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                   sliver: SliverToBoxAdapter(
                     child: switch (_tab) {
                       0 => TodayScreen(
@@ -99,21 +103,25 @@ class _AppShellState extends State<AppShell> {
           onDestinationSelected: (index) => setState(() => _tab = index),
           destinations: const [
             NavigationDestination(
+              tooltip: '',
               icon: Icon(Icons.wb_sunny_outlined),
               selectedIcon: Icon(Icons.wb_sunny_rounded),
               label: 'Today',
             ),
             NavigationDestination(
+              tooltip: '',
               icon: Icon(Icons.assignment_outlined),
               selectedIcon: Icon(Icons.assignment_rounded),
               label: 'Tasks',
             ),
             NavigationDestination(
+              tooltip: '',
               icon: Icon(Icons.calendar_month_outlined),
               selectedIcon: Icon(Icons.calendar_month_rounded),
               label: 'Plan',
             ),
             NavigationDestination(
+              tooltip: '',
               icon: Icon(Icons.pie_chart_outline_rounded),
               selectedIcon: Icon(Icons.pie_chart_rounded),
               label: 'Progress',
@@ -126,27 +134,49 @@ class _AppShellState extends State<AppShell> {
 }
 
 class _BrandHeader extends StatelessWidget {
-  const _BrandHeader();
+  const _BrandHeader({required this.date});
+  final DateTime date;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+    padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
     child: Row(
       children: [
         Expanded(
           child: Align(
             alignment: Alignment.centerLeft,
             child: Image.asset(
-              'planova full title black.png',
-              width: 190,
-              height: 40,
+              'assets/branding/planova_wordmark_black.png',
+              width: 144,
+              height: 30,
               fit: BoxFit.contain,
               alignment: Alignment.centerLeft,
               semanticLabel: 'Planova logo',
             ),
           ),
         ),
-        const SizedBox(width: 16),
-        const DemoTag('DEMO'),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const Text(
+                'Preview date',
+                textAlign: TextAlign.right,
+                style: TextStyle(color: planovaMuted, fontSize: 11),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${date.day} ${months[date.month - 1]} ${date.year}',
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                  color: planovaInk,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     ),
   );
