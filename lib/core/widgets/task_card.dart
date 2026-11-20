@@ -4,6 +4,19 @@ import '../../models/academic_task.dart';
 import '../theme/app_theme.dart';
 import '../time/date_time_helpers.dart';
 
+/// "Today · 13:00", "Tomorrow", "21 October" or "No due date yet".
+/// Shared by task cards and the compact rows on the Courses tab.
+String dueDateLabel(BuildContext context, AcademicTask task, DateTime now) {
+  final deadline = task.deadline;
+  if (deadline == null) return 'No due date yet';
+  if (DateUtils.isSameDay(deadline, now)) {
+    return 'Today · ${TimeOfDay.fromDateTime(deadline).format(context)}';
+  }
+  final tomorrow = DateTime(now.year, now.month, now.day + 1);
+  if (DateUtils.isSameDay(deadline, tomorrow)) return 'Tomorrow';
+  return '${deadline.day} ${months[deadline.month - 1]}${deadline.year != now.year ? ' ${deadline.year}' : ''}';
+}
+
 class TaskCard extends StatelessWidget {
   const TaskCard({
     super.key,
@@ -15,16 +28,7 @@ class TaskCard extends StatelessWidget {
   final DateTime now;
   final VoidCallback onTap;
 
-  String _deadline(BuildContext context) {
-    final deadline = task.deadline;
-    if (deadline == null) return 'No due date yet';
-    if (DateUtils.isSameDay(deadline, now)) {
-      return 'Today · ${TimeOfDay.fromDateTime(deadline).format(context)}';
-    }
-    final tomorrow = DateTime(now.year, now.month, now.day + 1);
-    if (DateUtils.isSameDay(deadline, tomorrow)) return 'Tomorrow';
-    return '${deadline.day} ${months[deadline.month - 1]}${deadline.year != now.year ? ' ${deadline.year}' : ''}';
-  }
+  String _deadline(BuildContext context) => dueDateLabel(context, task, now);
 
   @override
   Widget build(BuildContext context) {

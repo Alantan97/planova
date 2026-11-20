@@ -71,7 +71,7 @@ void main() {
     expect(find.text('Needs your input · 1'), findsOneWidget);
     expect(find.text('DES3113 · no due date yet'), findsOneWidget);
 
-    await tester.tap(find.text('Tasks'));
+    await tester.tap(find.text('Courses'));
     await tester.pumpAndSettle();
     await tapVisible(tester, find.text('Final exam revision'));
     expect(find.text('Not set yet'), findsOneWidget);

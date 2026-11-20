@@ -15,7 +15,7 @@ void main() {
       addTearDown(dependencies.tasks.dispose);
       await tester.pumpWidget(MyApp(dependencies: dependencies));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Tasks'));
+      await tester.tap(find.text('Courses'));
       await tester.pumpAndSettle();
       await tapVisible(tester, find.text('Add task'));
       await tester.enterText(
@@ -48,7 +48,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('2 of 6 tasks completed'), findsOneWidget);
       expect(find.textContaining('3h 30m', findRichText: true), findsOneWidget);
-      await tester.tap(find.text('Tasks'));
+      await tester.tap(find.text('Courses'));
       await tester.pumpAndSettle();
       await tapVisible(tester, find.text('Review related work'));
       await tapVisible(tester, find.text('Mark active'));
@@ -81,7 +81,7 @@ void main() {
       addTearDown(dependencies.tasks.dispose);
       await tester.pumpWidget(MyApp(dependencies: dependencies));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Tasks'));
+      await tester.tap(find.text('Courses'));
       await tester.pumpAndSettle();
       await tapVisible(tester, find.text('Add task'));
       await tapVisible(tester, find.text('Save task'));

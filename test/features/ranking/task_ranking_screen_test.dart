@@ -29,7 +29,7 @@ void main() {
       }
       await tester.pumpWidget(MyApp(dependencies: dependencies));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Tasks'));
+      await tester.tap(find.text('Courses'));
       await tester.pumpAndSettle();
       await tapVisible(tester, find.byKey(const ValueKey('open-task-ranking')));
       expect(find.text('EXPERIMENTAL RANKING'), findsOneWidget);

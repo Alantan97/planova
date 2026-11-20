@@ -17,7 +17,7 @@ AcademicSemester semester(String id) => AcademicSemester(
 Future<void> pumpTasksTab(WidgetTester tester, AppDependencies d) async {
   await tester.pumpWidget(MyApp(dependencies: d));
   await tester.pumpAndSettle();
-  await tester.tap(find.text('Tasks'));
+  await tester.tap(find.text('Courses'));
   await tester.pumpAndSettle();
 }
 

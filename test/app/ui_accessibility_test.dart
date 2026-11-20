@@ -17,7 +17,7 @@ void main() {
         addTearDown(dependencies.close);
         await tester.pumpWidget(MyApp(dependencies: dependencies));
         await tester.pumpAndSettle();
-        for (final tab in ['Today', 'Tasks', 'Plan', 'Progress']) {
+        for (final tab in ['Today', 'Courses', 'Plan', 'Progress']) {
           await tester.tap(find.text(tab));
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull, reason: tab);
@@ -64,7 +64,7 @@ void main() {
       addTearDown(dependencies.close);
       await tester.pumpWidget(MyApp(dependencies: dependencies));
       await tester.pumpAndSettle();
-      for (final tab in ['Today', 'Tasks', 'Plan', 'Progress']) {
+      for (final tab in ['Today', 'Courses', 'Plan', 'Progress']) {
         await tester.tap(find.text(tab));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: tab);
@@ -75,7 +75,7 @@ void main() {
       for (final task in dependencies.tasks.tasks.toList()) {
         await dependencies.tasks.delete(task.id);
       }
-      await tester.tap(find.text('Tasks'));
+      await tester.tap(find.text('Courses'));
       await tester.pumpAndSettle();
       await tester.drag(find.byType(CustomScrollView), const Offset(0, 2000));
       await tester.pumpAndSettle();

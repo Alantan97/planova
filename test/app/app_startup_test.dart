@@ -10,11 +10,11 @@ void main() {
     final completer = Completer<AppDependencies>();
     await tester.pumpWidget(MyApp(loadDependencies: () => completer.future));
     expect(find.text('Opening Planova…'), findsOneWidget);
-    expect(find.text('Tasks'), findsNothing);
+    expect(find.text('Courses'), findsNothing);
     completer.complete(AppDependencies.demo());
     await tester.pumpAndSettle();
     expect(find.text('Today'), findsOneWidget);
-    expect(find.text('Tasks'), findsOneWidget);
+    expect(find.text('Courses'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 
@@ -34,10 +34,10 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Could not open saved tasks'), findsOneWidget);
-      expect(find.text('Tasks'), findsNothing);
+      expect(find.text('Courses'), findsNothing);
       await tester.tap(find.text('Retry'));
       await tester.pumpAndSettle();
-      expect(find.text('Tasks'), findsOneWidget);
+      expect(find.text('Courses'), findsOneWidget);
       expect(attempts, 2);
       await tester.pumpWidget(const SizedBox());
     },

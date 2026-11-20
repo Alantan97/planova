@@ -6,9 +6,10 @@ Read `PLANOVA_CONTEXT.md` for the product direction and `AGENTS.md` for developm
 ## Current prototype
 
 - Today: a Get started checklist that opens the guided setup (semester → course proformas → weekly availability, resumable, "Finish later" keeps what was saved), a "Needs your input" list of tasks without a due date (a small sheet adds the date and time estimate), the next deadline, and sample sessions in the demo build only.
-- Tasks: add, edit, delete, complete, and reopen academic tasks with validated forms.
-- Prioritize tasks (under Tasks): experimental on-device LambdaMART ranking using confirmed assessment percentages, calendar days until due, and work remaining. Ineligible tasks remain visible for review.
-- Courses & semesters (under Tasks): add/edit semesters and courses, select a course for a task, and explicitly change or unlink that relationship.
+- Tasks (on the Courses tab): add, edit, delete, complete, and reopen academic tasks with validated forms.
+- Courses tab (replaces the former Tasks tab): every task grouped under its course, or under its typed subject when not linked, with per-course progress, compact rows (due date, "Needs a due date", time left), and "Add task to this course". Import proforma and Prioritize sit at the top.
+- Prioritize (on the Courses tab): experimental on-device LambdaMART ranking using confirmed assessment percentages, calendar days until due, and work remaining. Ineligible tasks remain visible for review.
+- Courses & semesters (link at the bottom of the Courses tab): add/edit semesters and courses, select a course for a task, and explicitly change or unlink that relationship.
 - Proforma import (Tasks → Import proforma): choose a supported text-based UPSI PDF and check the assessments. Time estimates are pre-filled from the proforma's printed study hours; due dates are optional and can be added later. Tasks without a due date show "No due date yet" and are not ranked.
 - Plan: browse days and weeks; inspect study sessions and fixed commitments.
 - Weekly availability (under Plan): add, edit and delete recurring study windows and commitments such as classes, clubs, work or personal time. Shows free study time per week and per day (study windows minus commitments). Saved locally; no sessions are generated from it yet.

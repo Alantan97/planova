@@ -85,7 +85,7 @@ void main() {
     expect(find.text('A little breathing room.'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
-    for (final tab in ['Tasks', 'Progress']) {
+    for (final tab in ['Courses', 'Progress']) {
       await tester.tap(find.text(tab));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -104,7 +104,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('day-3')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Tasks'));
+    await tester.tap(find.text('Courses'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Plan'));
     await tester.pumpAndSettle();
@@ -120,9 +120,12 @@ void main() {
     addTearDown(dependencies.tasks.dispose);
     await tester.pumpWidget(MyApp(dependencies: dependencies));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Tasks'));
+    await tester.tap(find.text('Courses'));
     await tester.pumpAndSettle();
     expect(find.text('4 active · 1 completed'), findsOneWidget);
+    // Tasks are grouped by course now, so the row may sit below the fold.
+    await tester.ensureVisible(find.text('Database assignment'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Database assignment'));
     await tester.pumpAndSettle();
     expect(find.text('ACADEMIC TASK'), findsOneWidget);

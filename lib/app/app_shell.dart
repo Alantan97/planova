@@ -7,7 +7,7 @@ import '../features/today/screens/today_screen.dart';
 import '../features/today/view_models/today_view_model.dart';
 import '../features/planner/screens/planner_screen.dart';
 import '../features/planner/view_models/planner_view_model.dart';
-import '../features/tasks/screens/tasks_screen.dart';
+import '../features/courses/screens/course_overview_screen.dart';
 import '../features/progress/screens/progress_screen.dart';
 import 'app_dependencies.dart';
 
@@ -76,7 +76,7 @@ class _AppShellState extends State<AppShell> {
                         availability: widget.dependencies.availability,
                         onViewPlan: _viewPlan,
                       ),
-                      1 => TasksScreen(
+                      1 => CourseOverviewScreen(
                         repository: widget.dependencies.tasks,
                         clock: widget.dependencies.clock,
                         ranking: widget.dependencies.ranking,
@@ -120,9 +120,9 @@ class _AppShellState extends State<AppShell> {
             ),
             NavigationDestination(
               tooltip: '',
-              icon: Icon(Icons.assignment_outlined),
-              selectedIcon: Icon(Icons.assignment_rounded),
-              label: 'Tasks',
+              icon: Icon(Icons.school_outlined),
+              selectedIcon: Icon(Icons.school_rounded),
+              label: 'Courses',
             ),
             NavigationDestination(
               tooltip: '',
