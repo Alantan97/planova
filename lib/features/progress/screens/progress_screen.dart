@@ -24,21 +24,13 @@ class ProgressScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Eyebrow('NOTICE HOW FAR YOU HAVE COME'),
-        const SizedBox(height: 10),
-        Text(
-          'Small steps add up.',
-          style: Theme.of(context).textTheme.headlineMedium
-              ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -1),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          samples
+        PageHeading(
+          title: 'Your progress',
+          subtitle: samples
               ? 'A snapshot of your sample study week.'
-              : 'A snapshot of your saved tasks.',
-          style: const TextStyle(color: planovaMuted, fontSize: 16),
+              : 'Small steps add up.',
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
         if (samples)
           ProgressSummary(
             featured: true,
@@ -98,7 +90,7 @@ class ProgressScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Across your saved tasks. Completing a task does not add study hours.',
+                'Across your saved tasks.',
                 style: TextStyle(color: planovaMuted),
               ),
             ],

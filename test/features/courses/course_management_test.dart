@@ -100,7 +100,7 @@ void main() {
         find.byKey(const ValueKey('task-title')),
         'Exercise 3',
       );
-      await tester.enterText(find.byKey(const ValueKey('task-duration')), '30');
+      await enterEffort(tester, 'task-duration', minutes: '30');
       await tapVisible(tester, find.text('Save task'));
       final task = dependencies.tasks.tasks.last;
       expect(task.courseId, dependencies.tasks.courses.single.id);

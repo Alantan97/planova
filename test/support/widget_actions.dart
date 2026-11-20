@@ -21,3 +21,15 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   await tester.tap(finder);
   await tester.pumpAndSettle();
 }
+
+/// Fills an EffortField (hours + minutes boxes) identified by its fieldKey.
+Future<void> enterEffort(
+  WidgetTester tester,
+  String fieldKey, {
+  String hours = '',
+  String minutes = '',
+}) async {
+  await tester.enterText(find.byKey(ValueKey('$fieldKey-hours')), hours);
+  await tester.enterText(find.byKey(ValueKey('$fieldKey-minutes')), minutes);
+  await tester.pump();
+}

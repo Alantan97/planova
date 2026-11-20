@@ -269,10 +269,7 @@ void main() {
         find.byKey(const ValueKey('import-weight-0')),
         '35.5',
       );
-      await tester.enterText(
-        find.byKey(const ValueKey('import-minutes-0')),
-        '30',
-      );
+      await enterEffort(tester, 'import-minutes-0', minutes: '30');
       await tapVisible(tester, find.text('Review import'));
       expect(find.text('STEP 2 OF 3 · NOTHING SAVED YET'), findsOneWidget);
       expect(dependencies.tasks.tasks.length, 5);
@@ -286,11 +283,14 @@ void main() {
       expect(dependencies.tasks.courses, isEmpty);
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('import-minutes-0')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('import-minutes-0-minutes')),
+        findsOneWidget,
+      );
       expect(
         tester
-            .widget<TextFormField>(
-              find.byKey(const ValueKey('import-minutes-0')),
+            .widget<TextField>(
+              find.byKey(const ValueKey('import-minutes-0-minutes')),
             )
             .controller!
             .text,

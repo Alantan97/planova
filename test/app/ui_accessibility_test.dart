@@ -80,7 +80,7 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, 2000));
       await tester.pumpAndSettle();
       expect(
-        find.text('A fresh start. Add your first academic task.'),
+        find.textContaining('A fresh start.'),
         findsOneWidget,
       );
       expect(find.text('Add task'), findsOneWidget);

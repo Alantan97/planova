@@ -26,10 +26,7 @@ void main() {
         find.byKey(const ValueKey('task-subject')),
         'Final Year Project',
       );
-      await tester.enterText(
-        find.byKey(const ValueKey('task-duration')),
-        '120',
-      );
+      await enterEffort(tester, 'task-duration', hours: '2');
       tester.testTextInput.hide();
       await tapVisible(tester, find.text('Save task'));
       expect(dependencies.tasks.tasks.length, 6);
@@ -93,8 +90,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Enter a task title.'), findsOneWidget);
       await tester.enterText(find.byKey(const ValueKey('task-title')), '   ');
-      await tester.ensureVisible(find.byKey(const ValueKey('task-duration')));
-      await tester.enterText(find.byKey(const ValueKey('task-duration')), '0');
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('task-duration-hours')),
+      );
+      await enterEffort(tester, 'task-duration', hours: '0', minutes: '0');
       tester.view.viewInsets = const FakeViewPadding(bottom: 280);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -102,9 +101,14 @@ void main() {
       tester.testTextInput.hide();
       await tapVisible(tester, find.text('Save task'));
       expect(dependencies.tasks.tasks.length, 5);
-      await tester.ensureVisible(find.byKey(const ValueKey('task-duration')));
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('task-duration-hours')),
+      );
       await tester.pumpAndSettle();
-      expect(find.text('Enter 1–10080 minutes.'), findsOneWidget);
+      expect(
+        find.text('Enter a time from 1 minute to 168 hours.'),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();

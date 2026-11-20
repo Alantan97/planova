@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../core/errors/academic_save_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/time/app_clock.dart';
 import '../../../core/time/date_time_helpers.dart';
+import '../../../core/widgets/effort_field.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../data/repositories/task_repository.dart';
 import '../../../models/academic_course.dart';
@@ -583,7 +583,7 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '${_selected.length} new ${_selected.length == 1 ? 'task' : 'tasks'} · ${_selected.fold<int>(0, (sum, row) => sum + (int.tryParse(row.minutes.text) ?? 0))} min remaining',
+              '${_selected.length} new ${_selected.length == 1 ? 'task' : 'tasks'} · ${formatDuration(_selected.fold<int>(0, (sum, row) => sum + (int.tryParse(row.minutes.text) ?? 0)))} remaining',
               style: const TextStyle(color: Colors.white70),
             ),
           ],
@@ -622,7 +622,7 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
                     style: const TextStyle(color: planovaMuted, height: 1.5),
                   ),
                 Text(
-                  '${row.minutes.text} min remaining · ${row.difficulty.name} · ${row.importance.name} importance',
+                  '${formatDuration(int.tryParse(row.minutes.text) ?? 0)} remaining · ${row.difficulty.name} · ${row.importance.name} importance',
                   style: const TextStyle(color: planovaMuted, height: 1.5),
                 ),
                 Text(
@@ -733,22 +733,14 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                key: ValueKey('import-minutes-$index'),
+              EffortField(
+                fieldKey: 'import-minutes-$index',
                 controller: row.minutes,
                 enabled: !_saving,
-                decoration: const InputDecoration(
-                  labelText: 'Work remaining (minutes)',
-                  hintText: 'Your estimate, e.g. 30',
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator: (text) {
-                  final value = int.tryParse(text ?? '');
-                  return value == null || value < 1 || value > 10080
-                      ? 'Enter 1–10080 minutes.'
-                      : null;
-                },
+                label: 'Work remaining',
+                helper: 'Your estimate. The proforma does not include this.',
+                validate: validateEffort,
+                onChanged: () => setState(() {}),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(

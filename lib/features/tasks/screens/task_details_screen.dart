@@ -257,7 +257,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                                       secondary:
                                           task.assessmentWeightPercent == null
                                           ? 'Add it in Edit task to use experimental ranking.'
-                                          : 'Confirmed task value. Original PDF evidence is kept separately.',
+                                          : 'Confirmed by you.',
                                     ),
                                   ],
                                 ),
@@ -420,7 +420,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Marking complete changes the status without adding study time.',
+            'Marking complete does not add study time.',
             style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.5),
           ),
         ],

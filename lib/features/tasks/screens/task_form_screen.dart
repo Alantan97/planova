@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/effort_field.dart';
 import '../../../core/time/app_clock.dart';
 import '../../../core/time/date_time_helpers.dart';
 import '../../../data/repositories/task_repository.dart';
@@ -190,16 +190,10 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
         )
       : null;
 
-  String? _validateMinutes(String? value) {
-    final duration = int.tryParse(value ?? '');
-    if (duration == null || duration < 1 || duration > 10080) {
-      return 'Enter 1–10080 minutes.';
-    }
-    if (duration < (widget.task?.completedMinutes ?? 0)) {
-      return 'Must cover the ${widget.task!.completedMinutes} minutes already recorded.';
-    }
-    return null;
-  }
+  String? _validateMinutes(String? value) => validateEffort(
+    int.tryParse(value ?? ''),
+    recorded: widget.task?.completedMinutes ?? 0,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -369,25 +363,18 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                                   ),
                                 ),
                               const SizedBox(height: 20),
-                              TextFormField(
-                                key: const ValueKey('task-duration'),
+                              EffortField(
+                                fieldKey: 'task-duration',
                                 controller: _minutes,
                                 focusNode: _minutesFocus,
                                 enabled: !_saving,
-                                decoration: _decoration(
-                                  'Total estimated time (minutes)',
-                                  hint: 'e.g. 30',
-                                  helper: recorded > 0
-                                      ? 'Include the $recorded minutes already recorded in this total.'
-                                      : 'Your total time estimate. For example, 30 minutes is half an hour.',
-                                ),
-                                keyboardType: TextInputType.number,
-                                textInputAction: TextInputAction.done,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                                validator: _validateMinutes,
-                                onChanged: (_) => setState(() {}),
+                                label: 'Total estimated time',
+                                helper: recorded > 0
+                                    ? 'Include the ${formatDuration(recorded)} already recorded in this total.'
+                                    : 'Your best guess for the whole task. You can change it later.',
+                                validate: (_) =>
+                                    _validateMinutes(_minutes.text),
+                                onChanged: () => setState(() {}),
                               ),
                               if (recorded > 0 &&
                                   total != null &&
@@ -425,8 +412,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                                   helper:
                                       widget.task?.source?.assessmentWeight ==
                                           null
-                                      ? 'Percentage of the course grade. Needed for experimental ranking. Leave blank if unknown.'
-                                      : 'Extracted from PDF: ${widget.task!.source!.assessmentWeight}%. Check it and enter the confirmed value here. The original source is kept.',
+                                      ? 'How much this counts towards your course grade. Leave blank if unknown.'
+                                      : 'Your proforma says ${widget.task!.source!.assessmentWeight}%. Check it and correct it if needed.',
                                 ),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {

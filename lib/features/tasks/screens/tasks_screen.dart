@@ -8,6 +8,7 @@ import '../../../core/time/app_clock.dart';
 import 'task_details_screen.dart';
 import 'task_form_screen.dart';
 import '../../courses/screens/courses_screen.dart';
+import '../../courses/start_proforma_import.dart';
 import '../../ranking/screens/task_ranking_screen.dart';
 import '../../../services/ranking/task_ranking_service.dart';
 
@@ -105,25 +106,39 @@ class TasksScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        OutlinedButton.icon(
-          key: const ValueKey('open-task-ranking'),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (_) => TaskRankingScreen(
-                repository: repository,
-                clock: clock,
-                service: ranking,
-              ),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            OutlinedButton.icon(
+              key: const ValueKey('tasks-import-proforma'),
+              onPressed: () => startProformaImport(context, repository, clock),
+              icon: const Icon(Icons.upload_file_outlined),
+              label: const Text('Import proforma'),
             ),
-          ),
-          icon: const Icon(Icons.sort_rounded),
-          label: const Text('Prioritize tasks · experimental'),
+            OutlinedButton.icon(
+              key: const ValueKey('open-task-ranking'),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => TaskRankingScreen(
+                    repository: repository,
+                    clock: clock,
+                    service: ranking,
+                  ),
+                ),
+              ),
+              icon: const Icon(Icons.sort_rounded),
+              label: const Text('Prioritize · experimental'),
+            ),
+          ],
         ),
         const SizedBox(height: 20),
         if (tasks.isEmpty)
           const Panel(
-            child: Text('A fresh start. Add your first academic task.'),
+            child: Text(
+              'A fresh start. Import a course proforma to bring in its assessments, or add a task yourself.',
+            ),
           )
         else
           ...tasks.map(
@@ -135,7 +150,7 @@ class TasksScreen extends StatelessWidget {
           ),
         const SizedBox(height: 12),
         const Text(
-          'Tasks are saved locally. The study schedule and study-time totals are still sample data.',
+          'Tasks are saved on this device.',
           style: TextStyle(color: planovaMuted, fontSize: 12, height: 1.5),
         ),
       ],

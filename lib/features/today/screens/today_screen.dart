@@ -8,7 +8,7 @@ import '../../../core/widgets/progress_summary.dart';
 import '../../../data/repositories/availability_repository.dart';
 import '../view_models/today_view_model.dart';
 import '../widgets/get_started_card.dart';
-import '../../courses/screens/courses_screen.dart';
+import '../../courses/start_proforma_import.dart';
 import '../../tasks/screens/task_details_screen.dart';
 import '../../tasks/screens/task_form_screen.dart';
 
@@ -127,14 +127,10 @@ class _NoTasksPanel extends StatelessWidget {
           children: [
             FilledButton.icon(
               key: const ValueKey('today-import-proforma'),
-              onPressed: () => Navigator.push(
+              onPressed: () => startProformaImport(
                 context,
-                MaterialPageRoute<void>(
-                  builder: (_) => CoursesScreen(
-                    repository: viewModel.taskRepository,
-                    clock: viewModel.clock,
-                  ),
-                ),
+                viewModel.taskRepository,
+                viewModel.clock,
               ),
               icon: const Icon(Icons.upload_file_rounded, size: 20),
               label: const Text('Import proforma'),

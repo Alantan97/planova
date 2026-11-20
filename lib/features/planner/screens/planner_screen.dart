@@ -35,22 +35,11 @@ class PlannerScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Eyebrow('A LITTLE STRUCTURE, MORE FOCUS'),
-        const SizedBox(height: 10),
-        const Text(
-          'Your study plan.',
-          style: TextStyle(
-            fontSize: 34,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -1.2,
-          ),
+        const PageHeading(
+          title: 'Your study plan',
+          subtitle: 'Space for studying. Space for life.',
         ),
-        const SizedBox(height: 12),
-        const Text(
-          'Space for studying. Space for life.',
-          style: TextStyle(fontSize: 16, color: planovaMuted),
-        ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
         Row(
           children: [
             Expanded(

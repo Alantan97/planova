@@ -43,13 +43,14 @@ class _TaskRankingScreenState extends State<TaskRankingScreen> {
     context: context,
     builder: (context) => AlertDialog(
       title: const Text('About this ranking'),
-      content: const SingleChildScrollView(
+      content: SingleChildScrollView(
         child: Text(
           'A saved LambdaMART model runs on this device. It uses days until due, work remaining, and the assessment percentage of the course grade.\n\n'
           'The experiment used machine-extracted proforma weights, simulated deadlines and effort, and provisional rule-generated priorities. It has not been independently validated for student decisions.\n\n'
           'Difficulty, importance, sleep and study preferences are not inputs to this model yet. Scores are relative values, not confidence percentages. Equal scores share a rank.\n\n'
-          'This suggests an order for eligible tasks. It does not create a timetable, retrain itself, or change your tasks. No server or internet connection is needed.',
-          style: TextStyle(height: 1.5),
+          'This suggests an order for eligible tasks. It does not create a timetable, retrain itself, or change your tasks. No server or internet connection is needed.'
+          '${_viewModel.result == null ? '' : '\n\nModel: ${_viewModel.result!.modelId}'}',
+          style: const TextStyle(height: 1.5),
         ),
       ),
       actions: [
@@ -213,7 +214,7 @@ class _TaskRankingScreenState extends State<TaskRankingScreen> {
                     ],
                     const SizedBox(height: 12),
                     Text(
-                      'Model: ${result.modelId} · Runs on your device\nCompleted tasks are excluded. Your saved tasks and study schedule are unchanged.',
+                      'Runs on your device. Completed tasks are not ranked, and your tasks are not changed.',
                       style: const TextStyle(
                         color: planovaMuted,
                         fontSize: 12,

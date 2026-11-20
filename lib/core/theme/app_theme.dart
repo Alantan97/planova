@@ -23,6 +23,14 @@ ThemeData buildPlanovaTheme() => ThemeData(
     surfaceTint: Colors.transparent,
   ),
   scaffoldBackgroundColor: Colors.white,
+  // Material 3 tints a scrolled app bar with the seed colour (light peach);
+  // keep it white like the page and use a hairline shadow instead.
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Colors.white,
+    surfaceTintColor: Colors.transparent,
+    scrolledUnderElevation: 1,
+    shadowColor: planovaBorder,
+  ),
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
     fillColor: planovaSurface,
