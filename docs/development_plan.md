@@ -1,5 +1,19 @@
 # Planova development roadmap
 
+> Direction update, 19 November 2026: the student has authorized an initial offline
+> LambdaMART experiment based on proforma-derived assessment records, simulated
+> planning contexts, and provisional rule-generated labels. The survey supplies
+> preferences. See `ai/README.md`. The earlier student-priority collection plan and
+> dates below are historical proposals, not current prerequisites or completed work.
+> Independent ranking evaluation and app scheduling remain outstanding.
+>
+> Subsequent implementation, 19 November: the student requested Flutter integration
+> before the verification worksheet. The saved experimental forest now runs
+> on-device, using reviewed task inputs, behind a replaceable ranking service.
+> See `docs/task_ranking.md`. This changes implementation order, not the outstanding
+> requirement to evaluate extraction and priority quality independently.
+
+
 Status: proposed for discussion, not a finalized research protocol.
 Updated: 18 October 2026. The innovation showcase is cancelled. FYP deadline: early January 2027; exact date not yet specified.
 

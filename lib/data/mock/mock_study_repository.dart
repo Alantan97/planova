@@ -5,8 +5,10 @@ import '../repositories/task_repository.dart';
 import 'demo_sessions.dart';
 
 class MockStudyRepository implements StudyRepository {
-  MockStudyRepository({required this.tasks})
-    : _sessions = List.unmodifiable(demoSessions());
+  MockStudyRepository({required this.tasks, bool includeSamples = true})
+    : _sessions = List.unmodifiable(
+        includeSamples ? demoSessions() : <StudySession>[],
+      );
   final TaskRepository tasks;
   final List<StudySession> _sessions;
 

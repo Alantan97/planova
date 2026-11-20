@@ -89,6 +89,11 @@ class _AcademicRecordFormState extends State<AcademicRecordForm> {
             code: _code.text.trim().toUpperCase(),
             name: _name.text.trim(),
             source: widget.course?.source,
+            weeklyLearning:
+                widget.repository
+                    .courseById(widget.course?.id)
+                    ?.weeklyLearning ??
+                const [],
           ),
           isNew: _isNew,
         );

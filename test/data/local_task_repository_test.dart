@@ -291,6 +291,27 @@ void main() {
     expect(restored.taskById('seed')!.title, 'Exercise 3');
   });
 
+  test(
+    'Confirmed percentage survives restart, editing, and explicit removal',
+    () async {
+      var repo = await reopen(seed: [exampleTask('weighted')]);
+      expect(repo.tasks.single.assessmentWeightPercent, isNull);
+      await repo.update(
+        repo.tasks.single.copyWith(assessmentWeightPercent: 25.5),
+      );
+      repo = await reopen();
+      expect(repo.tasks.single.assessmentWeightPercent, 25.5);
+      await repo.update(repo.tasks.single.copyWith(title: 'Renamed'));
+      repo = await reopen();
+      expect(repo.tasks.single.assessmentWeightPercent, 25.5);
+      await repo.update(
+        repo.tasks.single.copyWith(clearAssessmentWeight: true),
+      );
+      repo = await reopen();
+      expect(repo.tasks.single.assessmentWeightPercent, isNull);
+    },
+  );
+
   test('Codec preserves recorded effort and rejects malformed records', () {
     final task = AcademicTask(
       id: 'partial',

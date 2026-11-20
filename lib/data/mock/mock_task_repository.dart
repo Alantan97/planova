@@ -98,6 +98,11 @@ class MockTaskRepository extends TaskRepository {
   Future<void> saveCourse(AcademicCourse course, {required bool isNew}) =>
       _catalogChange((r) => r.saveCourse(course, isNew: isNew));
   @override
+  Future<void> saveWeeklyLearning(
+    String courseId,
+    List<ReviewedWeeklyLearning> rows,
+  ) => _catalogChange((r) => r.saveWeeklyLearning(courseId, rows));
+  @override
   Future<void> deleteSemester(String id) =>
       _catalogChange((r) => r.deleteSemester(id));
   @override
@@ -105,6 +110,12 @@ class MockTaskRepository extends TaskRepository {
       _catalogChange((r) => r.deleteCourse(id));
 
   void _validate(AcademicTask task) {
+    final weight = task.assessmentWeightPercent;
+    if (weight != null && (!weight.isFinite || weight < 0 || weight > 100)) {
+      throw const FormatException(
+        'Enter an assessment percentage from 0 to 100.',
+      );
+    }
     if (task.courseId != null && courseById(task.courseId) == null) {
       throw const FormatException('The selected course no longer exists.');
     }

@@ -50,3 +50,7 @@ app.*.map.json
 # Local research documents, participant responses, and collection drafts.
 # Review and explicitly select any anonymized material before publishing it.
 /research/
+
+# Local Python experiment environment and bytecode.
+/ai/.venv/
+__pycache__/

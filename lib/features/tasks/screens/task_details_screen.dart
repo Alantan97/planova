@@ -239,6 +239,26 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                                       'Importance',
                                       _capitalized(task.importance.name),
                                     ),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 16,
+                                      ),
+                                      child: Divider(
+                                        height: 1,
+                                        color: planovaBorder,
+                                      ),
+                                    ),
+                                    _detail(
+                                      Icons.percent_rounded,
+                                      'Assessment weight',
+                                      task.assessmentWeightPercent == null
+                                          ? 'Not confirmed'
+                                          : '${task.assessmentWeightPercent}% of course grade',
+                                      secondary:
+                                          task.assessmentWeightPercent == null
+                                          ? 'Add it in Edit task to use experimental ranking.'
+                                          : 'Confirmed task value. Original PDF evidence is kept separately.',
+                                    ),
                                   ],
                                 ),
                               ),

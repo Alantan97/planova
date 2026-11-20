@@ -18,6 +18,8 @@ class TaskCodec {
             'difficulty': task.difficulty.name,
             'importance': task.importance.name,
             'status': task.status.name,
+            if (task.assessmentWeightPercent != null)
+              'assessmentWeightPercent': task.assessmentWeightPercent,
             if (task.courseId != null) 'courseId': task.courseId,
             if (task.source != null)
               'source': ProformaSourceCodec.encode(task.source),
@@ -64,6 +66,11 @@ class TaskCodec {
       }
       final estimated = number('estimatedMinutes', minimum: 1);
       final completed = number('completedMinutes', minimum: 0);
+      final weight = value['assessmentWeightPercent'];
+      if (weight != null &&
+          (weight is! num || !weight.isFinite || weight < 0 || weight > 100)) {
+        throw const FormatException('Invalid assessment percentage.');
+      }
       if (completed > estimated) {
         throw const FormatException('Invalid task effort.');
       }
@@ -75,6 +82,7 @@ class TaskCodec {
         deadline: deadline,
         estimatedMinutes: estimated,
         completedMinutes: completed,
+        assessmentWeightPercent: (weight as num?)?.toDouble(),
         difficulty: enumeration('difficulty', TaskDifficulty.values),
         importance: enumeration('importance', TaskImportance.values),
         status: enumeration('status', TaskStatus.values),

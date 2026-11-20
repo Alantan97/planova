@@ -1,0 +1,162 @@
+{
+  "formatVersion": 1,
+  "modelId": "proforma-v1-003",
+  "sourceModelSha256": "dc215eb2662c10d668b3d78feae4db65502cd2f69c116fa0a7c600341f7a6c79",
+  "features": [
+    "days_until_due",
+    "remaining_minutes",
+    "assessment_weight_percent"
+  ],
+  "status": "experimental_provisional_rule_imitation",
+  "featureRanges": [
+    [
+      0,
+      30
+    ],
+    [
+      30,
+      240
+    ],
+    [
+      5,
+      40
+    ]
+  ],
+  "trees": [
+    {
+      "feature": 0,
+      "threshold": 6.000000000000001,
+      "left": {
+        "feature": 0,
+        "threshold": 1.5000000000000002,
+        "left": {
+          "feature": 0,
+          "threshold": 1.0000000180025095e-35,
+          "left": {
+            "value": 0.0997090185636621
+          },
+          "right": {
+            "value": 0.07652354930218165
+          }
+        },
+        "right": {
+          "feature": 1,
+          "threshold": 75.00000000000001,
+          "left": {
+            "value": -0.012287930501231682
+          },
+          "right": {
+            "value": 0.010691168224362137
+          }
+        }
+      },
+      "right": {
+        "feature": 0,
+        "threshold": 10.500000000000002,
+        "left": {
+          "feature": 2,
+          "threshold": 27.500000000000004,
+          "left": {
+            "value": -0.0995520106016663
+          },
+          "right": {
+            "value": -0.005574676539322869
+          }
+        },
+        "right": {
+          "value": -0.09980626158496933
+        }
+      }
+    },
+    {
+      "feature": 0,
+      "threshold": 1.5000000000000002,
+      "left": {
+        "feature": 0,
+        "threshold": 1.0000000180025095e-35,
+        "left": {
+          "value": 0.09211025973913017
+        },
+        "right": {
+          "feature": 2,
+          "threshold": 15.000000000000002,
+          "left": {
+            "value": -0.00786044150805739
+          },
+          "right": {
+            "value": 0.04248555257926853
+          }
+        }
+      },
+      "right": {
+        "feature": 0,
+        "threshold": 6.000000000000001,
+        "left": {
+          "feature": 1,
+          "threshold": 75.00000000000001,
+          "left": {
+            "value": -0.047176878475350806
+          },
+          "right": {
+            "feature": 2,
+            "threshold": 7.500000000000001,
+            "left": {
+              "value": -0.07679472712069708
+            },
+            "right": {
+              "value": -0.003775320303713043
+            }
+          }
+        },
+        "right": {
+          "value": -0.08793171787038245
+        }
+      }
+    },
+    {
+      "feature": 0,
+      "threshold": 1.5000000000000002,
+      "left": {
+        "feature": 0,
+        "threshold": 1.0000000180025095e-35,
+        "left": {
+          "value": 0.08554723405703762
+        },
+        "right": {
+          "value": 0.0453915580063552
+        }
+      },
+      "right": {
+        "feature": 0,
+        "threshold": 6.000000000000001,
+        "left": {
+          "feature": 2,
+          "threshold": 35.00000000000001,
+          "left": {
+            "value": -0.01871278441507222
+          },
+          "right": {
+            "feature": 0,
+            "threshold": 2.5000000000000004,
+            "left": {
+              "feature": 1,
+              "threshold": 210.00000000000003,
+              "left": {
+                "value": 0.006170550304684462
+              },
+              "right": {
+                "value": 0.08591820877544593
+              }
+            },
+            "right": {
+              "value": -0.0065068210929144586
+            }
+          }
+        },
+        "right": {
+          "value": -0.08330933457614088
+        }
+      }
+    }
+  ]
+}

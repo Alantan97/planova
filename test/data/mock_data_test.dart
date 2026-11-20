@@ -2,8 +2,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:planova/app/app_dependencies.dart';
 import 'package:planova/features/today/view_models/today_view_model.dart';
 import 'package:planova/models/study_session.dart';
+import 'package:planova/data/mock/mock_study_repository.dart';
 
 void main() {
+  test(
+    'Normal local study mode contains no invented sessions or study history',
+    () {
+      final dependencies = AppDependencies.demo();
+      addTearDown(dependencies.close);
+      final study = MockStudyRepository(
+        tasks: dependencies.tasks,
+        includeSamples: false,
+      );
+      for (var day = 12; day <= 25; day++) {
+        expect(study.sessionsOn(DateTime(2026, 10, day)), isEmpty);
+        expect(study.completedMinutesInWeek(DateTime(2026, 10, day)), 0);
+      }
+    },
+  );
   test('Session task links and completed effort agree with task fixtures', () {
     final dependencies = AppDependencies.demo();
     final tasks = {for (final task in dependencies.tasks.tasks) task.id: task};

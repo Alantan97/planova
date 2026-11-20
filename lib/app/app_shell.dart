@@ -75,6 +75,7 @@ class _AppShellState extends State<AppShell> {
                       1 => TasksScreen(
                         repository: widget.dependencies.tasks,
                         clock: widget.dependencies.clock,
+                        ranking: widget.dependencies.ranking,
                       ),
                       2 => ListenableBuilder(
                         listenable: _planner,

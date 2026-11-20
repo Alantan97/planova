@@ -16,6 +16,10 @@ abstract class TaskRepository extends ChangeNotifier {
       courses.where((course) => course.id == id).firstOrNull;
   Future<void> saveSemester(AcademicSemester semester, {required bool isNew});
   Future<void> saveCourse(AcademicCourse course, {required bool isNew});
+  Future<void> saveWeeklyLearning(
+    String courseId,
+    List<ReviewedWeeklyLearning> rows,
+  );
   Future<void> deleteSemester(String id);
   Future<void> deleteCourse(String id);
   AcademicTask? taskById(String id) =>

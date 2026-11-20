@@ -8,11 +8,19 @@ import '../../../core/time/app_clock.dart';
 import 'task_details_screen.dart';
 import 'task_form_screen.dart';
 import '../../courses/screens/courses_screen.dart';
+import '../../ranking/screens/task_ranking_screen.dart';
+import '../../../services/ranking/task_ranking_service.dart';
 
 class TasksScreen extends StatelessWidget {
-  const TasksScreen({super.key, required this.repository, required this.clock});
+  const TasksScreen({
+    super.key,
+    required this.repository,
+    required this.clock,
+    required this.ranking,
+  });
   final TaskRepository repository;
   final AppClock clock;
+  final TaskRankingService ranking;
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +103,22 @@ class TasksScreen extends StatelessWidget {
               ),
             ),
           ),
+        ),
+        const SizedBox(height: 20),
+        OutlinedButton.icon(
+          key: const ValueKey('open-task-ranking'),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => TaskRankingScreen(
+                repository: repository,
+                clock: clock,
+                service: ranking,
+              ),
+            ),
+          ),
+          icon: const Icon(Icons.sort_rounded),
+          label: const Text('Prioritize tasks · experimental'),
         ),
         const SizedBox(height: 20),
         if (tasks.isEmpty)

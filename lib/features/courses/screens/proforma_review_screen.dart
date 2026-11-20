@@ -11,6 +11,7 @@ import '../../../models/academic_course.dart';
 import '../../../models/academic_task.dart';
 import '../../../models/proforma.dart';
 import '../widgets/proforma_source_evidence.dart';
+import 'weekly_learning_preview_screen.dart';
 
 class ProformaReviewScreen extends StatefulWidget {
   const ProformaReviewScreen({
@@ -30,9 +31,13 @@ class ProformaReviewScreen extends StatefulWidget {
 
 class _AssessmentInput {
   _AssessmentInput(this.draft)
-    : title = TextEditingController(text: draft.title);
+    : title = TextEditingController(text: draft.title),
+      weight = TextEditingController(
+        text: draft.source.assessmentWeight?.toString() ?? '',
+      );
   final AssessmentDraft draft;
   final TextEditingController title;
+  final TextEditingController weight;
   final minutes = TextEditingController();
   bool selected = false;
   DateTime? deadline;
@@ -40,6 +45,7 @@ class _AssessmentInput {
   TaskImportance importance = TaskImportance.medium;
   void dispose() {
     title.dispose();
+    weight.dispose();
     minutes.dispose();
   }
 }
@@ -54,6 +60,60 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
       .map(_AssessmentInput.new)
       .toList();
   late String _semesterId = widget.semesterId;
+  late List<WeeklyLearningDraft> _weeklyRows = widget.draft.weeklyLearning
+      .map((row) => row.withOnlineZeros())
+      .toList();
+  bool get _otherWeeklyVersion =>
+      _existing?.weeklyLearning.any(
+        (row) =>
+            row.printed.source.fingerprint !=
+            widget.draft.courseSource.fingerprint,
+      ) ??
+      false;
+  int get _newWeeklyCount {
+    if (_otherWeeklyVersion) return 0;
+    final saved =
+        _existing?.weeklyLearning.map((row) => row.identity).toSet() ??
+        <String>{};
+    return _weeklyRows
+        .where(
+          (row) =>
+              !saved.contains('${row.source.fingerprint}/${row.source.rowId}'),
+        )
+        .length;
+  }
+
+  Future<void> _reviewWeekly() async {
+    final saved = {
+      for (final row in _existing?.weeklyLearning ?? <ReviewedWeeklyLearning>[])
+        row.identity: row,
+    };
+    final otherVersion = _otherWeeklyVersion;
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => WeeklyLearningPreviewScreen(
+          rows: [
+            for (final row in _weeklyRows)
+              saved['${row.source.fingerprint}/${row.source.rowId}']
+                      ?.confirmed ??
+                  row,
+          ],
+          lockedIdentities: saved.keys.toSet(),
+          description: otherVersion
+              ? 'This course already has weekly learning from another PDF version. Those saved entries will be kept; weekly entries from this document will not be added.'
+              : 'Review and correct the entries. New entries will be saved with the final import. Already saved entries are kept on reimport.',
+          saveLabel: 'Use reviewed entries',
+          onSave: otherVersion
+              ? null
+              : (rows) async {
+                  if (mounted) setState(() => _weeklyRows = List.of(rows));
+                },
+        ),
+      ),
+    );
+  }
+
   bool _confirmed = false;
   bool _saving = false;
   String? _error;
@@ -147,6 +207,13 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
         code: _code.text.trim().toUpperCase(),
         name: _existing?.name ?? _name.text.trim(),
         source: widget.draft.courseSource,
+        weeklyLearning: [
+          for (var i = 0; i < _weeklyRows.length; i++)
+            ReviewedWeeklyLearning(
+              printed: widget.draft.weeklyLearning[i],
+              confirmed: _weeklyRows[i],
+            ),
+        ],
       );
       final tasks = selected
           .map(
@@ -161,6 +228,7 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
               importance: r.importance,
               courseId: id,
               source: r.draft.source,
+              assessmentWeightPercent: double.tryParse(r.weight.text.trim()),
             ),
           )
           .toList();
@@ -170,7 +238,7 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Course confirmed · ${result.addedTasks} tasks added${result.skippedTasks > 0 ? ' · ${result.skippedTasks} existing tasks kept' : ''}.',
+              'Course confirmed · ${result.addedTasks} tasks added${result.addedWeeklyEntries > 0 ? ' · ${result.addedWeeklyEntries} weekly entries added' : ''}${result.skippedTasks > 0 ? ' · ${result.skippedTasks} existing tasks kept' : ''}${result.skippedWeeklyEntries > 0 ? ' · saved weekly entries kept' : ''}.',
             ),
           ),
         );
@@ -204,7 +272,13 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
   // Validate controller values too: offscreen list fields may not be mounted.
   bool _incompleteAssessment(_AssessmentInput row) {
     final minutes = int.tryParse(row.minutes.text);
+    final weight = double.tryParse(row.weight.text.trim());
     return row.title.text.trim().isEmpty ||
+        (row.weight.text.trim().isNotEmpty &&
+            (weight == null ||
+                !weight.isFinite ||
+                weight < 0 ||
+                weight > 100)) ||
         minutes == null ||
         minutes < 1 ||
         minutes > 10080 ||
@@ -426,10 +500,20 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
         if (_existing != null)
           Panel(
             child: Text(
-              '${_existing!.label} already exists in this semester. Its name and current tasks will be kept. Only new assessment rows will be added.',
+              '${_existing!.label} already exists in this semester. Its name, tasks and saved weekly corrections will be kept. Only new source rows will be added; weekly records from another PDF version will not replace saved entries.',
               style: const TextStyle(height: 1.5),
             ),
           ),
+        if (widget.draft.weeklyLearning.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: _saving ? null : _reviewWeekly,
+            icon: const Icon(Icons.menu_book_outlined),
+            label: Text(
+              'View weekly learning (${widget.draft.weeklyLearning.length})',
+            ),
+          ),
+        ],
         ProformaSourceEvidence(source: widget.draft.courseSource),
       ],
     ),
@@ -507,9 +591,18 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
       ),
       const SizedBox(height: 20),
       if (_selected.isEmpty)
-        const Text(
-          'Only the course will be saved. No new tasks will be added.',
-          style: TextStyle(height: 1.5),
+        Text(
+          _newWeeklyCount == 0
+              ? 'Only the course will be saved. No new tasks will be added.'
+              : 'The course and $_newWeeklyCount weekly entries will be saved. No new tasks will be added.',
+          style: const TextStyle(height: 1.5),
+        ),
+      if (widget.draft.weeklyLearning.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Text(
+            '$_newWeeklyCount new weekly entries. Existing weekly corrections are kept. Unknown NF2F values remain unknown.',
+          ),
         ),
       for (final row in _selected)
         Padding(
@@ -532,6 +625,12 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
                   '${row.minutes.text} min remaining · ${row.difficulty.name} · ${row.importance.name} importance',
                   style: const TextStyle(color: planovaMuted, height: 1.5),
                 ),
+                Text(
+                  row.weight.text.trim().isEmpty
+                      ? 'Assessment weight unknown · not eligible for ranking yet'
+                      : '${row.weight.text.trim()}% of course grade',
+                  style: const TextStyle(color: planovaMuted, height: 1.5),
+                ),
               ],
             ),
           ),
@@ -551,7 +650,11 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
         onChanged: _saving
             ? null
             : (value) => setState(() => _confirmed = value!),
-        title: const Text('I reviewed the course and selected assessments.'),
+        title: Text(
+          widget.draft.weeklyLearning.isEmpty
+              ? 'I reviewed the course and selected assessments.'
+              : 'I reviewed the course, weekly learning and selected assessments.',
+        ),
         activeColor: planovaActionOrange,
         checkColor: planovaOnOrange,
       ),
@@ -605,6 +708,31 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
                 validator: _required,
               ),
               const SizedBox(height: 12),
+              TextFormField(
+                key: ValueKey('import-weight-$index'),
+                controller: row.weight,
+                enabled: !_saving,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: const InputDecoration(
+                  labelText: 'Assessment weight (%)',
+                  helperText: 'Check the extracted percentage against your PDF. Correct it here, or leave blank if unknown.',
+                  helperMaxLines: 4,
+                  errorMaxLines: 3,
+                ),
+                validator: (text) {
+                  if (text == null || text.trim().isEmpty) return null;
+                  final value = double.tryParse(text.trim());
+                  return value == null ||
+                          !value.isFinite ||
+                          value < 0 ||
+                          value > 100
+                      ? 'Enter 0–100, or leave blank if unknown.'
+                      : null;
+                },
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 key: ValueKey('import-minutes-$index'),
                 controller: row.minutes,

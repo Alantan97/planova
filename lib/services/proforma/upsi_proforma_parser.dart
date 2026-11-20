@@ -1,4 +1,6 @@
 import '../../models/proforma.dart';
+import 'upsi_assessment_layout.dart';
+import 'upsi_weekly_layout.dart';
 
 /// Conservative parser for the inspected bilingual UPSI Course Info / SLT template.
 /// Only explicit assessment table rows become drafts; no dates or effort are inferred.
@@ -8,6 +10,7 @@ class UpsiProformaParser {
     required String fileName,
     required String fingerprint,
     bool removedPrefix = false,
+    List<List<ProformaTextWord>>? pageWords,
   }) {
     if (pages.isEmpty || pages.every((p) => p.trim().isEmpty)) {
       throw const FormatException(
@@ -56,8 +59,34 @@ class UpsiProformaParser {
     ];
     final assessments = <AssessmentDraft>[];
     final ids = <String>{};
+    if (pageWords != null) {
+      for (final row in UpsiAssessmentLayout().read(pageWords)) {
+        final rowId = '${row.section}-${row.number}';
+        if (!ids.add(rowId)) {
+          warnings.add(
+            'Repeated assessment row $rowId needs manual checking. It was not imported twice.',
+          );
+          continue;
+        }
+        assessments.add(
+          AssessmentDraft(
+            title: row.title,
+            source: ProformaSource(
+              fingerprint: fingerprint,
+              fileName: fileName,
+              page: row.page,
+              rowId: rowId,
+              excerpt: row.excerpt,
+              assessmentWeight: row.weight,
+            ),
+          ),
+        );
+      }
+    }
     String? section;
-    for (var p = 0; p < normalized.length; p++) {
+    // Text-only readers retain the original strict fallback. A layout read that
+    // cannot locate a percentage must never fall back to guessing numeric columns.
+    for (var p = 0; pageWords == null && p < normalized.length; p++) {
       for (final line in normalized[p].split('\n')) {
         if (line.startsWith('Continuous Assessment')) {
           section = 'continuous';
@@ -107,6 +136,34 @@ class UpsiProformaParser {
       );
     }
     final courseExcerpt = info.isEmpty ? first : info;
+    final weekly = pageWords == null
+        ? <WeeklyLearningDraft>[]
+        : UpsiWeeklyLayout().read(
+            pageWords,
+            fingerprint: fingerprint,
+            fileName: fileName,
+          );
+    if (weekly.isNotEmpty) {
+      warnings.add(
+        'Weekly hours are printed course workload, not remaining task effort. Blank Online cells are interpreted as zero under the confirmed UPSI convention; blank NF2F cells remain unknown.',
+      );
+      final weeks = <int>{};
+      var repeats = false;
+      for (final row in weekly) {
+        for (var week = row.weekStart; week <= row.weekEnd; week++) {
+          if (!weeks.add(week)) repeats = true;
+        }
+      }
+      if (repeats) {
+        warnings.add(
+          'Some weeks have multiple entries. Keep distinct activities, and check repeated source week labels against the PDF.',
+        );
+      }
+    } else {
+      warnings.add(
+        'No weekly learning rows were recognized. Check the weekly table in your PDF.',
+      );
+    }
     return ProformaDraft(
       courseCode: code,
       courseName: name,
@@ -123,6 +180,7 @@ class UpsiProformaParser {
       ),
       assessments: List.unmodifiable(assessments),
       warnings: List.unmodifiable(warnings),
+      weeklyLearning: weekly,
     );
   }
 }

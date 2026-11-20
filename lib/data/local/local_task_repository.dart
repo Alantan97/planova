@@ -30,7 +30,7 @@ class LocalTaskRepository extends TaskRepository {
         final saved = await _record.get(transaction);
         if (saved != null) {
           final restored = AcademicRecordsCodec.decode(saved);
-          if (saved['schemaVersion'] != 3) {
+          if (saved['schemaVersion'] != 4) {
             await _record.put(
               transaction,
               AcademicRecordsCodec.encode(restored),
@@ -70,6 +70,11 @@ class LocalTaskRepository extends TaskRepository {
   @override
   Future<void> saveCourse(AcademicCourse course, {required bool isNew}) =>
       _change((records) => records.saveCourse(course, isNew: isNew));
+  @override
+  Future<void> saveWeeklyLearning(
+    String courseId,
+    List<ReviewedWeeklyLearning> rows,
+  ) => _change((records) => records.saveWeeklyLearning(courseId, rows));
   @override
   Future<void> deleteSemester(String id) =>
       _change((records) => records.deleteSemester(id));

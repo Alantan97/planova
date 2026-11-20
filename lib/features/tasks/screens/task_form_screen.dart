@@ -34,6 +34,9 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   late final _minutes = TextEditingController(
     text: '${widget.task?.estimatedMinutes ?? 60}',
   );
+  late final _weight = TextEditingController(
+    text: widget.task?.assessmentWeightPercent?.toString() ?? '',
+  );
   late DateTime _deadline =
       widget.task?.deadline ??
       DateTime(
@@ -50,6 +53,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   final _titleFocus = FocusNode();
   final _subjectFocus = FocusNode();
   final _minutesFocus = FocusNode();
+  final _weightFocus = FocusNode();
   bool _saving = false;
   late String? _courseId = widget.task?.courseId ?? widget.initialCourseId;
 
@@ -59,9 +63,11 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     _subject.dispose();
     _description.dispose();
     _minutes.dispose();
+    _weight.dispose();
     _titleFocus.dispose();
     _subjectFocus.dispose();
     _minutesFocus.dispose();
+    _weightFocus.dispose();
     super.dispose();
   }
 
@@ -118,7 +124,9 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
           ? _titleFocus
           : _courseId == null && _subject.text.trim().isEmpty
           ? _subjectFocus
-          : _minutesFocus;
+          : _validateMinutes(_minutes.text) != null
+          ? _minutesFocus
+          : _weightFocus;
       firstInvalid.requestFocus();
       return;
     }
@@ -132,6 +140,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
           _subject.text.trim(),
       courseId: _courseId,
       source: widget.task?.source,
+      assessmentWeightPercent: double.tryParse(_weight.text.trim()),
       description: _description.text.trim(),
       deadline: _deadline,
       estimatedMinutes: int.parse(_minutes.text),
@@ -401,6 +410,38 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                             title: 'Task settings',
                             icon: Icons.tune_rounded,
                             children: [
+                              TextFormField(
+                                key: const ValueKey('task-weight'),
+                                controller: _weight,
+                                focusNode: _weightFocus,
+                                enabled: !_saving,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                decoration: _decoration(
+                                  'Assessment weight (%) · optional',
+                                  hint: 'e.g. 25',
+                                  helper:
+                                      widget.task?.source?.assessmentWeight ==
+                                          null
+                                      ? 'Percentage of the course grade. Needed for experimental ranking. Leave blank if unknown.'
+                                      : 'Extracted from PDF: ${widget.task!.source!.assessmentWeight}%. Check it and enter the confirmed value here. The original source is kept.',
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return null;
+                                  }
+                                  final weight = double.tryParse(value.trim());
+                                  return weight == null ||
+                                          !weight.isFinite ||
+                                          weight < 0 ||
+                                          weight > 100
+                                      ? 'Enter a percentage from 0 to 100, or leave blank.'
+                                      : null;
+                                },
+                              ),
+                              const SizedBox(height: 20),
                               LayoutBuilder(
                                 builder: (context, constraints) {
                                   final difficulty =

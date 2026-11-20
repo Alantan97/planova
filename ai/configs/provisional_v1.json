@@ -1,0 +1,24 @@
+{
+  "experiment_version": "proforma-rule-imitation-v1",
+  "seed": 20261119,
+  "scenarios": {"train": 240, "validation": 60, "test": 60},
+  "courses_per_scenario": 2,
+  "assessments_per_course": 3,
+  "simulated_days_until_due": [0, 1, 2, 3, 5, 7, 14, 21, 30],
+  "simulated_remaining_minutes": [30, 60, 90, 120, 180, 240],
+  "label_policy": {
+    "version": "provisional-rule-v1-not-expert-approved",
+    "urgency_weight": 0.6,
+    "assessment_weight": 0.25,
+    "pressure_weight": 0.15,
+    "pressure_minutes_per_day": 240,
+    "label_thresholds": [0.15, 0.35, 0.65]
+  },
+  "model": {
+    "n_estimators": 200,
+    "learning_rate": 0.05,
+    "num_leaves": 7,
+    "min_child_samples": 10,
+    "early_stopping_rounds": 20
+  }
+}

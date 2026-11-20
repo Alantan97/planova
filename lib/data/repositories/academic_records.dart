@@ -28,6 +28,10 @@ class AcademicRecords {
           (c) =>
               c.semesterId == proposed.semesterId &&
               (c.source?.fingerprint == source.fingerprint ||
+                  c.weeklyLearning.any(
+                    (row) =>
+                        row.printed.source.fingerprint == source.fingerprint,
+                  ) ||
                   tasks.any(
                     (t) =>
                         t.courseId == c.id &&
@@ -48,9 +52,18 @@ class AcademicRecords {
               c.code.trim().toUpperCase() == proposed.code.trim().toUpperCase(),
         )
         .firstOrNull;
+    for (final row in proposed.weeklyLearning) {
+      row.validate();
+      if (row.printed.source.fingerprint != source.fingerprint) {
+        throw const FormatException('Weekly entries must belong to this PDF.');
+      }
+    }
+    var addedWeekly = 0;
+    var keptWeekly = 0;
     if (course == null) {
       course = proposed;
       saveCourse(course, isNew: true);
+      addedWeekly = course.weeklyLearning.length;
     } else if (course.source == null) {
       course = AcademicCourse(
         id: course.id,
@@ -58,8 +71,27 @@ class AcademicRecords {
         code: course.code,
         name: course.name,
         source: source,
+        weeklyLearning: course.weeklyLearning,
       );
       saveCourse(course, isNew: false);
+    }
+    if (addedWeekly == 0 && proposed.weeklyLearning.isNotEmpty) {
+      final saved = course.weeklyLearning;
+      final differentVersion = saved.any(
+        (row) => row.printed.source.fingerprint != source.fingerprint,
+      );
+      final identities = saved.map((row) => row.identity).toSet();
+      final merged = [...saved];
+      for (final row in proposed.weeklyLearning) {
+        if (differentVersion || !identities.add(row.identity)) {
+          keptWeekly++;
+          continue;
+        }
+        merged.add(row);
+        addedWeekly++;
+      }
+      course = course.withWeeklyLearning(merged);
+      courses[courses.indexWhere((c) => c.id == course!.id)] = course;
     }
     var added = 0;
     var skipped = 0;
@@ -89,6 +121,8 @@ class AcademicRecords {
       courseId: course.id,
       addedTasks: added,
       skippedTasks: skipped,
+      addedWeeklyEntries: addedWeekly,
+      skippedWeeklyEntries: keptWeekly,
     );
   }
 
@@ -126,6 +160,13 @@ class AcademicRecords {
       }
     }
     for (final course in courses) {
+      unique(
+        course.weeklyLearning.map((row) => row.identity),
+        'weekly source identity',
+      );
+      for (final row in course.weeklyLearning) {
+        row.validate();
+      }
       if (course.code.trim().isEmpty ||
           course.name.trim().isEmpty ||
           !semesters.any((s) => s.id == course.semesterId)) {
@@ -135,6 +176,12 @@ class AcademicRecords {
       }
     }
     for (final task in tasks) {
+      final weight = task.assessmentWeightPercent;
+      if (weight != null && (!weight.isFinite || weight < 0 || weight > 100)) {
+        throw const FormatException(
+          'Enter an assessment percentage from 0 to 100.',
+        );
+      }
       if (task.title.trim().isEmpty ||
           task.subject.trim().isEmpty ||
           task.estimatedMinutes < 1 ||
@@ -166,11 +213,32 @@ class AcademicRecords {
       throw StateError('Course record has changed.');
     }
     if (isNew) {
-      courses.add(value);
+      courses.add(value.withWeeklyLearning(value.weeklyLearning));
     } else {
-      courses[index] = value;
+      courses[index] = value.withWeeklyLearning(courses[index].weeklyLearning);
     }
     synchronizeCourseLabels();
+  }
+
+  void saveWeeklyLearning(String courseId, List<ReviewedWeeklyLearning> rows) {
+    final index = courses.indexWhere((course) => course.id == courseId);
+    if (index < 0) throw StateError('The selected course no longer exists.');
+    final saved = courses[index].weeklyLearning;
+    final edited = {for (final row in rows) row.identity: row};
+    if (edited.length != rows.length ||
+        saved.length != rows.length ||
+        saved.any((row) => !edited.containsKey(row.identity))) {
+      throw StateError(
+        'Weekly entries changed. Reopen the course and try again.',
+      );
+    }
+    courses[index] = courses[index].withWeeklyLearning([
+      for (final row in saved)
+        ReviewedWeeklyLearning(
+          printed: row.printed,
+          confirmed: edited[row.identity]!.confirmed,
+        ),
+    ]);
   }
 
   void deleteCourse(String id) {

@@ -10,6 +10,8 @@ import '../../../models/academic_course.dart';
 import '../../tasks/screens/task_form_screen.dart';
 import 'academic_record_form.dart';
 import 'proforma_import_screen.dart';
+import 'weekly_learning_preview_screen.dart';
+import '../../../models/proforma.dart';
 
 class CoursesScreen extends StatefulWidget {
   const CoursesScreen({
@@ -51,7 +53,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
       builder: (context) => AlertDialog(
         title: Text('Delete $label?'),
         content: const Text(
-          'Only empty records can be deleted. Tasks and courses are never deleted automatically.',
+          'Courses with tasks and semesters with courses cannot be deleted. Deleting a course also removes its saved weekly learning.',
         ),
         actions: [
           TextButton(
@@ -378,6 +380,36 @@ class _CoursesScreenState extends State<CoursesScreen> {
                 icon: const Icon(Icons.add, size: 18),
                 label: const Text('Add task'),
               ),
+              if (course.weeklyLearning.isNotEmpty)
+                TextButton.icon(
+                  icon: const Icon(Icons.menu_book_outlined, size: 18),
+                  label: Text(
+                    'Weekly learning (${course.weeklyLearning.length})',
+                  ),
+                  onPressed: _busy
+                      ? null
+                      : () => Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => WeeklyLearningPreviewScreen(
+                              rows: course.weeklyLearning
+                                  .map((r) => r.confirmed)
+                                  .toList(),
+                              description: 'Your saved, reviewed workload. Edits are saved only when you choose Save changes. Original PDF evidence is kept.',
+                              onSave: (rows) => _repository.saveWeeklyLearning(
+                                course.id,
+                                [
+                                  for (var i = 0; i < rows.length; i++)
+                                    ReviewedWeeklyLearning(
+                                      printed: course.weeklyLearning[i].printed,
+                                      confirmed: rows[i],
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                ),
             ],
           ),
         ],

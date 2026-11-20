@@ -11,12 +11,27 @@ abstract interface class ProformaTextReader {
   Future<List<String>> read(Uint8List bytes);
 }
 
-class PdfrxProformaTextReader implements ProformaTextReader {
+class ProformaDocumentText {
+  const ProformaDocumentText({required this.pages, required this.words});
+  final List<String> pages;
+  final List<List<ProformaTextWord>> words;
+}
+
+abstract interface class ProformaLayoutReader implements ProformaTextReader {
+  Future<ProformaDocumentText> readLayout(Uint8List bytes);
+}
+
+class PdfrxProformaTextReader implements ProformaLayoutReader {
   PdfrxProformaTextReader({Future<void> Function()? initialize})
     : _initialize = initialize ?? pdfrxFlutterInitialize;
   final Future<void> Function() _initialize;
   @override
   Future<List<String>> read(Uint8List bytes) async {
+    return (await readLayout(bytes)).pages;
+  }
+
+  @override
+  Future<ProformaDocumentText> readLayout(Uint8List bytes) async {
     await _initialize();
     final document = await PdfDocument.openData(
       bytes,
@@ -27,10 +42,32 @@ class PdfrxProformaTextReader implements ProformaTextReader {
         throw const FormatException('Choose a proforma with at most 40 pages.');
       }
       final pages = <String>[];
+      final words = <List<ProformaTextWord>>[];
       for (final page in document.pages) {
-        pages.add((await page.loadText())?.fullText ?? '');
+        final text = await page.loadText();
+        pages.add(text?.fullText ?? '');
+        final pageWords = <ProformaTextWord>[];
+        if (text != null) {
+          for (final match in RegExp(r'\S+').allMatches(text.fullText)) {
+            final rects = text.charRects
+                .sublist(match.start, match.end)
+                .where((r) => r.isNotEmpty);
+            if (rects.isEmpty) continue;
+            final box = rects.reduce((a, b) => a.merge(b));
+            pageWords.add(
+              ProformaTextWord(
+                text: match.group(0)!,
+                left: box.left,
+                right: box.right,
+                top: box.top,
+                bottom: box.bottom,
+              ),
+            );
+          }
+        }
+        words.add(pageWords);
       }
-      return pages;
+      return ProformaDocumentText(pages: pages, words: words);
     } finally {
       await document.dispose();
     }
@@ -72,8 +109,16 @@ class ProformaImportService {
     }
     final pdf = Uint8List.sublistView(bytes, header);
     List<String> pages;
+    List<List<ProformaTextWord>>? words;
     try {
-      pages = await _reader.read(pdf);
+      final reader = _reader;
+      if (reader is ProformaLayoutReader) {
+        final document = await reader.readLayout(pdf);
+        pages = document.pages;
+        words = document.words;
+      } else {
+        pages = await reader.read(pdf);
+      }
     } on FormatException {
       rethrow;
     } catch (_) {
@@ -86,6 +131,7 @@ class ProformaImportService {
       fileName: fileName,
       fingerprint: sha256.convert(pdf).toString(),
       removedPrefix: header > 0,
+      pageWords: words,
     );
   }
 }

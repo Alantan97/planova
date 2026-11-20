@@ -20,11 +20,22 @@ class AcademicCourse {
     required this.code,
     required this.name,
     this.source,
+    this.weeklyLearning = const [],
   });
   final String id;
   final String semesterId;
   final String code;
   final String name;
   final ProformaSource? source;
+  final List<ReviewedWeeklyLearning> weeklyLearning;
+  AcademicCourse withWeeklyLearning(List<ReviewedWeeklyLearning> rows) =>
+      AcademicCourse(
+        id: id,
+        semesterId: semesterId,
+        code: code,
+        name: name,
+        source: source,
+        weeklyLearning: List.unmodifiable(rows),
+      );
   String get label => '$code · $name';
 }

@@ -5,6 +5,7 @@ Paths and commands in the development documents are relative to the project root
 ## Source ownership
 
 ```text
+ai/                       Isolated offline LambdaMART experiment (not an API)
 assets/branding/           Runtime logos and app branding
 lib/
   app/                    App composition, startup, and navigation
@@ -25,6 +26,7 @@ lib/
     progress/             Task totals and sample study progress
   models/                 Immutable domain records
   services/proforma/      Local PDF extraction and template parsing
+  services/ranking/       Versioned model evaluator and on-device ranking service
 ```
 
 Feature widgets belong under their feature's `widgets/` folder. Move a widget to
@@ -63,8 +65,29 @@ Do not move private research into `assets/`, delete local data as cleanup, or ed
 generated plugin registration files by hand. Keep Flutter platform folders in
 place so native builds and future platform work continue to use standard tooling.
 
+## Ranking integration
+
+`lib/features/ranking/` owns the experimental priority screen and view model.
+`AppDependencies` supplies its ranking-service contract. The local implementation
+evaluates the saved model export in `assets/ranking/`, independently of the Python
+playground. No source PDFs or training rows are bundled. See `docs/task_ranking.md`.
+
 ## Future integration
 
 Screens receive repository contracts through `AppDependencies`. Keep Firebase SDK
 and Python API details behind those boundaries when integration is implemented.
-No backend or trained AI is introduced by this organization pass.
+The earlier organization pass introduced neither a backend nor trained AI. The
+subsequent experimental ranking increment runs a bundled trained forest locally.
+
+## Offline ranking experiment
+
+`ai/planova_ranking/` contains PDF extraction, dataset generation and training.
+`ai/configs/` versions provisional policies; `ai/tests/` covers ranking invariants.
+`ai/playground.py` is an optional local Streamlit testing page; its read-only model
+adapters live in `ai/planova_ranking/playground.py`. Launch it with
+`ai/run_playground.ps1` after installing `ai/requirements-ui.txt`.
+`ai/.venv/` is local and ignored. Run outputs stay under
+`research/experiments/lambdamart/`, including the extraction audit, datasets and
+model. Training remains separate from Flutter; only the explicitly exported forest
+is used by its experimental ranking screen. Independent ranking validation remains
+outstanding. See `ai/README.md` for reproduction.

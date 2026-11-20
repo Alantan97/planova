@@ -2,12 +2,13 @@ import '../../models/academic_course.dart';
 import '../repositories/academic_records.dart';
 import 'task_codec.dart';
 import 'proforma_source_codec.dart';
+import 'weekly_learning_codec.dart';
 
 class AcademicRecordsCodec {
   static Map<String, Object?> encode(AcademicRecords records) {
     records.validate();
     return {
-      'schemaVersion': 3,
+      'schemaVersion': 4,
       'taskData': TaskCodec.encode(records.tasks),
       'semesters': records.semesters
           .map(
@@ -26,6 +27,7 @@ class AcademicRecordsCodec {
               'semesterId': c.semesterId,
               'code': c.code,
               'name': c.name,
+              'weeklyLearning': WeeklyLearningCodec.encode(c.weeklyLearning),
               if (c.source != null)
                 'source': ProformaSourceCodec.encode(c.source),
             },
@@ -39,7 +41,9 @@ class AcademicRecordsCodec {
     if (document['schemaVersion'] == 1) {
       return AcademicRecords(tasks: TaskCodec.decode(document));
     }
-    if ((document['schemaVersion'] != 2 && document['schemaVersion'] != 3) ||
+    if ((document['schemaVersion'] != 2 &&
+            document['schemaVersion'] != 3 &&
+            document['schemaVersion'] != 4) ||
         document['taskData'] is! Map ||
         document['semesters'] is! List ||
         document['courses'] is! List) {
@@ -90,6 +94,7 @@ class AcademicRecordsCodec {
           code: text(c, 'code'),
           name: text(c, 'name'),
           source: ProformaSourceCodec.decode(c['source']),
+          weeklyLearning: WeeklyLearningCodec.decode(c['weeklyLearning']),
         );
       }).toList(),
     );

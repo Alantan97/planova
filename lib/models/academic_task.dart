@@ -20,6 +20,7 @@ class AcademicTask {
     this.status = TaskStatus.active,
     this.courseId,
     this.source,
+    this.assessmentWeightPercent,
   }) : assert(estimatedMinutes > 0),
        assert(completedMinutes >= 0);
 
@@ -36,6 +37,10 @@ class AcademicTask {
   final String? courseId;
   final ProformaSource? source;
 
+  /// User-confirmed task value. Original extracted evidence stays in [source].
+  /// Null means unknown; never substitute zero or infer it from importance.
+  final double? assessmentWeightPercent;
+
   double get progress =>
       isCompleted ? 1 : (completedMinutes / estimatedMinutes).clamp(0, 1);
   bool get isCompleted => status == TaskStatus.completed;
@@ -51,6 +56,8 @@ class AcademicTask {
     TaskStatus? status,
     String? courseId,
     bool clearCourse = false,
+    double? assessmentWeightPercent,
+    bool clearAssessmentWeight = false,
   }) => AcademicTask(
     id: id,
     title: title ?? this.title,
@@ -64,5 +71,8 @@ class AcademicTask {
     status: status ?? this.status,
     courseId: clearCourse ? null : courseId ?? this.courseId,
     source: source,
+    assessmentWeightPercent: clearAssessmentWeight
+        ? null
+        : assessmentWeightPercent ?? this.assessmentWeightPercent,
   );
 }
