@@ -133,8 +133,10 @@ Implemented foundation:
 
 - A separate local Python ranking playground (`ai/playground.py`): editable task inputs, saved-model predictions, teaching-rule comparison, and optional result downloads. It reads existing experiment artifacts without retraining or changing Flutter data. It is a developer testing tool, not the student proforma-upload integration or independent validation of priorities.
 
+- Student availability (Plan tab → Weekly availability): recurring study windows and recurring commitments (class, club/society, part-time work, personal, other), each with weekdays and a same-day start/end time. Saved locally in the same Sembast database as a separate record; add, edit and confirmed delete survive restart. A rule-based helper (`freeStudySlots`) computes free study time per weekday as study windows minus commitments (commitments always win) and the screen shows the weekly total and per-day free slots. No study sessions are generated from it yet. Overnight times, one-off exceptions, protected time (sleep, meals, travel), and preferences (session length, breaks, daily limit) are not yet modelled.
+
 Not yet implemented:
-- Real schedule generation and adaptive rescheduling.
+- Real schedule generation and adaptive rescheduling. The next increment is a deterministic, rule-based baseline planner that places task work inside `freeStudySlots`.
 - Broader proforma formats, OCR, and explicit document-version replacement.
 - Independently validated task ranking, Python API, and Firebase.
 

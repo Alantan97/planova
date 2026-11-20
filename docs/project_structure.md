@@ -65,6 +65,15 @@ Do not move private research into `assets/`, delete local data as cleanup, or ed
 generated plugin registration files by hand. Keep Flutter platform folders in
 place so native builds and future platform work continue to use standard tooling.
 
+## Availability and planning inputs
+
+`lib/models/weekly_availability.dart` defines study windows, recurring commitments
+and their shared `WeeklyTimeRange`. `AvailabilityRepository` is the storage contract;
+`LocalAvailabilityRepository` saves one record in the task database and
+`MemoryAvailabilityRepository` serves demo/test builds. `lib/features/availability/`
+owns the screens. `lib/services/planning/free_study_slots.dart` is the pure,
+rule-based input for the future baseline planner: study windows minus commitments.
+
 ## Ranking integration
 
 `lib/features/ranking/` owns the experimental priority screen and view model.

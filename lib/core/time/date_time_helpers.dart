@@ -30,3 +30,18 @@ String formatDuration(int minutes) {
   final remainder = minutes % 60;
   return '${minutes ~/ 60}h${remainder == 0 ? '' : ' ${remainder}m'}';
 }
+
+/// 570 → "09:30"; 1440 → "24:00".
+String formatClock(int minuteOfDay) =>
+    '${(minuteOfDay ~/ 60).toString().padLeft(2, '0')}:'
+    '${(minuteOfDay % 60).toString().padLeft(2, '0')}';
+
+/// Weekday numbers (Monday = 1) as a short label: "Mon, Wed", "Weekdays".
+String formatWeekdays(List<int> days) {
+  final sorted = [...days]..sort();
+  final key = sorted.join();
+  if (key == '1234567') return 'Every day';
+  if (key == '12345') return 'Weekdays';
+  if (key == '67') return 'Weekends';
+  return sorted.map((day) => weekdays[day - 1]).join(', ');
+}

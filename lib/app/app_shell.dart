@@ -78,9 +78,14 @@ class _AppShellState extends State<AppShell> {
                         ranking: widget.dependencies.ranking,
                       ),
                       2 => ListenableBuilder(
-                        listenable: _planner,
-                        builder: (context, _) =>
-                            PlannerScreen(viewModel: _planner),
+                        listenable: Listenable.merge([
+                          _planner,
+                          widget.dependencies.availability,
+                        ]),
+                        builder: (context, _) => PlannerScreen(
+                          viewModel: _planner,
+                          availability: widget.dependencies.availability,
+                        ),
                       ),
                       _ => ProgressScreen(
                         studyRepository: widget.dependencies.study,

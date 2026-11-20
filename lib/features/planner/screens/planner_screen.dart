@@ -4,11 +4,18 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/time/date_time_helpers.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../core/widgets/session_widgets.dart';
+import '../../../data/repositories/availability_repository.dart';
+import '../../availability/widgets/availability_summary_card.dart';
 import '../view_models/planner_view_model.dart';
 
 class PlannerScreen extends StatelessWidget {
-  const PlannerScreen({super.key, required this.viewModel});
+  const PlannerScreen({
+    super.key,
+    required this.viewModel,
+    required this.availability,
+  });
   final PlannerViewModel viewModel;
+  final AvailabilityRepository availability;
   @override
   Widget build(BuildContext context) {
     final start = viewModel.weekStart;
@@ -205,6 +212,8 @@ class PlannerScreen extends StatelessWidget {
           )
         else
           ...viewModel.sessions.map((session) => SessionRow(session)),
+        const SizedBox(height: 24),
+        AvailabilitySummaryCard(repository: availability),
         const SizedBox(height: 24),
         const DemoNote(),
       ],

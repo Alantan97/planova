@@ -11,6 +11,7 @@ Read `PLANOVA_CONTEXT.md` for the product direction and `AGENTS.md` for developm
 - Courses & semesters (under Tasks): add/edit semesters and courses, select a course for a task, and explicitly change or unlink that relationship.
 - Proforma import (inside a semester): choose a supported text-based UPSI PDF, review course/assessment drafts, enter exact deadlines and remaining effort, and save selected tasks locally.
 - Plan: browse days and weeks; inspect study sessions and fixed commitments.
+- Weekly availability (under Plan): add, edit and delete recurring study windows and commitments such as classes, clubs, work or personal time. Shows free study time per week and per day (study windows minus commitments). Saved locally; no sessions are generated from it yet.
 - Progress: sample study time and task completion totals.
 
 The first UI refinement pass uses compact Today/Tasks headers, a clearer course-import
