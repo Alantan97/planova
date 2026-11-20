@@ -16,6 +16,9 @@ class MockStudyRepository implements StudyRepository {
   int get weeklyGoalMinutes => 360;
 
   @override
+  bool get showsSampleSessions => _sessions.isNotEmpty;
+
+  @override
   List<StudySession> sessionsOn(DateTime date) {
     final sessions =
         _sessions

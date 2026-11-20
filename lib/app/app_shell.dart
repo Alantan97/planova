@@ -48,7 +48,10 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: widget.dependencies.tasks,
+    listenable: Listenable.merge([
+      widget.dependencies.tasks,
+      widget.dependencies.availability,
+    ]),
     builder: (context, _) => Scaffold(
       body: SafeArea(
         bottom: false,
@@ -70,6 +73,7 @@ class _AppShellState extends State<AppShell> {
                     child: switch (_tab) {
                       0 => TodayScreen(
                         viewModel: _today,
+                        availability: widget.dependencies.availability,
                         onViewPlan: _viewPlan,
                       ),
                       1 => TasksScreen(

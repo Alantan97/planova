@@ -25,6 +25,7 @@ class PlannerScreen extends StatelessWidget {
       start.month,
       start.day + viewModel.selectedDay,
     );
+    final samples = viewModel.repository.showsSampleSessions;
     final studyMinutes = viewModel.sessions
         .where((s) => !s.commitment)
         .fold<int>(0, (total, s) => total + s.minutes);
@@ -95,7 +96,7 @@ class PlannerScreen extends StatelessWidget {
                     excludeSemantics: true,
                     onTap: () => viewModel.selectDay(index),
                     label:
-                        '${weekdays[index]}, ${day.day} ${months[day.month - 1]} ${day.year}${hasSession ? ', has sample sessions' : ''}',
+                        '${weekdays[index]}, ${day.day} ${months[day.month - 1]} ${day.year}${hasSession ? ', has sessions' : ''}',
                     child: Material(
                       color: selected
                           ? planovaActionOrange
@@ -165,15 +166,19 @@ class PlannerScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$studyMinutes min of study',
+                      samples
+                          ? '$studyMinutes min of study'
+                          : 'No study plan yet',
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Sample plan · Fixed commitments shown separately',
+                    Text(
+                      samples
+                          ? 'Sample plan · Fixed commitments shown separately'
+                          : 'Planning comes in a later version. Set your weekly availability below to prepare for it.',
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 13,
@@ -192,20 +197,26 @@ class PlannerScreen extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         if (viewModel.sessions.isEmpty)
-          const Panel(
+          Panel(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.wb_sunny_outlined, color: planovaOrange, size: 30),
-                SizedBox(height: 14),
-                Text(
+                const Icon(
+                  Icons.wb_sunny_outlined,
+                  color: planovaOrange,
+                  size: 30,
+                ),
+                const SizedBox(height: 14),
+                const Text(
                   'A little breathing room.',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
-                  'No sessions in this sample day. Browse 12–18 October to explore the demo plan.',
-                  style: TextStyle(color: planovaMuted, height: 1.5),
+                  samples
+                      ? 'No sessions in this sample day. Browse 12–18 October to explore the demo plan.'
+                      : 'No study sessions on this day.',
+                  style: const TextStyle(color: planovaMuted, height: 1.5),
                 ),
               ],
             ),
@@ -215,7 +226,7 @@ class PlannerScreen extends StatelessWidget {
         const SizedBox(height: 24),
         AvailabilitySummaryCard(repository: availability),
         const SizedBox(height: 24),
-        const DemoNote(),
+        DemoNote(samples: samples),
       ],
     );
   }

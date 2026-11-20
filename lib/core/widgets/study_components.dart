@@ -133,11 +133,16 @@ class DateTile extends StatelessWidget {
 }
 
 class DemoNote extends StatelessWidget {
-  const DemoNote({super.key});
+  const DemoNote({super.key, this.samples = true});
+
+  /// False in real local mode, where no sample sessions are shown.
+  final bool samples;
   @override
-  Widget build(BuildContext context) => const Text(
-    'Study sessions and study hours are samples. Saved tasks are separate; no AI schedule has been generated.',
-    style: TextStyle(fontSize: 12, color: planovaMuted, height: 1.5),
+  Widget build(BuildContext context) => Text(
+    samples
+        ? 'Study sessions and study hours are samples. Saved tasks are separate; no AI schedule has been generated.'
+        : 'Planova does not create study sessions yet. Your tasks, courses and availability are saved on this device.',
+    style: const TextStyle(fontSize: 12, color: planovaMuted, height: 1.5),
   );
 }
 
