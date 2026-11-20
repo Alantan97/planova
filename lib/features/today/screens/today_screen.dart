@@ -8,6 +8,7 @@ import '../../../core/widgets/progress_summary.dart';
 import '../../../data/repositories/availability_repository.dart';
 import '../view_models/today_view_model.dart';
 import '../widgets/get_started_card.dart';
+import '../widgets/needs_input_section.dart';
 import '../../courses/start_proforma_import.dart';
 import '../../tasks/screens/task_details_screen.dart';
 import '../../tasks/screens/task_form_screen.dart';
@@ -41,6 +42,10 @@ class TodayScreen extends StatelessWidget {
             clock: viewModel.clock,
           ),
           const SizedBox(height: 28),
+        ],
+        if (NeedsInputSection.waiting(tasks).isNotEmpty) ...[
+          NeedsInputSection(repository: tasks, clock: viewModel.clock),
+          const SizedBox(height: 20),
         ],
         if (viewModel.nextSession != null)
           NextSessionCard(viewModel.nextSession!),

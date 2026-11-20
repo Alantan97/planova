@@ -67,8 +67,9 @@ void main() {
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
 
-    // Today's "Next deadline" never picks a task without a date.
-    expect(find.text('Final exam revision'), findsNothing);
+    // Today lists it under "Needs your input", never as the next deadline.
+    expect(find.text('Needs your input · 1'), findsOneWidget);
+    expect(find.text('DES3113 · no due date yet'), findsOneWidget);
 
     await tester.tap(find.text('Tasks'));
     await tester.pumpAndSettle();

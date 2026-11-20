@@ -5,12 +5,11 @@ import '../../../core/time/app_clock.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../data/repositories/availability_repository.dart';
 import '../../../data/repositories/task_repository.dart';
-import '../../availability/screens/availability_screen.dart';
-import '../../courses/screens/courses_screen.dart';
+import '../../setup/screens/setup_screen.dart';
 
-/// First-run checklist, following docs/workflow.md §3: semester → courses →
-/// availability. Each step is ticked from saved data, so it stays accurate
-/// after restarts. The card disappears once every step is done.
+/// First-run checklist on Today. Each step is ticked from saved data, so it
+/// stays accurate after restarts. Tapping a step, or "Continue setup", opens
+/// the guided setup at that step. The card disappears once every step is done.
 class GetStartedCard extends StatelessWidget {
   const GetStartedCard({
     super.key,
@@ -30,10 +29,15 @@ class GetStartedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void openCourses() => Navigator.push(
+    void open(int step) => Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (_) => CoursesScreen(repository: tasks, clock: clock),
+        builder: (_) => SetupScreen(
+          tasks: tasks,
+          availability: availability,
+          clock: clock,
+          initialStep: step,
+        ),
       ),
     );
     final steps = [
@@ -42,30 +46,22 @@ class GetStartedCard extends StatelessWidget {
         title: 'Add your semester',
         detail: 'Use the dates from your academic calendar.',
         done: tasks.semesters.isNotEmpty,
-        open: openCourses,
       ),
       (
         key: 'setup-courses',
-        title: 'Import a proforma or add a course',
-        detail:
-            'Bring in assessments and weekly learning from your course PDF.',
+        title: 'Import your course proformas',
+        detail: 'Assessments and study hours are read for you.',
         done: tasks.courses.isNotEmpty,
-        open: openCourses,
       ),
       (
         key: 'setup-availability',
         title: 'Set your weekly availability',
         detail: 'When you can study, and what is already fixed.',
         done: availability.availability.windows.isNotEmpty,
-        open: () => Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (_) => AvailabilityScreen(repository: availability),
-          ),
-        ),
       ),
     ];
     final done = steps.where((step) => step.done).length;
+    final next = steps.indexWhere((step) => !step.done);
     return Panel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,11 +79,11 @@ class GetStartedCard extends StatelessWidget {
               label:
                   'Step ${index + 1}: ${step.title}${step.done ? ', done' : ''}',
               excludeSemantics: true,
-              onTap: step.open,
+              onTap: () => open(index),
               child: InkWell(
                 key: ValueKey(step.key),
                 borderRadius: BorderRadius.circular(12),
-                onTap: step.open,
+                onTap: () => open(index),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   child: Row(
@@ -136,6 +132,17 @@ class GetStartedCard extends StatelessWidget {
                 ),
               ),
             ),
+          if (next >= 0) ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                key: const ValueKey('setup-continue'),
+                onPressed: () => open(next),
+                child: Text(done == 0 ? 'Start setup' : 'Continue setup'),
+              ),
+            ),
+          ],
         ],
       ),
     );

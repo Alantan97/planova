@@ -5,7 +5,7 @@ Read `PLANOVA_CONTEXT.md` for the product direction and `AGENTS.md` for developm
 
 ## Current prototype
 
-- Today: upcoming session, daily agenda, next deadline, and sample weekly progress.
+- Today: a Get started checklist that opens the guided setup (semester → course proformas → weekly availability, resumable, "Finish later" keeps what was saved), a "Needs your input" list of tasks without a due date (a small sheet adds the date and time estimate), the next deadline, and sample sessions in the demo build only.
 - Tasks: add, edit, delete, complete, and reopen academic tasks with validated forms.
 - Prioritize tasks (under Tasks): experimental on-device LambdaMART ranking using confirmed assessment percentages, calendar days until due, and work remaining. Ineligible tasks remain visible for review.
 - Courses & semesters (under Tasks): add/edit semesters and courses, select a course for a task, and explicitly change or unlink that relationship.
