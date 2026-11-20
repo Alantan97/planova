@@ -12,7 +12,7 @@ class TaskCodec {
             'title': task.title,
             'subject': task.subject,
             'description': task.description,
-            'deadline': task.deadline.toIso8601String(),
+            'deadline': task.deadline?.toIso8601String(),
             'estimatedMinutes': task.estimatedMinutes,
             'completedMinutes': task.completedMinutes,
             'difficulty': task.difficulty.name,
@@ -60,9 +60,16 @@ class TaskCodec {
 
       final id = text('id');
       if (!ids.add(id)) throw const FormatException('Duplicate task ID.');
-      final deadline = DateTime.tryParse(text('deadline'));
-      if (deadline == null || deadline.toIso8601String() != text('deadline')) {
-        throw const FormatException('Invalid task deadline.');
+      // A null deadline is a task waiting for its due date ("decide later").
+      final DateTime? deadline;
+      if (value['deadline'] == null) {
+        deadline = null;
+      } else {
+        deadline = DateTime.tryParse(text('deadline'));
+        if (deadline == null ||
+            deadline.toIso8601String() != text('deadline')) {
+          throw const FormatException('Invalid task deadline.');
+        }
       }
       final estimated = number('estimatedMinutes', minimum: 1);
       final completed = number('completedMinutes', minimum: 0);

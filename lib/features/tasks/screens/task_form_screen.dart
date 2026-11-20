@@ -37,15 +37,19 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   late final _weight = TextEditingController(
     text: widget.task?.assessmentWeightPercent?.toString() ?? '',
   );
-  late DateTime _deadline =
-      widget.task?.deadline ??
-      DateTime(
-        widget.clock.now().year,
-        widget.clock.now().month,
-        widget.clock.now().day + 1,
-        23,
-        59,
-      );
+
+  /// Null = "no due date yet". A new task starts with tomorrow 23:59 shown
+  /// on screen; an existing task without a date stays without one.
+  late DateTime? _deadline = widget.task == null
+      ? _defaultDeadline
+      : widget.task!.deadline;
+  DateTime get _defaultDeadline => DateTime(
+    widget.clock.now().year,
+    widget.clock.now().month,
+    widget.clock.now().day + 1,
+    23,
+    59,
+  );
   late TaskDifficulty _difficulty =
       widget.task?.difficulty ?? TaskDifficulty.moderate;
   late TaskImportance _importance =
@@ -75,13 +79,14 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     final now = widget.clock.now();
     final first = DateTime(now.year - 5);
     final last = DateTime(now.year + 10, 12, 31);
+    final current = _deadline ?? _defaultDeadline;
     final date = await showDatePicker(
       context: context,
-      initialDate: _deadline.isBefore(first)
+      initialDate: current.isBefore(first)
           ? first
-          : _deadline.isAfter(last)
+          : current.isAfter(last)
           ? last
-          : _deadline,
+          : current,
       currentDate: now,
       firstDate: first,
       lastDate: last,
@@ -92,8 +97,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
           date.year,
           date.month,
           date.day,
-          _deadline.hour,
-          _deadline.minute,
+          current.hour,
+          current.minute,
         ),
       );
     }
@@ -102,14 +107,14 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   Future<void> _pickTime() async {
     final time = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(_deadline),
+      initialTime: TimeOfDay.fromDateTime(_deadline!),
     );
     if (time != null && mounted) {
       setState(
         () => _deadline = DateTime(
-          _deadline.year,
-          _deadline.month,
-          _deadline.day,
+          _deadline!.year,
+          _deadline!.month,
+          _deadline!.day,
           time.hour,
           time.minute,
         ),
@@ -320,37 +325,72 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                           ),
                           const SizedBox(height: 28),
                           _TaskFormSection(
-                            title: 'Deadline & effort',
+                            title: 'Due date & effort',
                             icon: Icons.schedule_outlined,
                             children: [
-                              Wrap(
-                                spacing: 12,
-                                runSpacing: 12,
-                                children: [
-                                  OutlinedButton.icon(
-                                    onPressed: _saving ? null : _pickDate,
-                                    icon: const Icon(
-                                      Icons.calendar_month_outlined,
-                                      size: 20,
-                                    ),
-                                    label: Text(
-                                      '${_deadline.day} ${months[_deadline.month - 1]} ${_deadline.year}',
+                              if (_deadline == null) ...[
+                                OutlinedButton.icon(
+                                  key: const ValueKey('task-add-deadline'),
+                                  onPressed: _saving ? null : _pickDate,
+                                  icon: const Icon(
+                                    Icons.calendar_month_outlined,
+                                    size: 20,
+                                  ),
+                                  label: const Text('Add due date'),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Text(
+                                    'No due date yet. It will not be ranked or planned until it has one.',
+                                    style: TextStyle(
+                                      color: planovaMuted,
+                                      fontSize: 13,
+                                      height: 1.4,
                                     ),
                                   ),
-                                  OutlinedButton.icon(
-                                    onPressed: _saving ? null : _pickTime,
-                                    icon: const Icon(
-                                      Icons.schedule_outlined,
-                                      size: 20,
+                                ),
+                              ] else
+                                Wrap(
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    OutlinedButton.icon(
+                                      onPressed: _saving ? null : _pickDate,
+                                      icon: const Icon(
+                                        Icons.calendar_month_outlined,
+                                        size: 20,
+                                      ),
+                                      label: Text(
+                                        '${_deadline!.day} ${months[_deadline!.month - 1]} ${_deadline!.year}',
+                                      ),
                                     ),
-                                    label: Text(
-                                      TimeOfDay.fromDateTime(_deadline)
-                                          .format(context),
+                                    OutlinedButton.icon(
+                                      onPressed: _saving ? null : _pickTime,
+                                      icon: const Icon(
+                                        Icons.schedule_outlined,
+                                        size: 20,
+                                      ),
+                                      label: Text(
+                                        TimeOfDay.fromDateTime(_deadline!)
+                                            .format(context),
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              if (_deadline.isBefore(widget.clock.now()))
+                                    TextButton(
+                                      key: const ValueKey(
+                                        'task-clear-deadline',
+                                      ),
+                                      onPressed: _saving
+                                          ? null
+                                          : () => setState(
+                                              () => _deadline = null,
+                                            ),
+                                      child: const Text('No due date yet'),
+                                    ),
+                                  ],
+                                ),
+                              if (_deadline != null &&
+                                  _deadline!.isBefore(widget.clock.now()))
                                 const Padding(
                                   padding: EdgeInsets.only(top: 10),
                                   child: Text(
@@ -428,78 +468,6 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                                       : null;
                                 },
                               ),
-                              const SizedBox(height: 20),
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final difficulty =
-                                      DropdownButtonFormField<TaskDifficulty>(
-                                        initialValue: _difficulty,
-                                        isExpanded: true,
-                                        decoration: _decoration('Difficulty'),
-                                        items: TaskDifficulty.values
-                                            .map(
-                                              (value) => DropdownMenuItem(
-                                                value: value,
-                                                child: Text(
-                                                  _label(value.name),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                            )
-                                            .toList(),
-                                        onChanged: _saving
-                                            ? null
-                                            : (value) => setState(
-                                                () => _difficulty = value!,
-                                              ),
-                                      );
-                                  final importance =
-                                      DropdownButtonFormField<TaskImportance>(
-                                        initialValue: _importance,
-                                        isExpanded: true,
-                                        decoration: _decoration('Importance'),
-                                        items: TaskImportance.values
-                                            .map(
-                                              (value) => DropdownMenuItem(
-                                                value: value,
-                                                child: Text(
-                                                  _label(value.name),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                            )
-                                            .toList(),
-                                        onChanged: _saving
-                                            ? null
-                                            : (value) => setState(
-                                                () => _importance = value!,
-                                              ),
-                                      );
-                                  if (constraints.maxWidth >= 440 &&
-                                      MediaQuery.textScalerOf(context)
-                                              .scale(16) <=
-                                          18) {
-                                    return Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(child: difficulty),
-                                        const SizedBox(width: 16),
-                                        Expanded(child: importance),
-                                      ],
-                                    );
-                                  }
-                                  return Column(
-                                    children: [
-                                      difficulty,
-                                      const SizedBox(height: 20),
-                                      importance,
-                                    ],
-                                  );
-                                },
-                              ),
                             ],
                           ),
                           const SizedBox(height: 24),
@@ -509,14 +477,17 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                             child: ExpansionTile(
                               key: const ValueKey('task-notes'),
                               initiallyExpanded:
-                                  widget.task?.description.isNotEmpty ?? false,
+                                  (widget.task?.description.isNotEmpty ??
+                                      false) ||
+                                  _difficulty != TaskDifficulty.moderate ||
+                                  _importance != TaskImportance.medium,
                               enabled: !_saving,
                               tilePadding: const EdgeInsets.symmetric(
                                 horizontal: 4,
                               ),
                               childrenPadding: const EdgeInsets.only(top: 8),
                               title: const Text(
-                                'Notes (optional)',
+                                'More details (optional)',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -528,6 +499,78 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                                 color: planovaInk,
                               ),
                               children: [
+                                LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final difficulty =
+                                        DropdownButtonFormField<TaskDifficulty>(
+                                          initialValue: _difficulty,
+                                          isExpanded: true,
+                                          decoration: _decoration('Difficulty'),
+                                          items: TaskDifficulty.values
+                                              .map(
+                                                (value) => DropdownMenuItem(
+                                                  value: value,
+                                                  child: Text(
+                                                    _label(value.name),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              )
+                                              .toList(),
+                                          onChanged: _saving
+                                              ? null
+                                              : (value) => setState(
+                                                  () => _difficulty = value!,
+                                                ),
+                                        );
+                                    final importance =
+                                        DropdownButtonFormField<TaskImportance>(
+                                          initialValue: _importance,
+                                          isExpanded: true,
+                                          decoration: _decoration('Importance'),
+                                          items: TaskImportance.values
+                                              .map(
+                                                (value) => DropdownMenuItem(
+                                                  value: value,
+                                                  child: Text(
+                                                    _label(value.name),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              )
+                                              .toList(),
+                                          onChanged: _saving
+                                              ? null
+                                              : (value) => setState(
+                                                  () => _importance = value!,
+                                                ),
+                                        );
+                                    if (constraints.maxWidth >= 440 &&
+                                        MediaQuery.textScalerOf(context)
+                                                .scale(16) <=
+                                            18) {
+                                      return Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(child: difficulty),
+                                          const SizedBox(width: 16),
+                                          Expanded(child: importance),
+                                        ],
+                                      );
+                                    }
+                                    return Column(
+                                      children: [
+                                        difficulty,
+                                        const SizedBox(height: 20),
+                                        importance,
+                                      ],
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 20),
                                 TextFormField(
                                   key: const ValueKey('task-description'),
                                   controller: _description,

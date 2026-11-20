@@ -29,8 +29,10 @@ class TodayViewModel {
 
   AcademicTask? get upcomingTask {
     final tasks =
-        taskRepository.tasks.where((task) => !task.isCompleted).toList()
-          ..sort((a, b) => a.deadline.compareTo(b.deadline));
+        taskRepository.tasks
+            .where((task) => !task.isCompleted && task.hasDeadline)
+            .toList()
+          ..sort(AcademicTask.byDeadline);
     return tasks.firstOrNull;
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../models/academic_task.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../core/widgets/task_card.dart';
 import '../../../data/repositories/task_repository.dart';
@@ -25,8 +26,7 @@ class TasksScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tasks = repository.tasks.toList()
-      ..sort((a, b) => a.deadline.compareTo(b.deadline));
+    final tasks = repository.tasks.toList()..sort(AcademicTask.byDeadline);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

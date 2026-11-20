@@ -34,15 +34,32 @@ class _AssessmentInput {
     : title = TextEditingController(text: draft.title),
       weight = TextEditingController(
         text: draft.source.assessmentWeight?.toString() ?? '',
+      ),
+      minutes = TextEditingController(
+        text: suggestedMinutes(draft)?.toString() ?? '',
       );
   final AssessmentDraft draft;
   final TextEditingController title;
   final TextEditingController weight;
-  final minutes = TextEditingController();
-  bool selected = false;
+  final TextEditingController minutes;
+
+  /// Every new assessment starts selected; students untick what they skip.
+  bool selected = true;
+
+  /// Optional: proformas do not print due dates, so this may stay empty.
   DateTime? deadline;
-  TaskDifficulty difficulty = TaskDifficulty.moderate;
-  TaskImportance importance = TaskImportance.medium;
+
+  /// Title and weight are prefilled; their editors stay hidden until asked.
+  bool editDetails = false;
+
+  /// Effort suggestion from the printed SLT hours, when they are usable.
+  static int? suggestedMinutes(AssessmentDraft draft) {
+    final hours = draft.sltHours;
+    if (hours == null || !hours.isFinite || hours <= 0) return null;
+    final minutes = (hours * 60).round();
+    return minutes > maxEffortMinutes ? null : minutes;
+  }
+
   void dispose() {
     title.dispose();
     weight.dispose();
@@ -191,7 +208,7 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
         .toList();
     if (!valid || !_confirmed || selected.any(_incompleteAssessment)) {
       setState(
-        () => _error = 'Review the required fields, choose a deadline for each selected assessment, and confirm the review.',
+        () => _error = 'Check the selected assessments and confirm the review.',
       );
       return;
     }
@@ -222,10 +239,8 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
               title: r.title.text.trim(),
               subject: course.label,
               description: '',
-              deadline: r.deadline!,
+              deadline: r.deadline,
               estimatedMinutes: int.parse(r.minutes.text),
-              difficulty: r.difficulty,
-              importance: r.importance,
               courseId: id,
               source: r.draft.source,
               assessmentWeightPercent: double.tryParse(r.weight.text.trim()),
@@ -279,10 +294,7 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
                 !weight.isFinite ||
                 weight < 0 ||
                 weight > 100)) ||
-        minutes == null ||
-        minutes < 1 ||
-        minutes > 10080 ||
-        row.deadline == null;
+        validateEffort(minutes) != null;
   }
 
   void _continue() {
@@ -292,7 +304,8 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
       final valid = _assessmentForm.currentState!.validate();
       if (!valid || _selected.any(_incompleteAssessment)) {
         setState(
-          () => _error = 'Add a title, work estimate and exact deadline for each selected assessment.',
+          () => _error =
+              'Each selected assessment needs a title and a time estimate.',
         );
         return;
       }
@@ -525,21 +538,16 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
       key: const PageStorageKey('import-assessment-step'),
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       children: [
-        _heading('Choose what to add.'),
+        _heading('Check the assessments.'),
         const SizedBox(height: 8),
         const Text(
-          'Select assessments to turn into tasks. You can also save just the course and add tasks later.',
+          'All assessments are selected. Untick any you do not want. Time estimates come from the proforma where printed. Due dates are optional: add them now or later.',
           style: TextStyle(color: planovaMuted, height: 1.5),
         ),
         const SizedBox(height: 12),
         Text(
           '${_selected.length} selected',
           style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Enter your own deadlines and work estimates. Document weights are separate from task importance.',
-          style: TextStyle(color: planovaMuted, height: 1.5),
         ),
         const SizedBox(height: 20),
         for (var i = 0; i < _rows.length; i++) _assessment(_rows[i], i),
@@ -582,6 +590,14 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
               style: const TextStyle(color: Colors.white70),
             ),
             const SizedBox(height: 8),
+            if (_selected.any((row) => row.deadline == null))
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  '${_selected.where((row) => row.deadline == null).length} without a due date yet · add them later',
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ),
             Text(
               '${_selected.length} new ${_selected.length == 1 ? 'task' : 'tasks'} · ${formatDuration(_selected.fold<int>(0, (sum, row) => sum + (int.tryParse(row.minutes.text) ?? 0)))} remaining',
               style: const TextStyle(color: Colors.white70),
@@ -616,13 +632,14 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
-                if (row.deadline != null)
-                  Text(
-                    'Due ${row.deadline!.day} ${months[row.deadline!.month - 1]} ${row.deadline!.year} · ${TimeOfDay.fromDateTime(row.deadline!).format(context)}',
-                    style: const TextStyle(color: planovaMuted, height: 1.5),
-                  ),
                 Text(
-                  '${formatDuration(int.tryParse(row.minutes.text) ?? 0)} remaining · ${row.difficulty.name} · ${row.importance.name} importance',
+                  row.deadline == null
+                      ? 'No due date yet · add it later'
+                      : 'Due ${row.deadline!.day} ${months[row.deadline!.month - 1]} ${row.deadline!.year} · ${TimeOfDay.fromDateTime(row.deadline!).format(context)}',
+                  style: const TextStyle(color: planovaMuted, height: 1.5),
+                ),
+                Text(
+                  '${formatDuration(int.tryParse(row.minutes.text) ?? 0)} of work',
                   style: const TextStyle(color: planovaMuted, height: 1.5),
                 ),
                 Text(
@@ -698,88 +715,119 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
                   : (value) => setState(() => row.selected = value!),
             ),
             if (row.selected && !imported) ...[
-              const SizedBox(height: 12),
-              TextFormField(
-                key: ValueKey('import-title-$index'),
-                controller: row.title,
-                enabled: !_saving,
-                decoration: const InputDecoration(labelText: 'Task title'),
-                maxLength: 100,
-                validator: _required,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                key: ValueKey('import-weight-$index'),
-                controller: row.weight,
-                enabled: !_saving,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: const InputDecoration(
-                  labelText: 'Assessment weight (%)',
-                  helperText: 'Check the extracted percentage against your PDF. Correct it here, or leave blank if unknown.',
-                  helperMaxLines: 4,
-                  errorMaxLines: 3,
-                ),
-                validator: (text) {
-                  if (text == null || text.trim().isEmpty) return null;
-                  final value = double.tryParse(text.trim());
-                  return value == null ||
-                          !value.isFinite ||
-                          value < 0 ||
-                          value > 100
-                      ? 'Enter 0–100, or leave blank if unknown.'
-                      : null;
-                },
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               EffortField(
                 fieldKey: 'import-minutes-$index',
                 controller: row.minutes,
                 enabled: !_saving,
-                label: 'Work remaining',
-                helper: 'Your estimate. The proforma does not include this.',
+                label: 'Time needed',
+                helper:
+                    row.draft.sltHours != null &&
+                        _AssessmentInput.suggestedMinutes(row.draft) != null
+                    ? 'Suggested from the proforma: ${formatDuration(_AssessmentInput.suggestedMinutes(row.draft)!)} of study time. Change it if your estimate differs.'
+                    : 'The proforma has no hours for this assessment. Add your own estimate.',
                 validate: validateEffort,
                 onChanged: () => setState(() {}),
               ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                key: ValueKey('import-date-$index'),
-                onPressed: _saving ? null : () => _deadline(row),
-                icon: const Icon(Icons.calendar_month_outlined),
-                label: Text(
-                  row.deadline == null
-                      ? 'Choose exact deadline'
-                      : 'Due ${row.deadline!.day} ${months[row.deadline!.month - 1]} ${row.deadline!.year}',
-                ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    key: ValueKey('import-date-$index'),
+                    onPressed: _saving ? null : () => _deadline(row),
+                    icon: const Icon(Icons.calendar_month_outlined),
+                    label: Text(
+                      row.deadline == null
+                          ? 'Add due date (optional)'
+                          : 'Due ${row.deadline!.day} ${months[row.deadline!.month - 1]} ${row.deadline!.year}',
+                    ),
+                  ),
+                  if (row.deadline != null) ...[
+                    TextButton(
+                      onPressed: _saving ? null : () => _time(row),
+                      child: Text(
+                        'Time: ${TimeOfDay.fromDateTime(row.deadline!).format(context)}',
+                      ),
+                    ),
+                    TextButton(
+                      key: ValueKey('import-clear-date-$index'),
+                      onPressed: _saving
+                          ? null
+                          : () => setState(() => row.deadline = null),
+                      child: const Text('Decide later'),
+                    ),
+                  ],
+                ],
               ),
-              if (row.deadline != null)
-                TextButton(
-                  onPressed: _saving ? null : () => _time(row),
+              if (row.deadline == null)
+                const Padding(
+                  padding: EdgeInsets.only(top: 6),
                   child: Text(
-                    'Time: ${TimeOfDay.fromDateTime(row.deadline!).format(context)}',
+                    'Due dates are not in the proforma. You can add it later from the task.',
+                    style: TextStyle(color: planovaMuted, fontSize: 13),
                   ),
                 ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<TaskDifficulty>(
-                isExpanded: true,
-                initialValue: row.difficulty,
-                decoration: const InputDecoration(labelText: 'Difficulty'),
-                items: TaskDifficulty.values
-                    .map((d) => DropdownMenuItem(value: d, child: Text(d.name)))
-                    .toList(),
-                onChanged: _saving ? null : (v) => row.difficulty = v!,
+              // A plain toggle (not ExpansionTile) so nothing shares
+              // PageStorage slots with the list's scroll position.
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  key: ValueKey('import-edit-$index'),
+                  onPressed: () =>
+                      setState(() => row.editDetails = !row.editDetails),
+                  icon: Icon(
+                    row.editDetails
+                        ? Icons.expand_less_rounded
+                        : Icons.expand_more_rounded,
+                  ),
+                  label: const Text('Edit title or grade weight'),
+                ),
               ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<TaskImportance>(
-                isExpanded: true,
-                initialValue: row.importance,
-                decoration: const InputDecoration(labelText: 'Importance'),
-                items: TaskImportance.values
-                    .map((d) => DropdownMenuItem(value: d, child: Text(d.name)))
-                    .toList(),
-                onChanged: _saving ? null : (v) => row.importance = v!,
-              ),
+              if (row.editDetails)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      key: ValueKey('import-title-$index'),
+                      controller: row.title,
+                      enabled: !_saving,
+                      decoration: const InputDecoration(
+                        labelText: 'Task title',
+                      ),
+                      maxLength: 100,
+                      validator: _required,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      key: ValueKey('import-weight-$index'),
+                      controller: row.weight,
+                      enabled: !_saving,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Grade weight (%)',
+                        helperText: 'Read from the proforma. Correct it if needed, or leave blank if unknown.',
+                        helperMaxLines: 4,
+                        errorMaxLines: 3,
+                      ),
+                      validator: (text) {
+                        if (text == null || text.trim().isEmpty) return null;
+                        final value = double.tryParse(text.trim());
+                        return value == null ||
+                                !value.isFinite ||
+                                value < 0 ||
+                                value > 100
+                            ? 'Enter 0–100, or leave blank if unknown.'
+                            : null;
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
             ],
             ProformaSourceEvidence(source: source),
           ],

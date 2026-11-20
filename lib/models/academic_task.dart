@@ -12,7 +12,7 @@ class AcademicTask {
     required this.title,
     required this.subject,
     required this.description,
-    required this.deadline,
+    this.deadline,
     required this.estimatedMinutes,
     this.completedMinutes = 0,
     this.difficulty = TaskDifficulty.moderate,
@@ -28,7 +28,10 @@ class AcademicTask {
   final String title;
   final String subject;
   final String description;
-  final DateTime deadline;
+
+  /// Null means the student has not confirmed a due date yet ("decide
+  /// later"). Such tasks stay visible but are not ranked or planned.
+  final DateTime? deadline;
   final int estimatedMinutes;
   final int completedMinutes;
   final TaskDifficulty difficulty;
@@ -44,12 +47,24 @@ class AcademicTask {
   double get progress =>
       isCompleted ? 1 : (completedMinutes / estimatedMinutes).clamp(0, 1);
   bool get isCompleted => status == TaskStatus.completed;
+  bool get hasDeadline => deadline != null;
+  bool isOverdueAt(DateTime now) =>
+      !isCompleted && deadline != null && deadline!.isBefore(now);
+
+  /// Earliest due date first; tasks without a due date go last.
+  static int byDeadline(AcademicTask a, AcademicTask b) {
+    if (a.deadline == null || b.deadline == null) {
+      return a.deadline == null ? (b.deadline == null ? 0 : 1) : -1;
+    }
+    return a.deadline!.compareTo(b.deadline!);
+  }
 
   AcademicTask copyWith({
     String? title,
     String? subject,
     String? description,
     DateTime? deadline,
+    bool clearDeadline = false,
     int? estimatedMinutes,
     TaskDifficulty? difficulty,
     TaskImportance? importance,
@@ -63,7 +78,7 @@ class AcademicTask {
     title: title ?? this.title,
     subject: subject ?? this.subject,
     description: description ?? this.description,
-    deadline: deadline ?? this.deadline,
+    deadline: clearDeadline ? null : deadline ?? this.deadline,
     estimatedMinutes: estimatedMinutes ?? this.estimatedMinutes,
     completedMinutes: completedMinutes,
     difficulty: difficulty ?? this.difficulty,

@@ -28,5 +28,7 @@ void main() {
       40,
     ]);
     expect(draft.assessments.every((a) => a.source.page == 9), isTrue);
+    // Printed SLT hours per assessment, used only to suggest effort.
+    expect(draft.assessments.map((a) => a.sltHours), [8, 5, 10, 5, 12]);
   }, skip: !File(path).existsSync());
 }

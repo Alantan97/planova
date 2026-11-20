@@ -199,7 +199,7 @@ void main() {
       expect(saved.subject, task.subject);
       expect(saved.description, task.description);
       expect(saved.deadline, task.deadline);
-      expect(saved.deadline.isUtc, isTrue);
+      expect(saved.deadline!.isUtc, isTrue);
       expect(saved.estimatedMinutes, 90);
       expect(saved.completedMinutes, 0);
       expect(saved.difficulty, TaskDifficulty.challenging);
@@ -209,8 +209,8 @@ void main() {
       await repo.setCompleted('new', false);
       repo = await reopen();
       expect(repo.taskById('new')!.isCompleted, isFalse);
-      expect(repo.taskById('seed')!.deadline.hour, 23);
-      expect(repo.taskById('seed')!.deadline.minute, 59);
+      expect(repo.taskById('seed')!.deadline!.hour, 23);
+      expect(repo.taskById('seed')!.deadline!.minute, 59);
     },
   );
 

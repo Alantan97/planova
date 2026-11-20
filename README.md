@@ -9,7 +9,7 @@ Read `PLANOVA_CONTEXT.md` for the product direction and `AGENTS.md` for developm
 - Tasks: add, edit, delete, complete, and reopen academic tasks with validated forms.
 - Prioritize tasks (under Tasks): experimental on-device LambdaMART ranking using confirmed assessment percentages, calendar days until due, and work remaining. Ineligible tasks remain visible for review.
 - Courses & semesters (under Tasks): add/edit semesters and courses, select a course for a task, and explicitly change or unlink that relationship.
-- Proforma import (inside a semester): choose a supported text-based UPSI PDF, review course/assessment drafts, enter exact deadlines and remaining effort, and save selected tasks locally.
+- Proforma import (Tasks → Import proforma): choose a supported text-based UPSI PDF and check the assessments. Time estimates are pre-filled from the proforma's printed study hours; due dates are optional and can be added later. Tasks without a due date show "No due date yet" and are not ranked.
 - Plan: browse days and weeks; inspect study sessions and fixed commitments.
 - Weekly availability (under Plan): add, edit and delete recurring study windows and commitments such as classes, clubs, work or personal time. Shows free study time per week and per day (study windows minus commitments). Saved locally; no sessions are generated from it yet.
 - Progress: sample study time and task completion totals.

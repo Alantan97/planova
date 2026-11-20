@@ -54,6 +54,13 @@ Future<void> mountImporter(
   await tapVisible(tester, find.text('Open importer'));
 }
 
+/// Assessments start selected; untick the given rows.
+Future<void> untick(WidgetTester tester, Iterable<int> rows) async {
+  for (final i in rows) {
+    await tapVisible(tester, find.byKey(ValueKey('import-select-$i')));
+  }
+}
+
 void main() {
   Future<ProformaDraft> draft() =>
       ProformaImportService(
@@ -185,6 +192,7 @@ void main() {
       await tapVisible(tester, find.text('Use reviewed entries'));
       expect(dependencies.tasks.courses, isEmpty);
       await tapVisible(tester, find.text('Continue to assessments'));
+      await untick(tester, [0, 1, 2, 3, 4]);
       await tapVisible(tester, find.text('Review import'));
       await tapVisible(
         tester,
@@ -232,6 +240,64 @@ void main() {
     },
   );
 
+  testWidgets(
+    'Printed SLT hours prefill effort; a due date can be left for later',
+    (tester) async {
+      final dependencies = AppDependencies.demo();
+      addTearDown(dependencies.close);
+      final original = await draft();
+      final suggested = ProformaDraft(
+        courseCode: original.courseCode,
+        courseName: original.courseName,
+        documentSession: original.documentSession,
+        courseSource: original.courseSource,
+        assessments: [
+          AssessmentDraft(
+            title: original.assessments.first.title,
+            source: original.assessments.first.source,
+            sltHours: 8,
+          ),
+        ],
+        warnings: original.warnings,
+      );
+      await mountImporter(tester, dependencies, () async => suggested);
+      await tapVisible(tester, find.text('Choose PDF'));
+      await tapVisible(tester, find.text('Continue to assessments'));
+      final hours = tester.widget<TextField>(
+        find.byKey(const ValueKey('import-minutes-0-hours')),
+      );
+      expect(hours.controller!.text, '8');
+      expect(
+        find.textContaining('Suggested from the proforma: 8h'),
+        findsOneWidget,
+      );
+      expect(find.text('Add due date (optional)'), findsOneWidget);
+      await tapVisible(tester, find.text('Review import'));
+      expect(
+        find.text('1 without a due date yet · add them later'),
+        findsOneWidget,
+      );
+      expect(find.text('No due date yet · add it later'), findsOneWidget);
+      await tapVisible(
+        tester,
+        find.text('I reviewed the course and selected assessments.'),
+      );
+      await tapVisible(tester, find.text('Save reviewed import'));
+      final task = dependencies.tasks.tasks.last;
+      expect(task.deadline, isNull);
+      expect(task.estimatedMinutes, 480);
+      final ranked = await tester.runAsync(
+        () => dependencies.ranking.rank(
+          dependencies.tasks.tasks,
+          dependencies.clock.now(),
+        ),
+      );
+      final waiting = ranked!.unranked.where((u) => u.task.id == task.id);
+      expect(waiting.single.reason, 'No due date yet. Add it in Edit task.');
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('Import review fits a small screen with enlarged text', (
     tester,
   ) async {
@@ -249,14 +315,13 @@ void main() {
     expect(find.byType(SelectableText), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tapVisible(tester, find.text('Continue to assessments'));
-    await tapVisible(tester, find.byKey(const ValueKey('import-select-0')));
     await tapVisible(tester, find.byKey(const ValueKey('import-date-0')));
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
   });
 
   testWidgets(
-    'Review requires deadline, effort and confirmation before saving; reimport keeps tasks',
+    'Review requires effort and confirmation before saving; reimport keeps tasks',
     (tester) async {
       final dependencies = AppDependencies.demo();
       addTearDown(dependencies.close);
@@ -264,16 +329,35 @@ void main() {
       await tapVisible(tester, find.text('Choose PDF'));
       expect(dependencies.tasks.courses, isEmpty);
       await tapVisible(tester, find.text('Continue to assessments'));
-      await tapVisible(tester, find.byKey(const ValueKey('import-select-0')));
+      await untick(tester, [1, 2, 3, 4]);
+      // Without a printed SLT value there is no suggestion: effort is needed.
+      await tapVisible(tester, find.text('Review import'));
+      expect(find.text('STEP 2 OF 3 · NOTHING SAVED YET'), findsOneWidget);
+      expect(
+        find.text(
+          'Each selected assessment needs a title and a time estimate.',
+        ),
+        findsOneWidget,
+      );
+      expect(dependencies.tasks.tasks.length, 5);
+      expect(dependencies.tasks.courses, isEmpty);
+      // Unticking scrolled down the list; scroll back up to the first row.
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('import-edit-0')),
+        -300,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const PageStorageKey('import-assessment-step')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tapVisible(tester, find.byKey(const ValueKey('import-edit-0')));
       await tester.enterText(
         find.byKey(const ValueKey('import-weight-0')),
         '35.5',
       );
       await enterEffort(tester, 'import-minutes-0', minutes: '30');
-      await tapVisible(tester, find.text('Review import'));
-      expect(find.text('STEP 2 OF 3 · NOTHING SAVED YET'), findsOneWidget);
-      expect(dependencies.tasks.tasks.length, 5);
-      expect(dependencies.tasks.courses, isEmpty);
       await tapVisible(tester, find.byKey(const ValueKey('import-date-0')));
       await tester.tap(find.text('21').last);
       await tester.tap(find.text('OK'));
@@ -330,6 +414,8 @@ void main() {
         find.text('Already imported · existing task kept'),
         findsOneWidget,
       );
+      // Rows skipped last time start selected again; skip them again.
+      await untick(tester, [1, 2, 3, 4]);
       await tapVisible(tester, find.text('Review import'));
       await tapVisible(
         tester,

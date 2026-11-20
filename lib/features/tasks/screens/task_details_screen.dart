@@ -207,14 +207,21 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                               _progress(task),
                               const SizedBox(height: 20),
                               Panel(
-                                child: _detail(
-                                  Icons.event_outlined,
-                                  'Deadline',
-                                  '${task.deadline.day} ${months[task.deadline.month - 1]} ${task.deadline.year}',
-                                  secondary: TimeOfDay.fromDateTime(
-                                    task.deadline,
-                                  ).format(context),
-                                ),
+                                child: task.deadline == null
+                                    ? _detail(
+                                        Icons.event_outlined,
+                                        'Due date',
+                                        'Not set yet',
+                                        secondary: 'Add it in Edit task when you know it.',
+                                      )
+                                    : _detail(
+                                        Icons.event_outlined,
+                                        'Due date',
+                                        '${task.deadline!.day} ${months[task.deadline!.month - 1]} ${task.deadline!.year}',
+                                        secondary: TimeOfDay.fromDateTime(
+                                          task.deadline!,
+                                        ).format(context),
+                                      ),
                               ),
                               const SizedBox(height: 20),
                               Panel(
@@ -361,8 +368,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   );
 
   Widget _progress(AcademicTask task) {
-    final overdue =
-        !task.isCompleted && task.deadline.isBefore(widget.clock.now());
+    final overdue = task.isOverdueAt(widget.clock.now());
     final remaining = (task.estimatedMinutes - task.completedMinutes).clamp(
       0,
       task.estimatedMinutes,

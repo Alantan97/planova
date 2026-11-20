@@ -76,7 +76,10 @@ class LocalTaskRankingService implements TaskRankingService {
       if (task.isCompleted) continue;
       final remaining = task.estimatedMinutes - task.completedMinutes;
       final weight = task.assessmentWeightPercent;
-      final reason = !task.deadline.isAfter(now)
+      final deadline = task.deadline;
+      final reason = deadline == null
+          ? 'No due date yet. Add it in Edit task.'
+          : !deadline.isAfter(now)
           ? 'Deadline reached. Review the deadline before ranking.'
           : remaining <= 0
           ? 'No work remaining. Mark complete or update your estimate.'
@@ -94,9 +97,9 @@ class LocalTaskRankingService implements TaskRankingService {
       // Calendar dates match the integer-day training schema. UTC construction
       // avoids DST-length days without converting the user's local date to UTC.
       final days = DateTime.utc(
-        task.deadline.year,
-        task.deadline.month,
-        task.deadline.day,
+        deadline!.year,
+        deadline.month,
+        deadline.day,
       ).difference(DateTime.utc(now.year, now.month, now.day)).inDays;
       final values = [days.toDouble(), remaining.toDouble(), weight!];
       scored.add((
@@ -128,7 +131,7 @@ class LocalTaskRankingService implements TaskRankingService {
       );
       previous = row.score;
     }
-    unranked.sort((a, b) => a.task.deadline.compareTo(b.task.deadline));
+    unranked.sort((a, b) => AcademicTask.byDeadline(a.task, b.task));
     return TaskRanking(
       modelId: model.id,
       asOf: now,

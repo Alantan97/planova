@@ -16,17 +16,19 @@ class TaskCard extends StatelessWidget {
   final VoidCallback onTap;
 
   String _deadline(BuildContext context) {
-    if (DateUtils.isSameDay(task.deadline, now)) {
-      return 'Today · ${TimeOfDay.fromDateTime(task.deadline).format(context)}';
+    final deadline = task.deadline;
+    if (deadline == null) return 'No due date yet';
+    if (DateUtils.isSameDay(deadline, now)) {
+      return 'Today · ${TimeOfDay.fromDateTime(deadline).format(context)}';
     }
     final tomorrow = DateTime(now.year, now.month, now.day + 1);
-    if (DateUtils.isSameDay(task.deadline, tomorrow)) return 'Tomorrow';
-    return '${task.deadline.day} ${months[task.deadline.month - 1]}${task.deadline.year != now.year ? ' ${task.deadline.year}' : ''}';
+    if (DateUtils.isSameDay(deadline, tomorrow)) return 'Tomorrow';
+    return '${deadline.day} ${months[deadline.month - 1]}${deadline.year != now.year ? ' ${deadline.year}' : ''}';
   }
 
   @override
   Widget build(BuildContext context) {
-    final overdue = !task.isCompleted && task.deadline.isBefore(now);
+    final overdue = task.isOverdueAt(now);
     final statusColor = overdue ? planovaActionOrange : planovaMuted;
     final remaining = (task.estimatedMinutes - task.completedMinutes).clamp(
       0,

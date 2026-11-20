@@ -17,9 +17,17 @@ class ProformaSource {
 }
 
 class AssessmentDraft {
-  const AssessmentDraft({required this.title, required this.source});
+  const AssessmentDraft({
+    required this.title,
+    required this.source,
+    this.sltHours,
+  });
   final String title;
   final ProformaSource source;
+
+  /// Total student learning time printed for this assessment (SLT column),
+  /// used only to suggest effort. Null when not printed or not readable.
+  final double? sltHours;
 }
 
 class ProformaDraft {

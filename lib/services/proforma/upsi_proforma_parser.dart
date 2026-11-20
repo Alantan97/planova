@@ -71,6 +71,7 @@ class UpsiProformaParser {
         assessments.add(
           AssessmentDraft(
             title: row.title,
+            sltHours: row.sltHours,
             source: ProformaSource(
               fingerprint: fingerprint,
               fileName: fileName,
