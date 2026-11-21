@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/near_limit_counter.dart';
 import '../../../core/errors/academic_save_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/time/date_time_helpers.dart';
@@ -163,6 +164,7 @@ class _TimeBlockFormState extends State<TimeBlockForm> {
                                 'e.g. DES3113 lecture, futsal, cafe shift',
                           ),
                           maxLength: 80,
+                          buildCounter: nearLimitCounter,
                           textCapitalization: TextCapitalization.sentences,
                           validator: (value) => (value ?? '').trim().isEmpty
                               ? 'Enter a name.'

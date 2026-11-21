@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/near_limit_counter.dart';
 import '../../../core/errors/academic_save_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/time/app_clock.dart';
@@ -496,6 +497,7 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
           controller: _code,
           enabled: !_saving,
           maxLength: 30,
+          buildCounter: nearLimitCounter,
           decoration: const InputDecoration(labelText: 'Course code'),
           onChanged: (_) => setState(() {}),
           validator: _required,
@@ -507,6 +509,7 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
             controller: _name,
             enabled: !_saving,
             maxLength: 100,
+            buildCounter: nearLimitCounter,
             decoration: const InputDecoration(labelText: 'Course name'),
             validator: _required,
           ),
@@ -798,6 +801,7 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
                         labelText: 'Task title',
                       ),
                       maxLength: 100,
+                      buildCounter: nearLimitCounter,
                       validator: _required,
                     ),
                     const SizedBox(height: 12),

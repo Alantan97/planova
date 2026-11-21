@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/near_limit_counter.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../setup/widgets/setup_steps.dart' show currentSemester;
 import '../../../core/widgets/effort_field.dart';
@@ -196,18 +197,6 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
         alignLabelWithHint: true,
       );
 
-  Widget? _counter(
-    BuildContext context, {
-    required int currentLength,
-    required bool isFocused,
-    int? maxLength,
-  }) => isFocused
-      ? Text(
-          '$currentLength/$maxLength',
-          style: const TextStyle(color: planovaMuted, fontSize: 12),
-        )
-      : null;
-
   String? _validateMinutes(String? value) => validateEffort(
     int.tryParse(value ?? ''),
     recorded: widget.task?.completedMinutes ?? 0,
@@ -265,7 +254,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                                     TextCapitalization.sentences,
                                 textInputAction: TextInputAction.next,
                                 maxLength: 100,
-                                buildCounter: _counter,
+                                buildCounter: nearLimitCounter,
                                 validator: (value) =>
                                     value == null || value.trim().isEmpty
                                     ? 'Enter a task title.'
@@ -314,7 +303,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                                   textCapitalization: TextCapitalization.words,
                                   textInputAction: TextInputAction.next,
                                   maxLength: 80,
-                                  buildCounter: _counter,
+                                  buildCounter: nearLimitCounter,
                                   validator: (value) =>
                                       value == null || value.trim().isEmpty
                                       ? 'Enter a subject.'
@@ -584,7 +573,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                                   minLines: 3,
                                   maxLines: 5,
                                   maxLength: 1000,
-                                  buildCounter: _counter,
+                                  buildCounter: nearLimitCounter,
                                 ),
                               ],
                             ),

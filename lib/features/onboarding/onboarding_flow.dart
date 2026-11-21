@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/near_limit_counter.dart';
 import '../../app/app_dependencies.dart';
 import '../../core/errors/academic_save_error.dart';
 import '../../core/theme/app_theme.dart';
@@ -362,6 +363,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         decoration: const InputDecoration(labelText: 'Your name'),
         textCapitalization: TextCapitalization.words,
         maxLength: 40,
+        buildCounter: nearLimitCounter,
         onChanged: (_) => setState(() {}),
       ),
     ],
@@ -641,42 +643,51 @@ class _IntroCardsState extends State<_IntroCards> {
                   onPageChanged: (page) => setState(() => _page = page),
                   children: [
                     for (final (icon, title, body) in _cards)
-                      SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(18),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF4EC),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Icon(
-                                icon,
-                                size: 36,
-                                color: planovaActionOrange,
-                              ),
+                      LayoutBuilder(
+                        builder: (context, box) => SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: box.maxHeight - 48,
                             ),
-                            const SizedBox(height: 28),
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.6,
-                              ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: 112,
+                                  height: 112,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFF4EC),
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                  child: Icon(
+                                    icon,
+                                    size: 56,
+                                    color: planovaActionOrange,
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+                                Text(
+                                  title,
+                                  style: const TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -0.6,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  body,
+                                  style: const TextStyle(
+                                    color: planovaMuted,
+                                    fontSize: 16,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 12),
-                            Text(
-                              body,
-                              style: const TextStyle(
-                                color: planovaMuted,
-                                fontSize: 16,
-                                height: 1.5,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                   ],

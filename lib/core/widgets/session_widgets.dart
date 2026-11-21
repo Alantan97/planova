@@ -146,7 +146,7 @@ class NextSessionCard extends StatelessWidget {
             onPressed: onOpen ?? () => showSessionDetails(context, session),
             iconAlignment: IconAlignment.end,
             icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-            label: Text(onOpen == null ? 'View session' : 'Open session'),
+            label: Text(onOpen == null ? 'View session' : 'Record session'),
           ),
         ),
       ],

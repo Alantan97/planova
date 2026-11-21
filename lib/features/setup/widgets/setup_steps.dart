@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/near_limit_counter.dart';
 import '../../../core/errors/academic_save_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/time/app_clock.dart';
@@ -232,6 +233,7 @@ class SemesterStepState extends State<SemesterStep> {
                       hintText: 'e.g. Semester 1 · 2026/2027',
                     ),
                     maxLength: 100,
+                    buildCounter: nearLimitCounter,
                     textCapitalization: TextCapitalization.words,
                     validator: (value) => (value ?? '').trim().isEmpty
                         ? 'Enter a semester name.'

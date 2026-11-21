@@ -92,7 +92,7 @@ class ProgressScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                '${taskRepository.tasks.where((task) => task.isCompleted).length} of ${taskRepository.tasks.length} tasks completed',
+                '${taskRepository.tasks.where((task) => task.isCompleted).length} of ${taskRepository.tasks.length} ${taskRepository.tasks.length == 1 ? 'task' : 'tasks'} completed',
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 20,
@@ -102,20 +102,6 @@ class ProgressScreen extends StatelessWidget {
               const Text(
                 'Across your saved tasks.',
                 style: TextStyle(color: planovaMuted),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-        const Panel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SectionTitle('Make space to reflect'),
-              SizedBox(height: 12),
-              Text(
-                'Which study session helped you most? What would you change next week?',
-                style: TextStyle(color: planovaMuted, height: 1.5),
               ),
             ],
           ),

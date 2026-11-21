@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/near_limit_counter.dart';
 import '../../../core/errors/academic_save_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/time/app_clock.dart';
@@ -31,7 +32,12 @@ class _AcademicRecordFormState extends State<AcademicRecordForm> {
     text: widget.course?.name ?? widget.semester?.name,
   );
   late final _code = TextEditingController(text: widget.course?.code);
-  late String? _semesterId = widget.course?.semesterId ?? widget.semesterId;
+  late String? _semesterId =
+      widget.course?.semesterId ??
+      widget.semesterId ??
+      (widget.repository.semesters.length == 1
+          ? widget.repository.semesters.single.id
+          : null);
   late DateTime _start =
       widget.semester?.startDate ?? DateUtils.dateOnly(widget.clock.now());
   late DateTime _end =
@@ -157,7 +163,9 @@ class _AcademicRecordFormState extends State<AcademicRecordForm> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      if (_isCourse) ...[
+                      // With one semester there is nothing to choose.
+                      if (_isCourse &&
+                          widget.repository.semesters.length > 1) ...[
                         DropdownButtonFormField<String>(
                           key: const ValueKey('course-semester'),
                           initialValue: _semesterId,
@@ -183,6 +191,8 @@ class _AcademicRecordFormState extends State<AcademicRecordForm> {
                               value == null ? 'Select a semester.' : null,
                         ),
                         const SizedBox(height: 20),
+                      ],
+                      if (_isCourse) ...[
                         TextFormField(
                           key: const ValueKey('course-code'),
                           controller: _code,
@@ -192,6 +202,7 @@ class _AcademicRecordFormState extends State<AcademicRecordForm> {
                             hintText: 'e.g. DEQ3093',
                           ),
                           maxLength: 30,
+                          buildCounter: nearLimitCounter,
                           textCapitalization: TextCapitalization.characters,
                           validator: _required,
                         ),
@@ -210,6 +221,7 @@ class _AcademicRecordFormState extends State<AcademicRecordForm> {
                               : 'e.g. Semester 1 · 2026/2027',
                         ),
                         maxLength: 100,
+                        buildCounter: nearLimitCounter,
                         textCapitalization: TextCapitalization.words,
                         validator: _required,
                       ),
