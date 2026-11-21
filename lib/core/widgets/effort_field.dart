@@ -147,11 +147,12 @@ class _EffortFieldState extends State<EffortField> {
                 ('3 h', 180),
                 ('5 h', 300),
               ])
-                ActionChip(
+                ChoiceChip(
                   key: ValueKey('${widget.fieldKey}-quick-$total'),
                   label: Text(label),
-                  onPressed: widget.enabled
-                      ? () => setState(() => _choose(field, total))
+                  selected: int.tryParse(widget.controller.text) == total,
+                  onSelected: widget.enabled
+                      ? (_) => setState(() => _choose(field, total))
                       : null,
                 ),
             ],

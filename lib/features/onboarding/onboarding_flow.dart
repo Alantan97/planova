@@ -233,11 +233,20 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                                 ),
                               ),
                             ),
-                          FilledButton(
-                            key: const ValueKey('onboarding-next'),
-                            onPressed: _busy ? null : _next,
-                            child: Text(_busy ? 'Saving…' : _nextLabel),
-                          ),
+                          // Skipping is allowed but should not look like
+                          // the recommended action.
+                          if (_nextLabel.startsWith('Skip') && !_busy)
+                            OutlinedButton(
+                              key: const ValueKey('onboarding-next'),
+                              onPressed: _next,
+                              child: Text(_nextLabel),
+                            )
+                          else
+                            FilledButton(
+                              key: const ValueKey('onboarding-next'),
+                              onPressed: _busy ? null : _next,
+                              child: Text(_busy ? 'Saving…' : _nextLabel),
+                            ),
                         ],
                       ),
                     ),

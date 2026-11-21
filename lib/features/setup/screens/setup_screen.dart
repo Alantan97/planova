@@ -145,11 +145,17 @@ class _SetupScreenState extends State<SetupScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
-                    child: FilledButton(
-                      key: const ValueKey('setup-next'),
-                      onPressed: _saving ? null : _next,
-                      child: Text(_primaryLabel),
-                    ),
+                    child: _primaryLabel.startsWith('Skip')
+                        ? OutlinedButton(
+                            key: const ValueKey('setup-next'),
+                            onPressed: _next,
+                            child: Text(_primaryLabel),
+                          )
+                        : FilledButton(
+                            key: const ValueKey('setup-next'),
+                            onPressed: _saving ? null : _next,
+                            child: Text(_primaryLabel),
+                          ),
                   ),
                 ],
               ),

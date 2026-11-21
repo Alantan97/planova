@@ -75,7 +75,7 @@ void main() {
     // Adding a task from the course preselects that course.
     await tapVisible(tester, find.text('Add task to this course'));
     expect(find.text('Add task'), findsWidgets);
-    expect(find.text('DES3113 · Mobile'), findsWidgets);
+    expect(find.textContaining('DES3113 · Mobile'), findsWidgets);
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../setup/widgets/setup_steps.dart' show currentSemester;
 import '../../../core/widgets/effort_field.dart';
 import '../../../core/time/app_clock.dart';
 import '../../../core/time/date_time_helpers.dart';
@@ -59,7 +60,19 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   final _minutesFocus = FocusNode();
   final _weightFocus = FocusNode();
   bool _saving = false;
-  late String? _courseId = widget.task?.courseId ?? widget.initialCourseId;
+  late String? _courseId =
+      widget.task?.courseId ?? widget.initialCourseId ?? _onlyCurrentCourse;
+
+  /// A new task defaults to the course when the current semester has
+  /// exactly one; otherwise the student chooses.
+  String? get _onlyCurrentCourse {
+    if (widget.task != null) return null;
+    final semester = currentSemester(widget.repository, widget.clock.now());
+    final courses = widget.repository.courses
+        .where((c) => c.semesterId == semester?.id)
+        .toList();
+    return courses.length == 1 ? courses.single.id : null;
+  }
 
   @override
   void dispose() {
@@ -204,7 +217,6 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   Widget build(BuildContext context) {
     final recorded = widget.task?.completedMinutes ?? 0;
     final total = int.tryParse(_minutes.text);
-    final course = widget.repository.courseById(_courseId);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.task == null ? 'Add task' : 'Edit task'),
@@ -309,18 +321,6 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                                       : null,
                                 ),
                               ],
-                              if (course != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 10),
-                                  child: Text(
-                                    course.label,
-                                    style: const TextStyle(
-                                      color: planovaMuted,
-                                      fontSize: 13,
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                ),
                             ],
                           ),
                           const SizedBox(height: 28),
@@ -385,7 +385,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                                           : () => setState(
                                               () => _deadline = null,
                                             ),
-                                      child: const Text('No due date yet'),
+                                      child: const Text('Remove due date'),
                                     ),
                                   ],
                                 ),

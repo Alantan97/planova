@@ -44,6 +44,10 @@ class TodayScreen extends StatelessWidget {
     final plans = this.plans;
     final now = viewModel.clock.now();
     final unrecorded = plans?.unrecordedBefore(now) ?? const <StudySession>[];
+    final nextIsDeadline =
+        viewModel.nextSession != null &&
+        viewModel.upcomingTask != null &&
+        viewModel.nextSession!.taskId == viewModel.upcomingTask!.id;
     VoidCallback? record(StudySession s) => plans == null || s.commitment
         ? null
         : () => showRecordSessionSheet(context, plans: plans, session: s);
@@ -99,26 +103,32 @@ class TodayScreen extends StatelessWidget {
             viewModel.nextSession!,
             onOpen: record(viewModel.nextSession!),
           ),
-        const SizedBox(height: 20),
-        const SectionTitle('Next deadline'),
-        const SizedBox(height: 12),
-        if (viewModel.upcomingTask != null)
-          TaskCard(
-            task: viewModel.upcomingTask!,
-            now: viewModel.clock.now(),
-            onTap: () => openTaskDetails(
-              context,
-              tasks,
-              viewModel.clock,
-              viewModel.upcomingTask!.id,
+        // The next session's card already shows that task; only show the
+        // deadline section when it adds something new.
+        if (!nextIsDeadline) ...[
+          const SizedBox(height: 20),
+          const SectionTitle('Next deadline'),
+          const SizedBox(height: 12),
+          if (viewModel.upcomingTask != null)
+            TaskCard(
+              task: viewModel.upcomingTask!,
+              now: viewModel.clock.now(),
+              onTap: () => openTaskDetails(
+                context,
+                tasks,
+                viewModel.clock,
+                viewModel.upcomingTask!.id,
+              ),
+            )
+          else if (tasks.tasks.isEmpty)
+            _NoTasksPanel(viewModel: viewModel)
+          else
+            const Panel(
+              child: Text(
+                'You are all caught up. Every saved task is complete.',
+              ),
             ),
-          )
-        else if (tasks.tasks.isEmpty)
-          _NoTasksPanel(viewModel: viewModel)
-        else
-          const Panel(
-            child: Text('You are all caught up. Every saved task is complete.'),
-          ),
+        ],
         const SizedBox(height: 28),
         SectionTitle(
           'Your day',
@@ -140,9 +150,10 @@ class TodayScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        ...sessions.map(
-          (session) => SessionRow(session, onTap: record(session)),
-        ),
+        // The next session is already the featured card above.
+        ...sessions
+            .where((s) => s.id != viewModel.nextSession?.id)
+            .map((session) => SessionRow(session, onTap: record(session))),
         if (samples) ...[
           const SizedBox(height: 24),
           const SectionTitle('Sample study week'),

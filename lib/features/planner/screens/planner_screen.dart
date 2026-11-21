@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show OverflowBoxFit;
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/time/date_time_helpers.dart';
@@ -11,6 +12,36 @@ import '../widgets/plan_action_card.dart';
 import '../widgets/record_session_sheet.dart';
 import '../../availability/widgets/availability_summary_card.dart';
 import '../view_models/planner_view_model.dart';
+
+/// All seven days fit on a phone. Tiles stay at least 48 px wide (the
+/// Android touch-target guideline), borrowing up to 8 px of the page margin
+/// on each side when needed. Only very narrow screens scroll.
+Widget _weekStrip(double width, Widget Function(int index, double width) tile) {
+  final roomy = (width - 6 * 4) / 7;
+  if (roomy >= 48) {
+    return Row(
+      spacing: 4,
+      children: [for (var i = 0; i < 7; i++) tile(i, roomy.clamp(48.0, 88.0))],
+    );
+  }
+  final wide = width + 16;
+  final snug = (wide - 6 * 2) / 7;
+  if (snug >= 48) {
+    return OverflowBox(
+      fit: OverflowBoxFit.deferToChild,
+      minWidth: wide,
+      maxWidth: wide,
+      child: Row(
+        spacing: 2,
+        children: [for (var i = 0; i < 7; i++) tile(i, snug)],
+      ),
+    );
+  }
+  return SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    child: Row(spacing: 4, children: [for (var i = 0; i < 7; i++) tile(i, 48)]),
+  );
+}
 
 class PlannerScreen extends StatelessWidget {
   const PlannerScreen({
@@ -75,84 +106,71 @@ class PlannerScreen extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              spacing: 4,
-              children: List.generate(7, (index) {
-                final day = DateTime(
-                  start.year,
-                  start.month,
-                  start.day + index,
-                );
-                final selected = viewModel.selectedDay == index;
-                final hasSession = viewModel.hasSessions(index);
-                return SizedBox(
-                  width: ((constraints.maxWidth - 24) / 7).clamp(48.0, 88.0),
-                  child: Semantics(
-                    button: true,
-                    selected: selected,
-                    excludeSemantics: true,
+          builder: (context, constraints) => _weekStrip(constraints.maxWidth, (
+            index,
+            width,
+          ) {
+            final day = DateTime(start.year, start.month, start.day + index);
+            final selected = viewModel.selectedDay == index;
+            final hasSession = viewModel.hasSessions(index);
+            return SizedBox(
+              width: width,
+              child: Semantics(
+                button: true,
+                selected: selected,
+                excludeSemantics: true,
+                onTap: () => viewModel.selectDay(index),
+                label:
+                    '${weekdays[index]}, ${day.day} ${months[day.month - 1]} ${day.year}${hasSession ? ', has sessions' : ''}',
+                child: Material(
+                  color: selected
+                      ? planovaActionOrange
+                      : const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(16),
+                  child: InkWell(
+                    key: ValueKey('day-$index'),
+                    borderRadius: BorderRadius.circular(16),
                     onTap: () => viewModel.selectDay(index),
-                    label:
-                        '${weekdays[index]}, ${day.day} ${months[day.month - 1]} ${day.year}${hasSession ? ', has sessions' : ''}',
-                    child: Material(
-                      color: selected
-                          ? planovaActionOrange
-                          : const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(16),
-                      child: InkWell(
-                        key: ValueKey('day-$index'),
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () => viewModel.selectDay(index),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          child: Column(
-                            children: [
-                              Text(
-                                weekdays[index],
-                                style: TextStyle(
-                                  color: selected
-                                      ? planovaOnOrange
-                                      : planovaInk,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '${day.day}',
-                                style: TextStyle(
-                                  color: selected
-                                      ? planovaOnOrange
-                                      : planovaInk,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                width: 4,
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: hasSession
-                                      ? (selected
-                                            ? planovaOnOrange
-                                            : planovaInk)
-                                      : Colors.transparent,
-                                ),
-                              ),
-                            ],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      child: Column(
+                        children: [
+                          Text(
+                            weekdays[index],
+                            style: TextStyle(
+                              color: selected ? planovaOnOrange : planovaInk,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${day.day}',
+                            style: TextStyle(
+                              color: selected ? planovaOnOrange : planovaInk,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 4,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: hasSession
+                                  ? (selected ? planovaOnOrange : planovaInk)
+                                  : Colors.transparent,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                );
-              }),
-            ),
-          ),
+                ),
+              ),
+            );
+          }),
         ),
         const SizedBox(height: 24),
         FeaturedPanel(
