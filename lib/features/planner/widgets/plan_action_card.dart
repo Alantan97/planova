@@ -6,42 +6,7 @@ import '../../../core/widgets/study_components.dart';
 import '../../../data/repositories/availability_repository.dart';
 import '../../../data/repositories/study_plan_repository.dart';
 import '../../../data/repositories/task_repository.dart';
-import '../../../services/planning/rule_based_planner.dart';
-import '../../availability/screens/availability_screen.dart';
-import '../screens/plan_proposal_screen.dart';
-
-/// Runs the rule-based planner for the next 7 days and opens the proposal
-/// for review. Nothing is saved until the student accepts it.
-Future<void> openPlanProposal(
-  BuildContext context, {
-  required StudyPlanRepository plans,
-  required TaskRepository tasks,
-  required AvailabilityRepository availability,
-  required AppClock clock,
-}) {
-  final proposal = planWeek(
-    tasks: tasks.tasks,
-    availability: availability.availability,
-    now: clock.now(),
-  );
-  // An earlier message (e.g. "Marked as missed") must not cover Accept.
-  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-  return Navigator.push(
-    context,
-    MaterialPageRoute<void>(
-      builder: (routeContext) => PlanProposalScreen(
-        proposal: proposal,
-        repository: plans,
-        onSetAvailability: () => Navigator.pushReplacement(
-          routeContext,
-          MaterialPageRoute<void>(
-            builder: (_) => AvailabilityScreen(repository: availability),
-          ),
-        ),
-      ),
-    ),
-  );
-}
+import '../open_plan_proposal.dart';
 
 /// Plan-tab entry point for [openPlanProposal].
 class PlanActionCard extends StatelessWidget {

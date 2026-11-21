@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_theme.dart';
 import '../../../core/time/app_clock.dart';
-import '../../../core/widgets/study_components.dart';
 import '../../../data/repositories/availability_repository.dart';
 import '../../../data/repositories/task_repository.dart';
-import '../widgets/setup_steps.dart';
-
-export '../widgets/setup_steps.dart' show currentSemester, AvailabilityPreset;
+import '../widgets/availability_step.dart';
+import '../widgets/courses_step.dart';
+import '../widgets/semester_step.dart';
+import '../widgets/step_progress.dart';
 
 /// Short setup opened from Today's "Continue setup": semester → courses →
 /// weekly availability. Uses the same step widgets as the first-run journey.
@@ -26,16 +25,6 @@ class SetupScreen extends StatefulWidget {
   final AvailabilityRepository availability;
   final AppClock clock;
   final int initialStep;
-
-  /// The first step that still has nothing saved.
-  static int firstIncompleteStep(
-    TaskRepository tasks,
-    AvailabilityRepository availability,
-  ) {
-    if (tasks.semesters.isEmpty) return 0;
-    if (tasks.courses.isEmpty) return 1;
-    return 2;
-  }
 
   @override
   State<SetupScreen> createState() => _SetupScreenState();
@@ -80,7 +69,7 @@ class _SetupScreenState extends State<SetupScreen> {
     if (_saving) return 'Saving…';
     final now = widget.clock.now();
     if (_step == 0) {
-      return currentSemester(widget.tasks, now) == null
+      return widget.tasks.currentSemester(now) == null
           ? 'Save and continue'
           : 'Continue';
     }
@@ -163,46 +152,6 @@ class _SetupScreenState extends State<SetupScreen> {
           ),
         ),
       ),
-    ),
-  );
-}
-
-/// "STEP 2 OF 3 · COURSES" with a segmented progress bar.
-class StepProgress extends StatelessWidget {
-  const StepProgress({
-    super.key,
-    required this.label,
-    required this.current,
-    required this.total,
-  });
-  final String label;
-  final int current;
-  final int total;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Eyebrow(label),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            for (var i = 0; i < total; i++)
-              Expanded(
-                child: Container(
-                  height: 5,
-                  margin: EdgeInsets.only(right: i < total - 1 ? 6 : 0),
-                  decoration: BoxDecoration(
-                    color: i <= current ? planovaActionOrange : planovaBorder,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ],
     ),
   );
 }

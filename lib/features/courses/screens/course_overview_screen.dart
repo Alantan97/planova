@@ -10,7 +10,6 @@ import '../../../models/academic_course.dart';
 import '../../../models/academic_task.dart';
 import '../../../services/ranking/task_ranking_service.dart';
 import '../../ranking/screens/task_ranking_screen.dart';
-import '../../setup/screens/setup_screen.dart';
 import '../../tasks/screens/task_details_screen.dart';
 import '../../tasks/screens/task_form_screen.dart';
 import '../start_proforma_import.dart';
@@ -43,7 +42,7 @@ class CourseOverviewScreen extends StatelessWidget {
   /// unlinked tasks grouped by their typed subject. Tasks inside a group:
   /// active by due date (undated last), then completed.
   List<_Group> _groups() {
-    final current = currentSemester(repository, clock.now());
+    final current = repository.currentSemester(clock.now());
     final courses = [...repository.courses]
       ..sort((a, b) {
         final aCurrent = a.semesterId == current?.id ? 0 : 1;
@@ -80,7 +79,7 @@ class CourseOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final semester = currentSemester(repository, clock.now());
+    final semester = repository.currentSemester(clock.now());
     final groups = _groups();
     final tasks = repository.tasks;
     final active = tasks.where((task) => !task.isCompleted).length;

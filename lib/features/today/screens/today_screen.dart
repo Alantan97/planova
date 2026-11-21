@@ -9,7 +9,7 @@ import '../../../data/repositories/availability_repository.dart';
 import '../../../data/repositories/profile_repository.dart';
 import '../../../data/repositories/study_plan_repository.dart';
 import '../../../models/study_session.dart';
-import '../../planner/widgets/plan_action_card.dart';
+import '../../planner/open_plan_proposal.dart';
 import '../../planner/widgets/record_session_sheet.dart';
 import '../view_models/today_view_model.dart';
 import '../widgets/get_started_card.dart';

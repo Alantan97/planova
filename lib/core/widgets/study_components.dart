@@ -79,59 +79,6 @@ class FeaturedPanel extends StatelessWidget {
   );
 }
 
-class DemoTag extends StatelessWidget {
-  const DemoTag(this.text, {super.key});
-  final String text;
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      color: planovaInk,
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Text(
-      text,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 10,
-        letterSpacing: 1,
-        fontWeight: FontWeight.w800,
-      ),
-    ),
-  );
-}
-
-class DateTile extends StatelessWidget {
-  const DateTile({super.key, required this.day, required this.month});
-  final String day;
-  final String month;
-  @override
-  Widget build(BuildContext context) => Container(
-    width: 52,
-    padding: const EdgeInsets.symmetric(vertical: 10),
-    decoration: BoxDecoration(
-      color: const Color(0xFFF5F5F5),
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Column(
-      children: [
-        Text(
-          month,
-          style: const TextStyle(
-            fontSize: 10,
-            color: planovaActionOrange,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        Text(
-          day,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-        ),
-      ],
-    ),
-  );
-}
-
 class DemoNote extends StatelessWidget {
   const DemoNote({super.key, this.samples = true});
 

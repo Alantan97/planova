@@ -8,6 +8,7 @@ import '../../../core/widgets/session_widgets.dart';
 import '../../../data/repositories/availability_repository.dart';
 import '../../../data/repositories/study_plan_repository.dart';
 import '../../../data/repositories/task_repository.dart';
+import '../open_plan_proposal.dart';
 import '../widgets/plan_action_card.dart';
 import '../widgets/record_session_sheet.dart';
 import '../../availability/widgets/availability_summary_card.dart';

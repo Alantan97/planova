@@ -9,9 +9,15 @@ import '../../core/widgets/study_components.dart';
 import '../../models/onboarding_progress.dart';
 import '../../services/auth/auth_service.dart';
 import '../../services/planning/rule_based_planner.dart';
-import '../planner/widgets/plan_action_card.dart';
-import '../setup/screens/setup_screen.dart';
-import '../setup/widgets/setup_steps.dart';
+import '../planner/open_plan_proposal.dart';
+import '../setup/widgets/availability_step.dart';
+import '../setup/widgets/courses_step.dart';
+import '../setup/widgets/semester_step.dart';
+import '../setup/widgets/step_intro.dart';
+import '../setup/widgets/step_progress.dart';
+import 'widgets/fix_panel.dart';
+import 'widgets/intro_cards.dart';
+import 'widgets/welcome_screen.dart';
 import '../today/widgets/needs_input_section.dart';
 
 /// The guided first-run journey, one screen at a time:
@@ -155,7 +161,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     return switch (_step) {
       2 => _name.text.trim().isEmpty ? 'Skip' : 'Continue',
       3 =>
-        currentSemester(_d.tasks, now) == null
+        _d.tasks.currentSemester(now) == null
             ? 'Save and continue'
             : 'Continue',
       4 => CoursesStep.hasCourses(_d.tasks, now) ? 'Continue' : 'Skip for now',
@@ -174,9 +180,15 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
   @override
   Widget build(BuildContext context) {
-    if (_step == 0) return _welcome();
+    if (_step == 0) {
+      return WelcomeScreen(
+        busy: _busy,
+        onGoogle: _google,
+        onGuest: _continueAsGuest,
+      );
+    }
     if (_step == 1) {
-      return _IntroCards(onDone: () => _goTo(2), onBack: () => _goTo(0));
+      return IntroCards(onDone: () => _goTo(2), onBack: () => _goTo(0));
     }
     return PopScope(
       canPop: false,
@@ -271,83 +283,6 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     _ => _done(),
   };
 
-  // ---- 0 · Welcome & account ---------------------------------------------
-
-  // Scrolls on small screens or with large text; when there is room the
-  // spacers still spread the content over the screen.
-  Widget _welcome() => Scaffold(
-    body: SafeArea(
-      child: LayoutBuilder(
-        builder: (context, viewport) => SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: viewport.maxHeight),
-            child: IntrinsicHeight(child: _welcomeContent()),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  Widget _welcomeContent() => Center(
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 480),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Semantics(
-                label: 'Planova logo',
-                image: true,
-                child: Image.asset(
-                  'assets/branding/planova_wordmark_black.png',
-                  height: 28,
-                  excludeFromSemantics: true,
-                ),
-              ),
-            ),
-            const Spacer(),
-            const Text(
-              'Plan your semester, one week at a time.',
-              style: TextStyle(
-                fontSize: 32,
-                height: 1.15,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.8,
-              ),
-            ),
-            const SizedBox(height: 14),
-            const Text(
-              'Import your course proformas, tell Planova when you can study, and get a weekly plan you can adjust.',
-              style: TextStyle(color: planovaMuted, fontSize: 16, height: 1.5),
-            ),
-            const Spacer(),
-            OutlinedButton.icon(
-              key: const ValueKey('onboarding-google'),
-              onPressed: _busy ? null : _google,
-              icon: const Icon(Icons.account_circle_outlined),
-              label: const Text('Continue with Google'),
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              key: const ValueKey('onboarding-guest'),
-              onPressed: _busy ? null : _continueAsGuest,
-              child: const Text('Continue without an account'),
-            ),
-            const SizedBox(height: 14),
-            const Text(
-              'Google sign-in is not connected yet. Your data stays on this device.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: planovaMuted, fontSize: 12, height: 1.4),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-
   // ---- 2 · About you ------------------------------------------------------
 
   Widget _aboutYou() => ListView(
@@ -381,7 +316,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           'Proformas do not list due dates. Add the ones you know so Planova can plan them. You can do the rest later from Today.',
         ),
         if (_d.tasks.tasks.every((t) => t.isCompleted))
-          _FixPanel(
+          FixPanel(
             message: 'You have no assessments yet, so there are no due dates to add.',
             action: 'Back to courses',
             buttonKey: 'onboarding-fix-dates',
@@ -507,7 +442,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
             'Add study times',
             5,
           );
-    return _FixPanel(
+    return FixPanel(
       message: message,
       action: action,
       buttonKey: 'onboarding-fix-plan',
@@ -575,208 +510,4 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       ],
     );
   }
-}
-
-/// Step 1: three short cards explaining the idea, swipe or tap Next.
-class _IntroCards extends StatefulWidget {
-  const _IntroCards({required this.onDone, required this.onBack});
-  final VoidCallback onDone;
-  final VoidCallback onBack;
-
-  @override
-  State<_IntroCards> createState() => _IntroCardsState();
-}
-
-class _IntroCardsState extends State<_IntroCards> {
-  final _pages = PageController();
-  int _page = 0;
-
-  static const _cards = [
-    (
-      Icons.upload_file_outlined,
-      'Import your courses',
-      'Pick a course proforma PDF. Planova reads its assessments, grade weights and study hours.',
-    ),
-    (
-      Icons.event_note_outlined,
-      'Get a weekly plan',
-      'Tell Planova when you can study. It fills that time with sessions, earliest due date first.',
-    ),
-    (
-      Icons.published_with_changes_rounded,
-      'Record and adjust',
-      'Mark each session done, partly done or missed. If plans change, re-plan the rest of the week.',
-    ),
-  ];
-
-  @override
-  void dispose() {
-    _pages.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      leading: IconButton(
-        tooltip: 'Back',
-        onPressed: widget.onBack,
-        icon: const Icon(Icons.arrow_back),
-      ),
-      actions: [
-        TextButton(
-          key: const ValueKey('onboarding-intro-skip'),
-          onPressed: widget.onDone,
-          child: const Text('Skip'),
-        ),
-      ],
-    ),
-    body: SafeArea(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: Column(
-            children: [
-              Expanded(
-                child: PageView(
-                  controller: _pages,
-                  onPageChanged: (page) => setState(() => _page = page),
-                  children: [
-                    for (final (icon, title, body) in _cards)
-                      LayoutBuilder(
-                        builder: (context, box) => SingleChildScrollView(
-                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight: box.maxHeight - 48,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width: 112,
-                                  height: 112,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFF4EC),
-                                    borderRadius: BorderRadius.circular(32),
-                                  ),
-                                  child: Icon(
-                                    icon,
-                                    size: 56,
-                                    color: planovaActionOrange,
-                                  ),
-                                ),
-                                const SizedBox(height: 32),
-                                Text(
-                                  title,
-                                  style: const TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -0.6,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  body,
-                                  style: const TextStyle(
-                                    color: planovaMuted,
-                                    fontSize: 16,
-                                    height: 1.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              Semantics(
-                label: 'Card ${_page + 1} of ${_cards.length}',
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    for (var i = 0; i < _cards.length; i++)
-                      Container(
-                        width: i == _page ? 22 : 8,
-                        height: 8,
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        decoration: BoxDecoration(
-                          color: i == _page
-                              ? planovaActionOrange
-                              : planovaBorder,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    key: const ValueKey('onboarding-intro-next'),
-                    onPressed: () {
-                      if (_page == _cards.length - 1) {
-                        widget.onDone();
-                      } else {
-                        _pages.nextPage(
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.easeOut,
-                        );
-                      }
-                    },
-                    child: Text(
-                      _page == _cards.length - 1 ? 'Get started' : 'Next',
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-/// "Here is what is missing" with a button to the step that fixes it, so an
-/// empty step is never a dead end.
-class _FixPanel extends StatelessWidget {
-  const _FixPanel({
-    required this.message,
-    required this.action,
-    required this.buttonKey,
-    required this.onPressed,
-  });
-  final String message;
-  final String action;
-  final String buttonKey;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(18),
-    decoration: BoxDecoration(
-      color: const Color(0xFFFFF4EC),
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(message, style: const TextStyle(height: 1.5)),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          key: ValueKey(buttonKey),
-          onPressed: onPressed,
-          icon: const Icon(Icons.arrow_back_rounded),
-          label: Text(action),
-        ),
-      ],
-    ),
-  );
 }

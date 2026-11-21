@@ -5,74 +5,101 @@ Paths and commands in the development documents are relative to the project root
 ## Source ownership
 
 ```text
-ai/                       Isolated offline LambdaMART experiment (not an API)
-assets/branding/           Runtime logos and app branding
+ai/                         Isolated offline LambdaMART experiment (not an API)
+assets/branding/            Runtime logos and app branding
+assets/ranking/             Exported ranking model used by the experimental screen
 lib/
-  app/                    App composition, startup, and navigation
+  main.dart                 Entry point
+  app/                      Dependency composition (AppDependencies), startup
+                            (journey or app), and the four-tab navigation shell
   core/
-    errors/               Shared user-facing error messages
-    theme/                Design tokens and Flutter theme
-    time/                 AppClock, DemoClock, and pure date/time helpers
-    widgets/              UI shared across features
+    errors/                 Shared user-facing error messages
+    theme/                  Design tokens and Flutter theme
+    time/                   AppClock + SystemClock (real), DemoClock (preview),
+                            and pure date/time helpers
+    widgets/                UI shared across features (effort input, task card,
+                            session rows, counters, panels)
   data/
-    repositories/         Persistence contracts and academic-record rules
-    local/                Sembast storage, migrations, and codecs
-    mock/                 Explicit sample tasks/sessions
+    repositories/           Storage contracts and their shared rules
+                            (tasks/courses, availability, study plan, profile)
+    local/                  Sembast storage, migrations, and codecs
+    mock/                   Explicit sample tasks/sessions for the demo build
   features/
-    courses/              Course/semester forms and reviewed proforma import
-    tasks/                Task list, form, and details
-    today/                Overview and its view model
-    planner/              Sample calendar and its view model
-    progress/             Task totals and sample study progress
-  models/                 Immutable domain records
-  services/proforma/      Local PDF extraction and template parsing
-  services/ranking/       Versioned model evaluator and on-device ranking service
+    onboarding/             Guided first-run journey; widgets/ holds the welcome
+                            screen, intro cards and "what is missing" panel
+    setup/                  Short setup screen; widgets/ holds the step widgets
+                            shared with the journey (semester, courses,
+                            availability, step intro and progress bar)
+    today/                  Overview, "Get started" card, "Needs your input"
+    courses/                Courses tab, course/semester forms, proforma import
+                            and review, weekly learning; start_proforma_import.dart
+    tasks/                  Task form and details; widgets/ holds the due-date sheet
+    planner/                Plan tab, plan proposal, record-session sheet;
+                            open_plan_proposal.dart runs the planner for review
+    availability/           Weekly availability and commitment forms
+    progress/               Studied vs planned time and task totals
+    ranking/                Experimental priority screen and view model
+  models/                   Immutable domain records
+  services/
+    auth/                   Account boundary (guest-only until Google sign-in)
+    planning/               Free study slots and the rule-based weekly planner
+    proforma/               Local PDF extraction and template parsing
+    ranking/                Versioned model evaluator and on-device ranking
 ```
 
-Feature widgets belong under their feature's `widgets/` folder. Move a widget to
-`core/widgets/` only when multiple features actually share it. Shared utility code
-must not import a screen. `main.dart` is the entry point; app tests import
-`app/planova_app.dart` directly.
+Feature widgets belong under their feature's `widgets/` folder. A file that starts
+a flow used by several features (`start_proforma_import.dart`,
+`open_plan_proposal.dart`) sits at the feature root. Move a widget to
+`core/widgets/` only when several features actually share it. Shared utility code
+must not import a screen. App tests import `app/planova_app.dart` directly.
 
-`AppClock` defines the time boundary, `SystemClock` gives the real time (normal app), `DemoClock` the fixed preview date (demo and tests),
-and `date_time_helpers.dart` contains formatting/calendar helpers independent of
-that clock. Changing folders does not change the preview date or scheduling behavior.
+Queries about saved data belong on the repository contract, not in a screen:
+for example `TaskRepository.currentSemester(now)`.
+
+`AppClock` defines the time boundary. The normal app uses `SystemClock` (the
+device's real date); the demo build and tests use `DemoClock` (14 October 2026,
+13:00) so results are reproducible. `date_time_helpers.dart` contains formatting
+helpers independent of the clock.
 
 ## Tests
 
 ```text
-test/app/                 Startup, navigation, and accessibility
-test/data/                Mock data and persistence/migration tests
-test/features/courses/    Course management and proforma review
-test/features/tasks/      Task management and forms
-test/services/proforma/   Parser and optional real-PDF extraction tests
-test/support/             Synthetic fixtures and reusable widget actions
+test/app/                   Startup, navigation, and accessibility
+test/core/                  Shared widgets (effort input, counters)
+test/data/                  Mock data and persistence/migration tests
+test/features/<feature>/    One folder per lib/features/<feature>/
+test/services/              Planner, proforma parser and ranking tests
+test/support/               Fixtures, realModeApp() and widget actions
 ```
 
-Test suites must not import another `_test.dart` file. Keep shared setup/actions
-in `test/support/`, and keep synthetic fixtures separate from private research PDFs.
-The real-PDF test deliberately uses a project-root-relative `research/` path.
+Name test files after what they check (`today_layout_test.dart`), not after the
+work session that added them. Test suites must not import another `_test.dart`
+file. Keep shared setup in `test/support/` (for example `realModeApp()` in
+`test_apps.dart`), and keep synthetic fixtures separate from private research
+PDFs. The real-PDF tests use a project-root-relative `research/` path and skip
+when it is missing.
 
 ## Documents and local files
 
 - Root: `README.md`, `AGENTS.md`, and `PLANOVA_CONTEXT.md` are entry points.
-- `docs/`: supporting development plans and implementation notes.
+- `docs/`: development plan, workflow, proforma import, task ranking, rule-based
+  planner, and this folder guide.
 - `design/previews/`: historical visual references, not bundled assets.
 - `research/`: private source documents, survey drafts, and responses; Git-ignored.
+- `tool/`: helper scripts (proforma evaluation preparation).
 - `build/`, `.dart_tool/`, and platform ephemeral directories: generated output.
 
 Do not move private research into `assets/`, delete local data as cleanup, or edit
 generated plugin registration files by hand. Keep Flutter platform folders in
 place so native builds and future platform work continue to use standard tooling.
 
-## Availability and planning inputs
+## Planning
 
 `lib/models/weekly_availability.dart` defines study windows, recurring commitments
-and their shared `WeeklyTimeRange`. `AvailabilityRepository` is the storage contract;
-`LocalAvailabilityRepository` saves one record in the task database and
-`MemoryAvailabilityRepository` serves demo/test builds. `lib/features/availability/`
-owns the screens. `lib/services/planning/free_study_slots.dart` is the pure,
-rule-based input for the future baseline planner: study windows minus commitments.
+and their shared `WeeklyTimeRange`. `lib/services/planning/free_study_slots.dart`
+computes free study time (windows minus commitments) and
+`rule_based_planner.dart` fills it with sessions (see `docs/rule_based_planner.md`).
+`StudyPlanRepository` stores accepted plans and recorded outcomes.
 
 ## Ranking integration
 
@@ -83,10 +110,9 @@ playground. No source PDFs or training rows are bundled. See `docs/task_ranking.
 
 ## Future integration
 
-Screens receive repository contracts through `AppDependencies`. Keep Firebase SDK
-and Python API details behind those boundaries when integration is implemented.
-The earlier organization pass introduced neither a backend nor trained AI. The
-subsequent experimental ranking increment runs a bundled trained forest locally.
+Screens receive repository contracts and the `AuthService` through
+`AppDependencies`. Keep Firebase SDK and Python API details behind those
+boundaries when integration is implemented.
 
 ## Offline ranking experiment
 

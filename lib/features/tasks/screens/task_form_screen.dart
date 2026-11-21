@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../core/widgets/near_limit_counter.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../setup/widgets/setup_steps.dart' show currentSemester;
 import '../../../core/widgets/effort_field.dart';
 import '../../../core/time/app_clock.dart';
 import '../../../core/time/date_time_helpers.dart';
@@ -68,7 +67,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   /// exactly one; otherwise the student chooses.
   String? get _onlyCurrentCourse {
     if (widget.task != null) return null;
-    final semester = currentSemester(widget.repository, widget.clock.now());
+    final semester = widget.repository.currentSemester(widget.clock.now());
     final courses = widget.repository.courses
         .where((c) => c.semesterId == semester?.id)
         .toList();

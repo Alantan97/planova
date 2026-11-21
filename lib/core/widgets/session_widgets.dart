@@ -5,7 +5,7 @@ import '../theme/app_theme.dart';
 import '../time/date_time_helpers.dart';
 import 'study_components.dart';
 
-IconData sessionIcon(StudySession session) {
+IconData _sessionIcon(StudySession session) {
   if (session.commitment) return Icons.school_outlined;
   return switch (session.subject) {
     'Computer Networks' => Icons.hub_outlined,
@@ -16,7 +16,7 @@ IconData sessionIcon(StudySession session) {
   };
 }
 
-void showSessionDetails(BuildContext context, StudySession session) {
+void _showSessionDetails(BuildContext context, StudySession session) {
   showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
@@ -41,7 +41,7 @@ void showSessionDetails(BuildContext context, StudySession session) {
             Panel(
               child: Row(
                 children: [
-                  Icon(sessionIcon(session), color: planovaOrange),
+                  Icon(_sessionIcon(session), color: planovaOrange),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
@@ -143,7 +143,7 @@ class NextSessionCard extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
-            onPressed: onOpen ?? () => showSessionDetails(context, session),
+            onPressed: onOpen ?? () => _showSessionDetails(context, session),
             iconAlignment: IconAlignment.end,
             icon: const Icon(Icons.arrow_forward_rounded, size: 18),
             label: Text(onOpen == null ? 'View session' : 'Record session'),
@@ -204,7 +204,7 @@ class SessionRow extends StatelessWidget {
             ),
             child: InkWell(
               borderRadius: BorderRadius.circular(18),
-              onTap: onTap ?? () => showSessionDetails(context, session),
+              onTap: onTap ?? () => _showSessionDetails(context, session),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -213,7 +213,7 @@ class SessionRow extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          sessionIcon(session),
+                          _sessionIcon(session),
                           size: 16,
                           color: planovaMuted,
                         ),

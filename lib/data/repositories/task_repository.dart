@@ -12,6 +12,19 @@ abstract class TaskRepository extends ChangeNotifier {
     AcademicCourse course,
     List<AcademicTask> tasks,
   );
+
+  /// The semester Planova sets up and imports into: the one containing
+  /// [now], otherwise the one that started most recently.
+  AcademicSemester? currentSemester(DateTime now) {
+    final day = DateTime(now.year, now.month, now.day);
+    final sorted = [...semesters]
+      ..sort((a, b) => b.startDate.compareTo(a.startDate));
+    return sorted
+            .where((s) => !day.isBefore(s.startDate) && !day.isAfter(s.endDate))
+            .firstOrNull ??
+        sorted.firstOrNull;
+  }
+
   AcademicCourse? courseById(String? id) =>
       courses.where((course) => course.id == id).firstOrNull;
   Future<void> saveSemester(AcademicSemester semester, {required bool isNew});
