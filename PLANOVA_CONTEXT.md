@@ -139,8 +139,10 @@ Implemented foundation:
 
 - Rule-based weekly planner (baseline, slice 4): Plan tab → Create my plan proposes the next 7 days of study sessions inside `freeStudySlots`, earliest due date first (grade weight breaks ties), with 30–60 min sessions, 15 min breaks, a 4 h daily limit and 2 h per task per day; sessions never end after a task's due date. The proposal lists work that does not fit and unplanned (undated/overdue) tasks. Nothing is saved until Accept; accepted sessions are stored locally and shown on Plan and Today with commitments. Deterministic, no AI. See `docs/rule_based_planner.md`.
 
+- Session outcomes and adjustment (slice 5): study sessions can be recorded as done, partly done (minutes) or missed, and corrected later; the task's recorded minutes change by the difference (the estimate grows if exceeded). Today lists unrecorded past sessions and, after a missed or partial session, offers a reviewed re-plan that keeps recorded history. Progress shows studied vs planned minutes this week.
+
 Not yet implemented:
-- Recording sessions as done/partly done/missed, updating remaining work from sessions, and adaptive rescheduling after missed sessions.
+- Notifications, automatic (unreviewed) re-planning, and a GA comparison against the rule-based baseline.
 - Broader proforma formats, OCR, and explicit document-version replacement.
 - Independently validated task ranking, Python API, and Firebase.
 

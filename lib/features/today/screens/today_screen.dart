@@ -6,6 +6,10 @@ import '../../../core/widgets/session_widgets.dart';
 import '../../../core/widgets/task_card.dart';
 import '../../../core/widgets/progress_summary.dart';
 import '../../../data/repositories/availability_repository.dart';
+import '../../../data/repositories/study_plan_repository.dart';
+import '../../../models/study_session.dart';
+import '../../planner/widgets/plan_action_card.dart';
+import '../../planner/widgets/record_session_sheet.dart';
 import '../view_models/today_view_model.dart';
 import '../widgets/get_started_card.dart';
 import '../widgets/needs_input_section.dart';
@@ -19,15 +23,25 @@ class TodayScreen extends StatelessWidget {
     required this.viewModel,
     required this.availability,
     required this.onViewPlan,
+    this.plans,
   });
   final TodayViewModel viewModel;
   final AvailabilityRepository availability;
+
+  /// Null in the demo build (sample sessions are read-only previews).
+  final StudyPlanRepository? plans;
   final VoidCallback onViewPlan;
   @override
   Widget build(BuildContext context) {
     final sessions = viewModel.sessions;
     final tasks = viewModel.taskRepository;
     final samples = viewModel.studyRepository.showsSampleSessions;
+    final plans = this.plans;
+    final now = viewModel.clock.now();
+    final unrecorded = plans?.unrecordedBefore(now) ?? const <StudySession>[];
+    VoidCallback? record(StudySession s) => plans == null || s.commitment
+        ? null
+        : () => showRecordSessionSheet(context, plans: plans, session: s);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -47,8 +61,34 @@ class TodayScreen extends StatelessWidget {
           NeedsInputSection(repository: tasks, clock: viewModel.clock),
           const SizedBox(height: 20),
         ],
+        if (plans != null && plans.needsReplan) ...[
+          _ReplanPrompt(
+            onReplan: () => openPlanProposal(
+              context,
+              plans: plans,
+              tasks: tasks,
+              availability: availability,
+              clock: viewModel.clock,
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+        if (unrecorded.isNotEmpty) ...[
+          SectionTitle('Did you do this? · ${unrecorded.length}'),
+          const SizedBox(height: 6),
+          const Text(
+            'Record past sessions so your progress and plan stay accurate.',
+            style: TextStyle(color: planovaMuted, height: 1.4),
+          ),
+          const SizedBox(height: 12),
+          for (final s in unrecorded.take(3)) SessionRow(s, onTap: record(s)),
+          const SizedBox(height: 12),
+        ],
         if (viewModel.nextSession != null)
-          NextSessionCard(viewModel.nextSession!),
+          NextSessionCard(
+            viewModel.nextSession!,
+            onOpen: record(viewModel.nextSession!),
+          ),
         const SizedBox(height: 20),
         const SectionTitle('Next deadline'),
         const SizedBox(height: 12),
@@ -90,7 +130,9 @@ class TodayScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        ...sessions.map((session) => SessionRow(session)),
+        ...sessions.map(
+          (session) => SessionRow(session, onTap: record(session)),
+        ),
         if (samples) ...[
           const SizedBox(height: 24),
           const SectionTitle('Sample study week'),
@@ -105,6 +147,44 @@ class TodayScreen extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Shown after a session was missed or cut short, until a new plan is
+/// accepted. Re-planning always goes through the review screen.
+class _ReplanPrompt extends StatelessWidget {
+  const _ReplanPrompt({required this.onReplan});
+  final VoidCallback onReplan;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(18),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFFF4EC),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Your plan needs updating',
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'A session was missed or cut short. Re-plan to find new time for the work that is left. You review the new plan first.',
+          style: TextStyle(color: planovaMuted, height: 1.45),
+        ),
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          key: const ValueKey('today-replan'),
+          onPressed: onReplan,
+          icon: const Icon(Icons.event_repeat_outlined),
+          label: const Text('Re-plan the rest of the week'),
+        ),
+      ],
+    ),
+  );
 }
 
 /// Shown only when no tasks exist at all, so "caught up" is never claimed

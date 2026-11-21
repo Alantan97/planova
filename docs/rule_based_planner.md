@@ -53,8 +53,29 @@ same values.
 date, minutes per day, number of sessions and tasks. Deadline violations are 0
 by construction (rule 4).
 
+## Recording sessions and adjusting the plan
+
+Implemented 21 November 2026 (slice 5). Code: `StudyPlanRepository.recordOutcome`,
+`lib/features/planner/widgets/record_session_sheet.dart`.
+
+- Tapping a study session on Today or Plan opens **How did it go?**: **Done**
+  (the planned minutes), **Partly done** (the minutes studied, less than the
+  session) or **Missed**. Reopening a recorded session allows a correction.
+- The task's recorded minutes change by the difference between the new and the
+  previous outcome, so corrections never double-count. If more is studied than
+  estimated, the estimate grows to match. When no work is left, a message
+  offers **Mark complete**.
+- Past sessions that were never recorded are listed on Today under
+  **Did you do this?**.
+- A missed or partly done session sets a "plan needs updating" flag. Today then
+  shows **Re-plan the rest of the week**, which opens the same proposal screen;
+  accepting clears the flag. Recorded sessions (done, partly done, missed) are
+  never replaced by re-planning and remain as history.
+- Progress shows minutes studied this week against minutes planned.
+
+Storage format version 2 adds recorded minutes, the "partial" status and the
+re-plan flag; plans saved in version 1 still load.
+
 ## Not included yet
 
-Recording sessions as done, partly done or missed; updating remaining work from
-sessions; adjusting the plan after a missed session; notifications. These are
-the next increment.
+Automatic re-planning without review, notifications, and a GA comparison.

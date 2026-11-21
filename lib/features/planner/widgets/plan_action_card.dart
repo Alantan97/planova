@@ -10,8 +10,40 @@ import '../../../services/planning/rule_based_planner.dart';
 import '../../availability/screens/availability_screen.dart';
 import '../screens/plan_proposal_screen.dart';
 
-/// Plan-tab entry point: runs the rule-based planner for the next 7 days and
-/// opens the proposal for review. Nothing is saved from here.
+/// Runs the rule-based planner for the next 7 days and opens the proposal
+/// for review. Nothing is saved until the student accepts it.
+void openPlanProposal(
+  BuildContext context, {
+  required StudyPlanRepository plans,
+  required TaskRepository tasks,
+  required AvailabilityRepository availability,
+  required AppClock clock,
+}) {
+  final proposal = planWeek(
+    tasks: tasks.tasks,
+    availability: availability.availability,
+    now: clock.now(),
+  );
+  // An earlier message (e.g. "Marked as missed") must not cover Accept.
+  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+  Navigator.push(
+    context,
+    MaterialPageRoute<void>(
+      builder: (routeContext) => PlanProposalScreen(
+        proposal: proposal,
+        repository: plans,
+        onSetAvailability: () => Navigator.pushReplacement(
+          routeContext,
+          MaterialPageRoute<void>(
+            builder: (_) => AvailabilityScreen(repository: availability),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// Plan-tab entry point for [openPlanProposal].
 class PlanActionCard extends StatelessWidget {
   const PlanActionCard({
     super.key,
@@ -25,28 +57,13 @@ class PlanActionCard extends StatelessWidget {
   final AvailabilityRepository availability;
   final AppClock clock;
 
-  void _create(BuildContext context) {
-    final proposal = planWeek(
-      tasks: tasks.tasks,
-      availability: availability.availability,
-      now: clock.now(),
-    );
-    Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (routeContext) => PlanProposalScreen(
-          proposal: proposal,
-          repository: plans,
-          onSetAvailability: () => Navigator.pushReplacement(
-            routeContext,
-            MaterialPageRoute<void>(
-              builder: (_) => AvailabilityScreen(repository: availability),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  void _create(BuildContext context) => openPlanProposal(
+    context,
+    plans: plans,
+    tasks: tasks,
+    availability: availability,
+    clock: clock,
+  );
 
   @override
   Widget build(BuildContext context) => Panel(

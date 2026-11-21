@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/time/app_clock.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../core/widgets/progress_summary.dart';
+import '../../../data/repositories/study_plan_repository.dart';
 import '../../../data/repositories/study_repository.dart';
 import '../../../data/repositories/task_repository.dart';
 
@@ -31,7 +32,16 @@ class ProgressScreen extends StatelessWidget {
               : 'Small steps add up.',
         ),
         const SizedBox(height: 20),
-        if (samples)
+        if (!samples && studyRepository is StudyPlanRepository)
+          ProgressSummary(
+            featured: true,
+            label: 'THIS WEEK · STUDIED',
+            goalWord: 'planned',
+            minutes: studyRepository.completedMinutesInWeek(clock.now()),
+            goalMinutes: (studyRepository as StudyPlanRepository)
+                .plannedMinutesInWeek(clock.now()),
+          )
+        else if (samples)
           ProgressSummary(
             featured: true,
             minutes: studyRepository.completedMinutesInWeek(clock.now()),
@@ -49,7 +59,7 @@ class ProgressScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Study time is not tracked yet',
+                        'No study plan yet',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
@@ -57,7 +67,7 @@ class ProgressScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'Marking sessions as done comes next. Task completion below is real.',
+                        'Create a plan on the Plan tab, then record each session here. Task completion below is real.',
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 13,

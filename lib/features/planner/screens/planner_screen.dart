@@ -8,6 +8,7 @@ import '../../../data/repositories/availability_repository.dart';
 import '../../../data/repositories/study_plan_repository.dart';
 import '../../../data/repositories/task_repository.dart';
 import '../widgets/plan_action_card.dart';
+import '../widgets/record_session_sheet.dart';
 import '../../availability/widgets/availability_summary_card.dart';
 import '../view_models/planner_view_model.dart';
 
@@ -224,7 +225,18 @@ class PlannerScreen extends StatelessWidget {
             ),
           )
         else
-          ...viewModel.sessions.map((session) => SessionRow(session)),
+          ...viewModel.sessions.map(
+            (session) => SessionRow(
+              session,
+              onTap: plans == null || session.commitment
+                  ? null
+                  : () => showRecordSessionSheet(
+                      context,
+                      plans: plans!,
+                      session: session,
+                    ),
+            ),
+          ),
         if (plans != null) ...[
           const SizedBox(height: 24),
           PlanActionCard(

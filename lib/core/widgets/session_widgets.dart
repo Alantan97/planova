@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/study_session.dart';
 import '../theme/app_theme.dart';
+import '../time/date_time_helpers.dart';
 import 'study_components.dart';
 
 IconData sessionIcon(StudySession session) {
@@ -77,21 +78,26 @@ void showSessionDetails(BuildContext context, StudySession session) {
 }
 
 class NextSessionCard extends StatelessWidget {
-  const NextSessionCard(this.session, {super.key});
+  const NextSessionCard(this.session, {super.key, this.onOpen});
   final StudySession session;
+
+  /// Set for real plan sessions; sample sessions open a read-only preview.
+  final VoidCallback? onOpen;
   @override
   Widget build(BuildContext context) => FeaturedPanel(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.bolt_rounded, size: 20, color: planovaOrange),
-            SizedBox(width: 6),
+            const Icon(Icons.bolt_rounded, size: 20, color: planovaOrange),
+            const SizedBox(width: 6),
             Expanded(
               child: Text(
-                'Sample study session',
-                style: TextStyle(
+                onOpen == null
+                    ? 'Sample study session'
+                    : 'Next study session · rule-based plan',
+                style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -137,10 +143,10 @@ class NextSessionCard extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
-            onPressed: () => showSessionDetails(context, session),
+            onPressed: onOpen ?? () => showSessionDetails(context, session),
             iconAlignment: IconAlignment.end,
             icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-            label: const Text('View session'),
+            label: Text(onOpen == null ? 'View session' : 'Open session'),
           ),
         ),
       ],
@@ -149,8 +155,30 @@ class NextSessionCard extends StatelessWidget {
 }
 
 class SessionRow extends StatelessWidget {
-  const SessionRow(this.session, {super.key});
+  const SessionRow(this.session, {super.key, this.onTap});
   final StudySession session;
+
+  /// Set for real plan sessions (opens the record sheet). Without it the row
+  /// is a sample or a fixed commitment and opens the read-only preview.
+  final VoidCallback? onTap;
+
+  String get _status {
+    if (session.commitment) return 'Fixed commitment';
+    if (onTap == null) {
+      return session.status == SessionStatus.completed
+          ? 'Completed · Sample'
+          : 'Study session';
+    }
+    return switch (session.status) {
+      SessionStatus.completed =>
+        'Done · ${formatDuration(session.studiedMinutes)} recorded',
+      SessionStatus.partial =>
+        'Partly done · ${formatDuration(session.studiedMinutes)} recorded',
+      SessionStatus.missed => 'Missed',
+      SessionStatus.planned => 'Study session · tap to record',
+    };
+  }
+
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 12),
@@ -176,7 +204,7 @@ class SessionRow extends StatelessWidget {
             ),
             child: InkWell(
               borderRadius: BorderRadius.circular(18),
-              onTap: () => showSessionDetails(context, session),
+              onTap: onTap ?? () => showSessionDetails(context, session),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -212,11 +240,7 @@ class SessionRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${session.minutes} min · ${session.commitment
-                          ? 'Fixed commitment'
-                          : session.status == SessionStatus.completed
-                          ? 'Completed · Sample'
-                          : 'Study session'}',
+                      '${session.minutes} min · $_status',
                       style: const TextStyle(fontSize: 12, color: planovaMuted),
                     ),
                   ],

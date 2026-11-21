@@ -10,10 +10,18 @@ class ProgressSummary extends StatelessWidget {
     required this.minutes,
     required this.goalMinutes,
     this.featured = false,
+    this.label = 'THIS WEEK · SAMPLE PROGRESS',
+    this.goalWord = 'goal',
   });
   final int minutes;
   final int goalMinutes;
   final bool featured;
+
+  /// Small heading, e.g. "THIS WEEK · STUDIED" for real recorded time.
+  final String label;
+
+  /// Word after the target, e.g. "goal" (samples) or "planned" (real plan).
+  final String goalWord;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +32,7 @@ class ProgressSummary extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'THIS WEEK · SAMPLE PROGRESS',
+          label,
           style: TextStyle(
             color: featured ? Colors.white70 : planovaMuted,
             fontSize: 12,
@@ -45,7 +53,7 @@ class ProgressSummary extends StatelessWidget {
                 ),
               ),
               TextSpan(
-                text: ' / ${formatDuration(goalMinutes)} goal',
+                text: ' / ${formatDuration(goalMinutes)} $goalWord',
                 style: TextStyle(
                   color: featured ? Colors.white70 : planovaMuted,
                   fontSize: 14,
@@ -63,7 +71,7 @@ class ProgressSummary extends StatelessWidget {
             color: planovaOrange,
             backgroundColor: featured ? Colors.white24 : planovaBorder,
             semanticsLabel:
-                'Sample weekly progress, ${formatDuration(minutes)} of ${formatDuration(goalMinutes)}',
+                '${label.toLowerCase()}, ${formatDuration(minutes)} of ${formatDuration(goalMinutes)}',
             semanticsValue: '${(progress * 100).round()}%',
           ),
         ),

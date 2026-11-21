@@ -5,21 +5,23 @@ import '../repositories/availability_repository.dart';
 import '../repositories/study_plan_repository.dart';
 import '../repositories/task_repository.dart';
 
-/// Saves the accepted plan as one record next to tasks and availability.
-/// Shares the task database but does not own it: [close] only waits for
-/// queued writes; LocalTaskRepository closes the file.
+/// Saves the plan and recorded outcomes as one record next to tasks and
+/// availability. Shares the task database but does not own it: [close] only
+/// waits for queued writes; LocalTaskRepository closes the file.
 class LocalStudyPlanRepository extends StudyPlanRepository {
   LocalStudyPlanRepository._(
     this._database,
-    this._sessions, {
+    StudyPlanState state, {
     required super.tasks,
     required super.availability,
-  });
+  }) : _sessions = state.sessions,
+       _needsReplan = state.needsReplan;
   static final _record = StoreRef<String, Map<String, Object?>>('planova')
       .record('study_plan');
 
   final Database _database;
   List<StudySession> _sessions;
+  bool _needsReplan;
   Future<void> _pending = Future.value();
   bool _closing = false;
 
@@ -32,7 +34,9 @@ class LocalStudyPlanRepository extends StudyPlanRepository {
     final saved = await _record.get(database);
     return LocalStudyPlanRepository._(
       database,
-      saved == null ? const [] : StudyPlanCodec.decode(saved),
+      saved == null
+          ? const StudyPlanState([], needsReplan: false)
+          : StudyPlanCodec.decode(saved),
       tasks: tasks,
       availability: availability,
     );
@@ -40,18 +44,21 @@ class LocalStudyPlanRepository extends StudyPlanRepository {
 
   @override
   List<StudySession> get savedSessions => List.unmodifiable(_sessions);
-
   @override
-  Future<void> acceptPlan(
+  bool get needsReplan => _needsReplan;
+
+  /// Writes are queued; the screen updates only after storage accepted them.
+  @override
+  Future<void> writeState(
     List<StudySession> sessions, {
-    required DateTime from,
-    required DateTime to,
+    required bool needsReplan,
   }) {
     if (_closing) return Future.error(StateError('Plan storage is closed.'));
     final operation = _pending.then((_) async {
-      final next = StudyPlanRepository.replacing(_sessions, sessions, from, to);
-      await _record.put(_database, StudyPlanCodec.encode(next));
-      _sessions = next;
+      final state = StudyPlanState(sessions, needsReplan: needsReplan);
+      await _record.put(_database, StudyPlanCodec.encode(state));
+      _sessions = List.of(sessions);
+      _needsReplan = needsReplan;
       if (!_closing) notifyListeners();
     });
     _pending = operation.then<void>(
@@ -71,14 +78,24 @@ class LocalStudyPlanRepository extends StudyPlanRepository {
   }
 }
 
-/// Versioned storage format for saved study sessions.
-abstract final class StudyPlanCodec {
-  static const schemaVersion = 1;
+class StudyPlanState {
+  const StudyPlanState(this.sessions, {required this.needsReplan});
+  final List<StudySession> sessions;
+  final bool needsReplan;
+}
 
-  static Map<String, Object?> encode(List<StudySession> sessions) => {
+/// Versioned storage format for saved study sessions.
+///
+/// Version 2 adds recorded minutes, the "partial" status and the re-plan
+/// flag. Version 1 records (plans saved before outcomes existed) still load.
+abstract final class StudyPlanCodec {
+  static const schemaVersion = 2;
+
+  static Map<String, Object?> encode(StudyPlanState state) => {
     'schemaVersion': schemaVersion,
+    'needsReplan': state.needsReplan,
     'sessions': [
-      for (final s in sessions)
+      for (final s in state.sessions)
         {
           'id': s.id,
           'taskId': s.taskId,
@@ -87,16 +104,22 @@ abstract final class StudyPlanCodec {
           'startsAt': s.startsAt.toIso8601String(),
           'minutes': s.minutes,
           'status': s.status.name,
+          if (s.recordedMinutes != null) 'recordedMinutes': s.recordedMinutes,
         },
     ],
   };
 
-  static List<StudySession> decode(Map<String, Object?> map) {
-    if (map['schemaVersion'] != schemaVersion || map['sessions'] is! List) {
+  static StudyPlanState decode(Map<String, Object?> map) {
+    final version = map['schemaVersion'];
+    if ((version != 1 && version != 2) || map['sessions'] is! List) {
       throw const FormatException('Unsupported study plan format.');
     }
+    final needsReplan = map['needsReplan'] ?? false;
+    if (needsReplan is! bool) {
+      throw const FormatException('Invalid study plan state.');
+    }
     final ids = <String>{};
-    return [
+    return StudyPlanState(needsReplan: needsReplan, [
       for (final raw in map['sessions'] as List)
         () {
           if (raw is! Map) throw const FormatException('Invalid session.');
@@ -105,6 +128,7 @@ abstract final class StudyPlanCodec {
               ? DateTime.tryParse(raw['startsAt'] as String)
               : null;
           final minutes = raw['minutes'];
+          final recorded = raw['recordedMinutes'];
           final status = SessionStatus.values
               .where((s) => s.name == raw['status'])
               .firstOrNull;
@@ -117,7 +141,8 @@ abstract final class StudyPlanCodec {
               startsAt == null ||
               minutes is! int ||
               minutes <= 0 ||
-              status == null) {
+              status == null ||
+              (recorded != null && (recorded is! int || recorded < 0))) {
             throw const FormatException('Invalid saved study session.');
           }
           return StudySession(
@@ -128,8 +153,9 @@ abstract final class StudyPlanCodec {
             startsAt: startsAt,
             minutes: minutes,
             status: status,
+            recordedMinutes: recorded as int?,
           );
         }(),
-    ];
+    ]);
   }
 }

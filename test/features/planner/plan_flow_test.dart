@@ -73,9 +73,30 @@ void main() {
     'Plan storage round-trips, replaces only the plan period, survives restart',
     () async {
       final decoded = StudyPlanCodec.decode(
-        StudyPlanCodec.encode([planned('a', DateTime(2026, 10, 14, 20))]),
+        StudyPlanCodec.encode(
+          StudyPlanState([
+            planned('a', DateTime(2026, 10, 14, 20)),
+          ], needsReplan: false),
+        ),
       );
-      expect(decoded.single.startsAt, DateTime(2026, 10, 14, 20));
+      expect(decoded.sessions.single.startsAt, DateTime(2026, 10, 14, 20));
+      // Plans saved by the previous version (schema 1) still load.
+      final v1 = StudyPlanCodec.decode({
+        'schemaVersion': 1,
+        'sessions': [
+          {
+            'id': 'old',
+            'taskId': 'quiz',
+            'title': 'Quiz 1',
+            'subject': 'DES3113',
+            'startsAt': DateTime(2026, 10, 14, 20).toIso8601String(),
+            'minutes': 60,
+            'status': 'planned',
+          },
+        ],
+      });
+      expect(v1.sessions.single.id, 'old');
+      expect(v1.needsReplan, isFalse);
       expect(
         () => StudyPlanCodec.decode({'schemaVersion': 9, 'sessions': []}),
         throwsFormatException,

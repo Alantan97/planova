@@ -51,7 +51,7 @@ void main() {
 
     await tester.tap(find.text('Progress'));
     await tester.pumpAndSettle();
-    expect(find.text('Study time is not tracked yet'), findsOneWidget);
+    expect(find.text('No study plan yet'), findsOneWidget);
     expect(find.text('0 of 0 tasks completed'), findsOneWidget);
     expect(find.textContaining('sample'), findsNothing);
     expect(tester.takeException(), isNull);
