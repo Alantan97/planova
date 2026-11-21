@@ -5,6 +5,8 @@ Read `PLANOVA_CONTEXT.md` for the product direction and `AGENTS.md` for developm
 
 ## Current prototype
 
+- First run: a guided journey (welcome, how it works, semester, courses, week, missing due dates, first plan, tour). "Continue with Google" is a placeholder that explains Google sign-in is not connected yet and continues without an account; data stays on the device.
+
 - Today: a Get started checklist that opens the guided setup (semester → course proformas → weekly availability, resumable, "Finish later" keeps what was saved), a "Needs your input" list of tasks without a due date (a small sheet adds the date and time estimate), the next deadline, and sample sessions in the demo build only.
 - Tasks (on the Courses tab): add, edit, delete, complete, and reopen academic tasks with validated forms.
 - Courses tab (replaces the former Tasks tab): every task grouped under its course, or under its typed subject when not linked, with per-course progress, compact rows (due date, "Needs a due date", time left), and "Add task to this course". Import proforma and Prioritize sit at the top.

@@ -77,6 +77,7 @@ class _AppShellState extends State<AppShell> {
                         availability: widget.dependencies.availability,
                         onViewPlan: _viewPlan,
                         plans: widget.dependencies.plans,
+                        profile: widget.dependencies.profile,
                       ),
                       1 => CourseOverviewScreen(
                         repository: widget.dependencies.tasks,

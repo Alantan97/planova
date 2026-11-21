@@ -6,6 +6,7 @@ import '../../../core/widgets/session_widgets.dart';
 import '../../../core/widgets/task_card.dart';
 import '../../../core/widgets/progress_summary.dart';
 import '../../../data/repositories/availability_repository.dart';
+import '../../../data/repositories/profile_repository.dart';
 import '../../../data/repositories/study_plan_repository.dart';
 import '../../../models/study_session.dart';
 import '../../planner/widgets/plan_action_card.dart';
@@ -24,12 +25,16 @@ class TodayScreen extends StatelessWidget {
     required this.availability,
     required this.onViewPlan,
     this.plans,
+    this.profile,
   });
   final TodayViewModel viewModel;
   final AvailabilityRepository availability;
 
   /// Null in the demo build (sample sessions are read-only previews).
   final StudyPlanRepository? plans;
+
+  /// Used for the greeting and to resume the guided journey.
+  final ProfileRepository? profile;
   final VoidCallback onViewPlan;
   @override
   Widget build(BuildContext context) {
@@ -47,13 +52,18 @@ class TodayScreen extends StatelessWidget {
       children: [
         Eyebrow(viewModel.dateLabel),
         const SizedBox(height: 8),
-        const PageHeading(title: 'Today’s overview'),
+        PageHeading(
+          title: profile?.progress.displayName == null
+              ? 'Today’s overview'
+              : 'Hi, ${profile!.progress.displayName}',
+        ),
         const SizedBox(height: 20),
         if (GetStartedCard.isNeeded(tasks, availability)) ...[
           GetStartedCard(
             tasks: tasks,
             availability: availability,
             clock: viewModel.clock,
+            profile: profile,
           ),
           const SizedBox(height: 28),
         ],

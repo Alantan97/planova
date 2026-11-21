@@ -141,8 +141,10 @@ Implemented foundation:
 
 - Session outcomes and adjustment (slice 5): study sessions can be recorded as done, partly done (minutes) or missed, and corrected later; the task's recorded minutes change by the difference (the estimate grows if exceeded). Today lists unrecorded past sessions and, after a missed or partial session, offers a reviewed re-plan that keeps recorded history. Progress shows studied vs planned minutes this week.
 
+- Guided first-run journey (slice 6): a new student sees one screen at a time — welcome & account, how Planova works (3 cards), optional name, semester, courses, weekly availability, missing due dates, first plan (review and accept), and a short tour — with Back, Continue and "Finish later". Progress is saved after every step and resumes later; students with existing data skip it, and Today offers "Use the step-by-step guide". The same setup step widgets serve the journey and Today's short setup. "Continue with Google" is an honest placeholder: an `AuthService` boundary with a guest-only implementation that explains Google sign-in is not connected yet and continues without an account. Real Google sign-in (Firebase Auth + google_sign_in) can replace it in one place; it must follow Google's sign-in branding guidelines.
+
 Not yet implemented:
-- Notifications, automatic (unreviewed) re-planning, and a GA comparison against the rule-based baseline.
+- Real Google sign-in and cloud storage (pending the supervisor's scope decision), notifications, automatic (unreviewed) re-planning, and a GA comparison against the rule-based baseline.
 - Broader proforma formats, OCR, and explicit document-version replacement.
 - Independently validated task ranking, Python API, and Firebase.
 

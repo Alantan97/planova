@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/time/app_clock.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../data/repositories/availability_repository.dart';
+import '../../../data/repositories/profile_repository.dart';
 import '../../../data/repositories/task_repository.dart';
 import '../../setup/screens/setup_screen.dart';
 
@@ -16,10 +17,14 @@ class GetStartedCard extends StatelessWidget {
     required this.tasks,
     required this.availability,
     required this.clock,
+    this.profile,
   });
   final TaskRepository tasks;
   final AvailabilityRepository availability;
   final AppClock clock;
+
+  /// When set, offers to resume the full guided journey.
+  final ProfileRepository? profile;
 
   /// Whether the card has anything left to show.
   static bool isNeeded(TaskRepository tasks, AvailabilityRepository week) =>
@@ -142,6 +147,23 @@ class GetStartedCard extends StatelessWidget {
                 child: Text(done == 0 ? 'Start setup' : 'Continue setup'),
               ),
             ),
+            if (profile != null)
+              Center(
+                child: TextButton(
+                  key: const ValueKey('setup-guided'),
+                  onPressed: () {
+                    final saved = profile!.progress;
+                    // Resume where the journey was left, or at this step.
+                    profile!.save(
+                      saved.copyWith(
+                        completed: false,
+                        step: saved.step >= 2 ? saved.step : next + 3,
+                      ),
+                    );
+                  },
+                  child: const Text('Use the step-by-step guide'),
+                ),
+              ),
           ],
         ],
       ),

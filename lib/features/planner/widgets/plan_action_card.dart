@@ -12,7 +12,7 @@ import '../screens/plan_proposal_screen.dart';
 
 /// Runs the rule-based planner for the next 7 days and opens the proposal
 /// for review. Nothing is saved until the student accepts it.
-void openPlanProposal(
+Future<void> openPlanProposal(
   BuildContext context, {
   required StudyPlanRepository plans,
   required TaskRepository tasks,
@@ -26,7 +26,7 @@ void openPlanProposal(
   );
   // An earlier message (e.g. "Marked as missed") must not cover Accept.
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
-  Navigator.push(
+  return Navigator.push(
     context,
     MaterialPageRoute<void>(
       builder: (routeContext) => PlanProposalScreen(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
 import 'app_dependencies.dart';
 import 'app_shell.dart';
+import '../features/onboarding/onboarding_flow.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key, this.dependencies, this.loadDependencies});
@@ -56,7 +57,14 @@ class _MyAppState extends State<MyApp> {
     debugShowCheckedModeBanner: false,
     theme: buildPlanovaTheme(),
     home: _dependencies != null
-        ? AppShell(dependencies: _dependencies!)
+        // New students see the guided journey first; returning students
+        // (or "Finish later") go straight to the app.
+        ? ListenableBuilder(
+            listenable: _dependencies!.profile,
+            builder: (context, _) => _dependencies!.profile.progress.completed
+                ? AppShell(dependencies: _dependencies!)
+                : OnboardingFlow(dependencies: _dependencies!),
+          )
         : Scaffold(
             body: SafeArea(
               child: Center(
