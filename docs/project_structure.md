@@ -34,7 +34,7 @@ Feature widgets belong under their feature's `widgets/` folder. Move a widget to
 must not import a screen. `main.dart` is the entry point; app tests import
 `app/planova_app.dart` directly.
 
-`AppClock` defines the time boundary, `DemoClock` supplies the fixed preview date,
+`AppClock` defines the time boundary, `SystemClock` gives the real time (normal app), `DemoClock` the fixed preview date (demo and tests),
 and `date_time_helpers.dart` contains formatting/calendar helpers independent of
 that clock. Changing folders does not change the preview date or scheduling behavior.
 

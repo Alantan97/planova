@@ -14,6 +14,7 @@ import '../../availability/screens/availability_screen.dart';
 import '../../availability/screens/time_block_form.dart';
 import '../../courses/screens/academic_record_form.dart';
 import '../../courses/screens/proforma_import_screen.dart';
+import '../../tasks/screens/task_form_screen.dart';
 
 /// The semester Planova sets up and imports into: the one containing today,
 /// otherwise the one that started most recently.
@@ -324,7 +325,7 @@ class CoursesStep extends StatelessWidget {
             'Add your courses',
             'Import each course proforma (PDF). Planova reads the assessments and their study hours for you.',
           ),
-          for (final course in courses) _courseRow(course),
+          for (final course in courses) _courseRow(context, course),
           if (courses.isNotEmpty) const SizedBox(height: 8),
           FilledButton.icon(
             key: const ValueKey('setup-import'),
@@ -369,7 +370,9 @@ class CoursesStep extends StatelessWidget {
     },
   );
 
-  Widget _courseRow(AcademicCourse course) {
+  /// A course is only "done" here once it has assessments. A course added by
+  /// hand starts empty, so it offers "Add assessment" instead of a tick.
+  Widget _courseRow(BuildContext context, AcademicCourse course) {
     final linked = tasks.tasks.where((t) => t.courseId == course.id);
     final missing = linked
         .where((t) => !t.isCompleted && !t.hasDeadline)
@@ -389,24 +392,65 @@ class CoursesStep extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${linked.length} ${linked.length == 1 ? 'assessment' : 'assessments'}'
-                    '${missing > 0 ? ' · $missing need a date' : ''}',
-                    style: const TextStyle(color: planovaMuted, fontSize: 13),
+                    linked.isEmpty
+                        ? 'No assessments yet'
+                        : '${linked.length} ${linked.length == 1 ? 'assessment' : 'assessments'}'
+                              '${missing > 0 ? ' · $missing need a date' : ''}',
+                    style: TextStyle(
+                      color: linked.isEmpty
+                          ? const Color(0xFF8F3300)
+                          : planovaMuted,
+                      fontSize: 13,
+                      fontWeight: linked.isEmpty
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                    ),
                   ),
+                  if (linked.isNotEmpty)
+                    TextButton.icon(
+                      key: ValueKey('setup-more-assessment-${course.id}'),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 40),
+                      ),
+                      onPressed: () => _addAssessment(context, course),
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: const Text('Add another assessment'),
+                    ),
                 ],
               ),
             ),
-            Icon(
-              missing > 0
-                  ? Icons.event_busy_outlined
-                  : Icons.check_circle_rounded,
-              color: missing > 0 ? planovaMuted : planovaActionOrange,
-            ),
+            const SizedBox(width: 8),
+            if (linked.isEmpty)
+              FilledButton.tonal(
+                key: ValueKey('setup-add-assessment-${course.id}'),
+                onPressed: () => _addAssessment(context, course),
+                child: const Text('Add assessment'),
+              )
+            else
+              Icon(
+                missing > 0
+                    ? Icons.event_busy_outlined
+                    : Icons.check_circle_rounded,
+                color: missing > 0 ? planovaMuted : planovaActionOrange,
+              ),
           ],
         ),
       ),
     );
   }
+
+  void _addAssessment(BuildContext context, AcademicCourse course) =>
+      Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => TaskFormScreen(
+            repository: tasks,
+            clock: clock,
+            initialCourseId: course.id,
+          ),
+        ),
+      );
 }
 
 // ---- Availability ---------------------------------------------------------

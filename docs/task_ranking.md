@@ -21,9 +21,9 @@ cannot find the new asset, stop and run Flutter again. Restarting preserves loca
 5. Refresh priorities to recalculate using the app clock. About this ranking explains
    the model and its limitations.
 
-The app still uses its fixed DemoClock: 14 October 2026 at 13:00. The ranking screen
-displays the reference date and labels that preview clock. It does not silently use
-the computer's current date while other screens show the preview date.
+The normal app ranks against the device's real date (`SystemClock`). The demo build
+uses the fixed preview clock (14 October 2026, 13:00); the ranking screen then
+labels that preview clock, so it never mixes the real date with preview dates.
 
 ## Input contract
 

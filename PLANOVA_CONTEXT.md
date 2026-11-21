@@ -143,6 +143,8 @@ Implemented foundation:
 
 - Guided first-run journey (slice 6): a new student sees one screen at a time — welcome & account, how Planova works (3 cards), optional name, semester, courses, weekly availability, missing due dates, first plan (review and accept), and a short tour — with Back, Continue and "Finish later". Progress is saved after every step and resumes later; students with existing data skip it, and Today offers "Use the step-by-step guide". The same setup step widgets serve the journey and Today's short setup. "Continue with Google" is an honest placeholder: an `AuthService` boundary with a guest-only implementation that explains Google sign-in is not connected yet and continues without an account. Real Google sign-in (Firebase Auth + google_sign_in) can replace it in one place; it must follow Google's sign-in branding guidelines.
 
+- UI review fixes (after slice 6): the normal app uses the real device date (`SystemClock`); only the demo build and tests use the fixed preview date, labelled "Preview date". Courses added by hand show "No assessments yet" with "Add assessment" instead of a done tick; empty journey steps (due dates, first plan) explain what is missing and link back to the step that fixes it. On the Plan tab, "Create my plan" sits in the top panel until a plan exists.
+
 Not yet implemented:
 - Real Google sign-in and cloud storage (pending the supervisor's scope decision), notifications, automatic (unreviewed) re-planning, and a GA comparison against the rule-based baseline.
 - Broader proforma formats, OCR, and explicit document-version replacement.

@@ -181,13 +181,30 @@ class PlannerScreen extends StatelessWidget {
                           ? 'Sample plan · Fixed commitments shown separately'
                           : (plans?.hasPlan ?? false)
                           ? 'Rule-based plan · Fixed commitments shown in grey'
-                          : 'Create a plan below to fill your free study time.',
+                          : 'Planova fills your free study time for the next 7 days. You review it before it is saved.',
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 13,
                         height: 1.4,
                       ),
                     ),
+                    // With no plan yet, the main action sits right here
+                    // instead of below the fold.
+                    if (plans != null && !plans!.hasPlan) ...[
+                      const SizedBox(height: 14),
+                      FilledButton.icon(
+                        key: const ValueKey('create-plan'),
+                        onPressed: () => openPlanProposal(
+                          context,
+                          plans: plans!,
+                          tasks: tasks,
+                          availability: availability,
+                          clock: viewModel.clock,
+                        ),
+                        icon: const Icon(Icons.event_note_outlined),
+                        label: const Text('Create my plan'),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -237,7 +254,7 @@ class PlannerScreen extends StatelessWidget {
                     ),
             ),
           ),
-        if (plans != null) ...[
+        if (plans != null && plans!.hasPlan) ...[
           const SizedBox(height: 24),
           PlanActionCard(
             plans: plans!,

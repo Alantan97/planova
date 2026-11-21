@@ -61,7 +61,7 @@ class AppDependencies {
     return AppDependencies(
       tasks: tasks,
       study: plans,
-      clock: const DemoClock(),
+      clock: const SystemClock(),
       availability: availability,
       plans: plans,
       profile: profile,

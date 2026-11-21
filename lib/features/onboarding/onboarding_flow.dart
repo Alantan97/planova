@@ -369,7 +369,14 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           'Add missing due dates',
           'Proformas do not list due dates. Add the ones you know so Planova can plan them. You can do the rest later from Today.',
         ),
-        if (waiting.isEmpty)
+        if (_d.tasks.tasks.every((t) => t.isCompleted))
+          _FixPanel(
+            message: 'You have no assessments yet, so there are no due dates to add.',
+            action: 'Back to courses',
+            buttonKey: 'onboarding-fix-dates',
+            onPressed: () => _goTo(4),
+          )
+        else if (waiting.isEmpty)
           const Panel(
             child: Text(
               'Nothing missing. Every assessment has a due date.',
@@ -435,14 +442,13 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
             ),
           ),
           const SizedBox(height: 12),
-          Text(
-            proposal.sessions.isNotEmpty
-                ? 'Open it to see each day, then accept or cancel.'
-                : !proposal.hasAvailability
-                ? 'Add study times in the previous step to get a plan.'
-                : 'Add due dates and time estimates to your assessments to get a plan.',
-            style: const TextStyle(color: planovaMuted, height: 1.5),
-          ),
+          if (proposal.sessions.isEmpty)
+            _emptyPlanFix(proposal)
+          else
+            const Text(
+              'Open it to see each day, then accept or cancel.',
+              style: TextStyle(color: planovaMuted, height: 1.5),
+            ),
           if (proposal.sessions.isNotEmpty) ...[
             const SizedBox(height: 16),
             OutlinedButton.icon(
@@ -466,6 +472,35 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           ],
         ],
       ],
+    );
+  }
+
+  /// Explains why nothing could be planned and links to the step that fixes
+  /// it, checked in the order a student would fix them.
+  Widget _emptyPlanFix(PlanProposal proposal) {
+    final active = _d.tasks.tasks.where(
+      (t) => !t.isCompleted && t.estimatedMinutes > t.completedMinutes,
+    );
+    final (message, action, step) = active.isEmpty
+        ? ('There are no assessments to plan yet.', 'Add assessments', 4)
+        : !proposal.hasAvailability
+        ? ('Planova needs to know when you can study.', 'Choose study times', 5)
+        : active.every((t) => !t.hasDeadline)
+        ? (
+            'Your assessments need due dates before they can be planned.',
+            'Add due dates',
+            6,
+          )
+        : (
+            'Your free study time does not fit before the due dates. Add more study times, or check the due dates.',
+            'Add study times',
+            5,
+          );
+    return _FixPanel(
+      message: message,
+      action: action,
+      buttonKey: 'onboarding-fix-plan',
+      onPressed: () => _goTo(step),
     );
   }
 
@@ -684,6 +719,44 @@ class _IntroCardsState extends State<_IntroCards> {
           ),
         ),
       ),
+    ),
+  );
+}
+
+/// "Here is what is missing" with a button to the step that fixes it, so an
+/// empty step is never a dead end.
+class _FixPanel extends StatelessWidget {
+  const _FixPanel({
+    required this.message,
+    required this.action,
+    required this.buttonKey,
+    required this.onPressed,
+  });
+  final String message;
+  final String action;
+  final String buttonKey;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(18),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFFF4EC),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(message, style: const TextStyle(height: 1.5)),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          key: ValueKey(buttonKey),
+          onPressed: onPressed,
+          icon: const Icon(Icons.arrow_back_rounded),
+          label: Text(action),
+        ),
+      ],
     ),
   );
 }

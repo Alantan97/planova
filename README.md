@@ -33,10 +33,10 @@ upgrade automatically and retain their manual subjects until explicitly linked.
 Course renaming updates linked task labels without changing task IDs or progress.
 Course codes must be unique within a semester. A course with linked tasks, or a
 semester with courses, cannot be deleted until those relationships are removed.
-The normal app has no study sessions or recorded study hours yet. Demo/test sessions
-and study-time totals remain synthetic. The preview clock is fixed at 14 October 2026,
-13:00, so rehearsals are reproducible. There is no Firebase, Python API,
-GA implementation, or generated schedule in the Flutter runtime. The separate
+The normal app uses the device's real date and time (`SystemClock`). The demo
+build and tests use a fixed preview clock (14 October 2026, 13:00, shown as
+"Preview date") so rehearsals are reproducible; their sessions are synthetic.
+There is no Firebase, Python API or GA implementation in the Flutter runtime. The separate
 offline LambdaMART experiment under `ai/` exports a small forest used by Flutter's
 experimental ranking screen. This does not generate a study schedule.
 Task storage uses a Sembast file in application support storage on Android and

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/time/date_time_helpers.dart';
 import '../core/theme/app_theme.dart';
+import '../core/time/demo_clock.dart';
 
 import '../features/today/screens/today_screen.dart';
 import '../features/today/view_models/today_view_model.dart';
@@ -66,7 +67,10 @@ class _AppShellState extends State<AppShell> {
               primary: false,
               slivers: [
                 SliverToBoxAdapter(
-                  child: _BrandHeader(date: widget.dependencies.clock.now()),
+                  child: _BrandHeader(
+                    date: widget.dependencies.clock.now(),
+                    preview: widget.dependencies.clock is DemoClock,
+                  ),
                 ),
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
@@ -149,8 +153,12 @@ class _AppShellState extends State<AppShell> {
 }
 
 class _BrandHeader extends StatelessWidget {
-  const _BrandHeader({required this.date});
+  const _BrandHeader({required this.date, required this.preview});
   final DateTime date;
+
+  /// Only the demo build uses a fixed date; the real app shows none here
+  /// because Today already shows the real date.
+  final bool preview;
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
@@ -169,29 +177,31 @@ class _BrandHeader extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Text(
-                'Preview date',
-                textAlign: TextAlign.right,
-                style: TextStyle(color: planovaMuted, fontSize: 11),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '${date.day} ${months[date.month - 1]} ${date.year}',
-                textAlign: TextAlign.right,
-                style: const TextStyle(
-                  color: planovaInk,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+        if (preview) ...[
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const Text(
+                  'Preview date',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(color: planovaMuted, fontSize: 11),
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  '${date.day} ${months[date.month - 1]} ${date.year}',
+                  textAlign: TextAlign.right,
+                  style: const TextStyle(
+                    color: planovaInk,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ],
     ),
   );

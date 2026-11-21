@@ -22,7 +22,7 @@ example a Genetic Algorithm) should be compared against on the same inputs.
 - Tasks: title, due date, estimated and recorded minutes, grade weight.
 - Free study time: study windows minus recurring commitments
   (`freeStudySlots`, see the availability feature).
-- The current time (the app's preview clock).
+- The current time (the device clock; the fixed preview clock in the demo build and tests).
 
 ## Rules
 
