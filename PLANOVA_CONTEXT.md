@@ -137,8 +137,10 @@ Implemented foundation:
 - Guided setup and follow-up (slice 2 of the UX overhaul): Today's Get started checklist opens a three-step setup (semester, course proformas, weekly availability with one-tap presets saved as normal study windows). Each step saves immediately, so "Finish later" loses nothing. Today lists active tasks without a due date under "Needs your input"; a bottom sheet adds the date and confirms the time estimate, or "Decide later" leaves them unchanged.
 - Student availability (Plan tab → Weekly availability): recurring study windows and recurring commitments (class, club/society, part-time work, personal, other), each with weekdays and a same-day start/end time. Saved locally in the same Sembast database as a separate record; add, edit and confirmed delete survive restart. A rule-based helper (`freeStudySlots`) computes free study time per weekday as study windows minus commitments (commitments always win) and the screen shows the weekly total and per-day free slots. No study sessions are generated from it yet. Overnight times, one-off exceptions, protected time (sleep, meals, travel), and preferences (session length, breaks, daily limit) are not yet modelled.
 
+- Rule-based weekly planner (baseline, slice 4): Plan tab → Create my plan proposes the next 7 days of study sessions inside `freeStudySlots`, earliest due date first (grade weight breaks ties), with 30–60 min sessions, 15 min breaks, a 4 h daily limit and 2 h per task per day; sessions never end after a task's due date. The proposal lists work that does not fit and unplanned (undated/overdue) tasks. Nothing is saved until Accept; accepted sessions are stored locally and shown on Plan and Today with commitments. Deterministic, no AI. See `docs/rule_based_planner.md`.
+
 Not yet implemented:
-- Real schedule generation and adaptive rescheduling. The next increment is a deterministic, rule-based baseline planner that places task work inside `freeStudySlots`.
+- Recording sessions as done/partly done/missed, updating remaining work from sessions, and adaptive rescheduling after missed sessions.
 - Broader proforma formats, OCR, and explicit document-version replacement.
 - Independently validated task ranking, Python API, and Firebase.
 

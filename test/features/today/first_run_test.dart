@@ -40,7 +40,7 @@ void main() {
     expect(find.text('No tasks yet'), findsOneWidget);
     expect(find.textContaining('caught up'), findsNothing);
     expect(find.text('Sample study week'), findsNothing);
-    expect(find.textContaining('No study sessions yet'), findsOneWidget);
+    expect(find.textContaining('No study sessions today'), findsOneWidget);
     expect(find.textContaining('are samples'), findsNothing);
 
     await tester.tap(find.text('Plan'));

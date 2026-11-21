@@ -57,7 +57,7 @@ class ProgressScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'Recording study sessions arrives with the planner. Task completion below is real.',
+                        'Marking sessions as done comes next. Task completion below is real.',
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 13,

@@ -5,6 +5,9 @@ import '../../../core/time/date_time_helpers.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../core/widgets/session_widgets.dart';
 import '../../../data/repositories/availability_repository.dart';
+import '../../../data/repositories/study_plan_repository.dart';
+import '../../../data/repositories/task_repository.dart';
+import '../widgets/plan_action_card.dart';
 import '../../availability/widgets/availability_summary_card.dart';
 import '../view_models/planner_view_model.dart';
 
@@ -13,9 +16,15 @@ class PlannerScreen extends StatelessWidget {
     super.key,
     required this.viewModel,
     required this.availability,
+    required this.tasks,
+    this.plans,
   });
   final PlannerViewModel viewModel;
   final AvailabilityRepository availability;
+  final TaskRepository tasks;
+
+  /// Null in the demo build (sample sessions only, no planning).
+  final StudyPlanRepository? plans;
   @override
   Widget build(BuildContext context) {
     final start = viewModel.weekStart;
@@ -157,6 +166,8 @@ class PlannerScreen extends StatelessWidget {
                     Text(
                       samples
                           ? '$studyMinutes min of study'
+                          : (plans?.hasPlan ?? false)
+                          ? '${formatDuration(studyMinutes)} of study this day'
                           : 'No study plan yet',
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
@@ -167,7 +178,9 @@ class PlannerScreen extends StatelessWidget {
                     Text(
                       samples
                           ? 'Sample plan · Fixed commitments shown separately'
-                          : 'Planning comes in a later version. Set your weekly availability below to prepare for it.',
+                          : (plans?.hasPlan ?? false)
+                          ? 'Rule-based plan · Fixed commitments shown in grey'
+                          : 'Create a plan below to fill your free study time.',
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 13,
@@ -212,6 +225,15 @@ class PlannerScreen extends StatelessWidget {
           )
         else
           ...viewModel.sessions.map((session) => SessionRow(session)),
+        if (plans != null) ...[
+          const SizedBox(height: 24),
+          PlanActionCard(
+            plans: plans!,
+            tasks: tasks,
+            availability: availability,
+            clock: viewModel.clock,
+          ),
+        ],
         const SizedBox(height: 24),
         AvailabilitySummaryCard(repository: availability),
         const SizedBox(height: 24),

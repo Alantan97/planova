@@ -51,6 +51,7 @@ class _AppShellState extends State<AppShell> {
     listenable: Listenable.merge([
       widget.dependencies.tasks,
       widget.dependencies.availability,
+      ?widget.dependencies.plans,
     ]),
     builder: (context, _) => Scaffold(
       body: SafeArea(
@@ -89,6 +90,8 @@ class _AppShellState extends State<AppShell> {
                         builder: (context, _) => PlannerScreen(
                           viewModel: _planner,
                           availability: widget.dependencies.availability,
+                          tasks: widget.dependencies.tasks,
+                          plans: widget.dependencies.plans,
                         ),
                       ),
                       _ => ProgressScreen(

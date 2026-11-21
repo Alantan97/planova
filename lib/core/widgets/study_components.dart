@@ -141,7 +141,7 @@ class DemoNote extends StatelessWidget {
   Widget build(BuildContext context) => Text(
     samples
         ? 'Study sessions and study hours are samples. Saved tasks are separate; no AI schedule has been generated.'
-        : 'Planova does not create study sessions yet. Your tasks, courses and availability are saved on this device.',
+        : 'Study sessions come from a rule-based plan you review and accept on the Plan tab. Everything is saved on this device.',
     style: const TextStyle(fontSize: 12, color: planovaMuted, height: 1.5),
   );
 }

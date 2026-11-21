@@ -45,7 +45,7 @@ class TodayViewModel {
   String get workloadLabel {
     final study = sessions.where((session) => !session.commitment);
     final minutes = study.fold(0, (total, session) => total + session.minutes);
-    return '${study.length} study sessions · ${formatDuration(minutes)} planned';
+    return '${study.length} study ${study.length == 1 ? 'session' : 'sessions'} · ${formatDuration(minutes)} planned';
   }
 
   int get completedMinutes =>

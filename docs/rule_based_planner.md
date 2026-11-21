@@ -1,0 +1,60 @@
+# Rule-based weekly planner (baseline)
+
+Implemented 21 November 2026. Code: `lib/services/planning/rule_based_planner.dart`
+(`planWeek`), tests: `test/services/planning/rule_based_planner_test.dart`.
+
+This is a deterministic, explainable planner. It uses fixed rules, no trained
+model and no randomness. It is the baseline that any later optimisation (for
+example a Genetic Algorithm) should be compared against on the same inputs.
+
+## Student flow
+
+1. Plan tab → **Create my plan** (or **Re-plan the next 7 days**).
+2. A proposal screen shows the sessions by day, work that could not fit, and
+   tasks that were not planned. Nothing is saved yet.
+3. **Accept plan** saves it; **Cancel** leaves any accepted plan unchanged.
+4. Plan and Today show the accepted sessions, with recurring commitments shown
+   as fixed blocks. Re-planning replaces only planned sessions inside the new
+   plan period.
+
+## Inputs
+
+- Tasks: title, due date, estimated and recorded minutes, grade weight.
+- Free study time: study windows minus recurring commitments
+  (`freeStudySlots`, see the availability feature).
+- The current time (the app's preview clock).
+
+## Rules
+
+1. **Eligible tasks:** active, with a due date in the future and work remaining.
+   Tasks without a due date are listed as "Needs a due date"; overdue tasks as
+   "Due date has passed". Neither is guessed or placed.
+2. **Priority order:** earliest due date; then higher grade weight (unknown
+   weight last); then more remaining work; then task ID.
+3. **Plan period:** from now (rounded up to 5 minutes) to the end of the 7th day.
+4. **Placement:** each free slot is filled in time order. For every session the
+   first task in priority order that may still be studied is chosen, where:
+   - the session ends **no later than the task's due date**;
+   - total study that day stays within the **daily limit (4 h)**;
+   - study of that task that day stays within the **per-task limit (2 h)**;
+   - the session lasts **at most 60 min** and **at least 30 min** (or the whole
+     remainder if less than 30 min is left).
+   A **15 min break** follows each session within the same slot. Gaps too short
+   for any session are left free.
+5. **Reporting:** remaining work is reported as "Not enough time" when the task
+   is due inside the plan period, or "Continues after this week" otherwise.
+
+All limits live in `PlannerSettings` so the report and comparisons use the
+same values.
+
+## Measures for evaluation
+
+`PlanProposal` exposes: scheduled minutes, minutes not placed before their due
+date, minutes per day, number of sessions and tasks. Deadline violations are 0
+by construction (rule 4).
+
+## Not included yet
+
+Recording sessions as done, partly done or missed; updating remaining work from
+sessions; adjusting the plan after a missed session; notifications. These are
+the next increment.

@@ -80,7 +80,9 @@ class TodayScreen extends StatelessWidget {
           ),
         ),
         Text(
-          samples ? viewModel.workloadLabel : 'No study sessions yet. Planova will plan them around your availability in a later version.',
+          samples || sessions.any((s) => !s.commitment)
+              ? viewModel.workloadLabel
+              : 'No study sessions today. Create a plan on the Plan tab.',
           style: const TextStyle(
             color: planovaMuted,
             fontSize: 13,

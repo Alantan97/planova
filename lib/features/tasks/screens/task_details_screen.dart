@@ -75,7 +75,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Delete task?'),
         content: const Text(
-          'This removes the task and its planned sample study sessions. Recorded study time is kept.',
+          'This removes the task and its planned study sessions. Recorded study time is kept.',
         ),
         actions: [
           TextButton(
