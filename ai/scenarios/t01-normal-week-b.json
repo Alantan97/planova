@@ -1,0 +1,108 @@
+{
+  "id": "t01-normal-week-b",
+  "set": "test",
+  "synthetic": true,
+  "description": "A different normal week: morning classes, afternoon and evening study.",
+  "now": "2026-10-19T08:00",
+  "settings": {
+    "horizonDays": 7,
+    "minSessionMinutes": 30,
+    "maxSessionMinutes": 60,
+    "breakMinutes": 15,
+    "dailyLimitMinutes": 240,
+    "perTaskDailyMinutes": 120,
+    "daysOff": []
+  },
+  "windows": [
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "14:00",
+      "end": "18:00"
+    },
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "21:00",
+      "end": "23:00"
+    },
+    {
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "10:00",
+      "end": "16:00"
+    }
+  ],
+  "commitments": [
+    {
+      "title": "Lectures",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "08:00",
+      "end": "12:00"
+    },
+    {
+      "title": "Lab",
+      "weekdays": [
+        3
+      ],
+      "start": "14:00",
+      "end": "16:00"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Tutorial exercise",
+      "due": "2026-10-20T23:59",
+      "estimatedMinutes": 60,
+      "completedMinutes": 0,
+      "weightPercent": 5,
+      "completed": false
+    },
+    {
+      "id": "t2",
+      "title": "Assignment 3",
+      "due": "2026-10-23T23:59",
+      "estimatedMinutes": 300,
+      "completedMinutes": 0,
+      "weightPercent": 20,
+      "completed": false
+    },
+    {
+      "id": "t3",
+      "title": "Quiz 3 revision",
+      "due": "2026-10-22T10:00",
+      "estimatedMinutes": 120,
+      "completedMinutes": 0,
+      "weightPercent": 10,
+      "completed": false
+    },
+    {
+      "id": "t4",
+      "title": "Case study",
+      "due": "2026-10-25T23:59",
+      "estimatedMinutes": 240,
+      "completedMinutes": 0,
+      "weightPercent": 15,
+      "completed": false
+    }
+  ]
+}

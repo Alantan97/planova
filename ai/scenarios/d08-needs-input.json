@@ -1,0 +1,102 @@
+{
+  "id": "d08-needs-input",
+  "set": "development",
+  "synthetic": true,
+  "description": "Normal work plus tasks that cannot be planned: no due date, overdue, completed, or no work left.",
+  "now": "2026-10-14T13:00",
+  "settings": {
+    "horizonDays": 7,
+    "minSessionMinutes": 30,
+    "maxSessionMinutes": 60,
+    "breakMinutes": 15,
+    "dailyLimitMinutes": 240,
+    "perTaskDailyMinutes": 120,
+    "daysOff": []
+  },
+  "windows": [
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "20:00",
+      "end": "23:00"
+    },
+    {
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "09:00",
+      "end": "12:00"
+    },
+    {
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "14:00",
+      "end": "18:00"
+    }
+  ],
+  "commitments": [],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Assignment 2",
+      "due": "2026-10-17T23:59",
+      "estimatedMinutes": 180,
+      "completedMinutes": 0,
+      "weightPercent": 20,
+      "completed": false
+    },
+    {
+      "id": "t2",
+      "title": "Project idea (date not set)",
+      "due": null,
+      "estimatedMinutes": 120,
+      "completedMinutes": 0,
+      "weightPercent": null,
+      "completed": false
+    },
+    {
+      "id": "t3",
+      "title": "Lab report (late)",
+      "due": "2026-10-13T23:59",
+      "estimatedMinutes": 90,
+      "completedMinutes": 0,
+      "weightPercent": 10,
+      "completed": false
+    },
+    {
+      "id": "t4",
+      "title": "Quiz 1 revision (done)",
+      "due": "2026-10-15T09:00",
+      "estimatedMinutes": 60,
+      "completedMinutes": 0,
+      "weightPercent": 10,
+      "completed": true
+    },
+    {
+      "id": "t5",
+      "title": "Reading (all recorded)",
+      "due": "2026-10-16T23:59",
+      "estimatedMinutes": 60,
+      "completedMinutes": 60,
+      "weightPercent": 5,
+      "completed": false
+    },
+    {
+      "id": "t6",
+      "title": "Mid-term revision",
+      "due": "2026-10-21T09:00",
+      "estimatedMinutes": 240,
+      "completedMinutes": 0,
+      "weightPercent": 25,
+      "completed": false
+    }
+  ]
+}

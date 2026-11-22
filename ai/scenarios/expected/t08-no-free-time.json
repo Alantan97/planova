@@ -1,0 +1,17 @@
+{
+  "from": "2026-10-14T13:00",
+  "to": "2026-10-21T00:00",
+  "sessions": [],
+  "unplaced": [
+    {
+      "taskId": "t1",
+      "minutes": 120,
+      "reason": "notEnoughTimeBeforeDue"
+    },
+    {
+      "taskId": "t2",
+      "minutes": 300,
+      "reason": "continuesLater"
+    }
+  ]
+}

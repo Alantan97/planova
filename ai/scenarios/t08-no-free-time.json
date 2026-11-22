@@ -1,0 +1,80 @@
+{
+  "id": "t08-no-free-time",
+  "set": "test",
+  "synthetic": true,
+  "description": "Every study window is covered by commitments, so nothing can be placed.",
+  "now": "2026-10-14T13:00",
+  "settings": {
+    "horizonDays": 7,
+    "minSessionMinutes": 30,
+    "maxSessionMinutes": 60,
+    "breakMinutes": 15,
+    "dailyLimitMinutes": 240,
+    "perTaskDailyMinutes": 120,
+    "daysOff": []
+  },
+  "windows": [
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "20:00",
+      "end": "22:00"
+    },
+    {
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "10:00",
+      "end": "12:00"
+    }
+  ],
+  "commitments": [
+    {
+      "title": "Part-time work",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "19:00",
+      "end": "23:00"
+    },
+    {
+      "title": "Family",
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "09:00",
+      "end": "13:00"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Assignment",
+      "due": "2026-10-17T23:59",
+      "estimatedMinutes": 120,
+      "completedMinutes": 0,
+      "weightPercent": 20,
+      "completed": false
+    },
+    {
+      "id": "t2",
+      "title": "Project",
+      "due": "2026-10-27T23:59",
+      "estimatedMinutes": 300,
+      "completedMinutes": 0,
+      "weightPercent": 30,
+      "completed": false
+    }
+  ]
+}

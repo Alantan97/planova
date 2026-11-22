@@ -4,6 +4,10 @@ Training remains a separate offline Python experiment. Flutter now evaluates an
 explicitly exported numerical forest on-device for experimental task ranking.
 No Firebase, API, GA scheduling, or survey-based model training is introduced.
 
+The separate scheduling evaluation (test weeks, plan scoring and the
+rule-based baseline in `ai/planova_scheduling/`) is described in
+`docs/scheduling_evaluation.md`.
+
 ## What is real and what is simulated?
 
 | Item | Origin |

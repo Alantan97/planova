@@ -1,0 +1,116 @@
+{
+  "id": "d05-weekend-off",
+  "set": "development",
+  "synthetic": true,
+  "description": "The student keeps Saturday and Sunday free; tasks are due Monday.",
+  "now": "2026-10-14T13:00",
+  "settings": {
+    "horizonDays": 7,
+    "minSessionMinutes": 30,
+    "maxSessionMinutes": 60,
+    "breakMinutes": 15,
+    "dailyLimitMinutes": 240,
+    "perTaskDailyMinutes": 120,
+    "daysOff": [
+      6,
+      7
+    ]
+  },
+  "windows": [
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "20:00",
+      "end": "23:00"
+    },
+    {
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "09:00",
+      "end": "12:00"
+    },
+    {
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "14:00",
+      "end": "18:00"
+    },
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "14:00",
+      "end": "18:00"
+    }
+  ],
+  "commitments": [
+    {
+      "title": "Lecture",
+      "weekdays": [
+        1,
+        3
+      ],
+      "start": "14:00",
+      "end": "16:00"
+    },
+    {
+      "title": "Lab",
+      "weekdays": [
+        2,
+        4
+      ],
+      "start": "15:00",
+      "end": "17:00"
+    },
+    {
+      "title": "Tutorial",
+      "weekdays": [
+        5
+      ],
+      "start": "14:30",
+      "end": "16:30"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Portfolio update",
+      "due": "2026-10-19T09:00",
+      "estimatedMinutes": 240,
+      "completedMinutes": 0,
+      "weightPercent": 25,
+      "completed": false
+    },
+    {
+      "id": "t2",
+      "title": "Lab exercise",
+      "due": "2026-10-19T14:00",
+      "estimatedMinutes": 120,
+      "completedMinutes": 0,
+      "weightPercent": 10,
+      "completed": false
+    },
+    {
+      "id": "t3",
+      "title": "Reading summary",
+      "due": "2026-10-20T23:59",
+      "estimatedMinutes": 60,
+      "completedMinutes": 0,
+      "weightPercent": 5,
+      "completed": false
+    }
+  ]
+}

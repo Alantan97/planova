@@ -135,3 +135,13 @@ adapters live in `ai/planova_ranking/playground.py`. Launch it with
 model. Training remains separate from Flutter; only the explicitly exported forest
 is used by its experimental ranking screen. Independent ranking validation remains
 outstanding. See `ai/README.md` for reproduction.
+
+## Scheduling evaluation
+
+`ai/planova_scheduling/` holds the scheduling evaluation: scenario loading,
+a rule-for-rule Python copy of the app's planner (the baseline), hard-rule
+checks and plan scores. `ai/build_scenarios.py` writes the synthetic test weeks
+to `ai/scenarios/`; `ai/scenarios/expected/` holds the Dart planner's plans for
+them, checked by `test/services/planning/scenario_golden_test.dart` and
+`ai/tests/test_scheduling.py`. `ai/run_scheduling_baseline.py` prints the
+baseline table. See `docs/scheduling_evaluation.md`.

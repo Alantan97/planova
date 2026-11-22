@@ -1,0 +1,58 @@
+{
+  "from": "2026-10-18T20:00",
+  "to": "2026-10-25T00:00",
+  "sessions": [
+    {
+      "taskId": "t1",
+      "start": "2026-10-19T16:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-10-19T17:15",
+      "minutes": 45
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-10-19T20:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-10-19T21:15",
+      "minutes": 60
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-10-20T14:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-10-20T17:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-10-20T20:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-10-20T21:15",
+      "minutes": 60
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-10-21T16:00",
+      "minutes": 60
+    }
+  ],
+  "unplaced": [
+    {
+      "taskId": "t1",
+      "minutes": 45,
+      "reason": "notEnoughTimeBeforeDue"
+    }
+  ]
+}

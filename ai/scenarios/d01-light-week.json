@@ -1,0 +1,66 @@
+{
+  "id": "d01-light-week",
+  "set": "development",
+  "synthetic": true,
+  "description": "Two small tasks and plenty of free time.",
+  "now": "2026-10-14T13:00",
+  "settings": {
+    "horizonDays": 7,
+    "minSessionMinutes": 30,
+    "maxSessionMinutes": 60,
+    "breakMinutes": 15,
+    "dailyLimitMinutes": 240,
+    "perTaskDailyMinutes": 120,
+    "daysOff": []
+  },
+  "windows": [
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "20:00",
+      "end": "23:00"
+    },
+    {
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "09:00",
+      "end": "12:00"
+    },
+    {
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "14:00",
+      "end": "18:00"
+    }
+  ],
+  "commitments": [],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Reading reflection",
+      "due": "2026-10-16T23:59",
+      "estimatedMinutes": 90,
+      "completedMinutes": 0,
+      "weightPercent": 10,
+      "completed": false
+    },
+    {
+      "id": "t2",
+      "title": "Quiz 1 revision",
+      "due": "2026-10-19T10:00",
+      "estimatedMinutes": 120,
+      "completedMinutes": 0,
+      "weightPercent": 10,
+      "completed": false
+    }
+  ]
+}
