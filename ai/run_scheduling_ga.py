@@ -110,11 +110,12 @@ def print_table(rows):
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--set", choices=["development", "test"], required=True)
+    parser.add_argument("--set", choices=["development", "test", "holdout"], required=True)
     parser.add_argument("--seeds", type=int, default=10)
     parser.add_argument("--population", type=int)
     parser.add_argument("--generations", type=int)
-    parser.add_argument("--seed-priority-order", action="store_true")
+    parser.add_argument("--random-start", action="store_true",
+                        help="Do not put the baseline's plan in the first population.")
     parser.add_argument("--workers", type=int, default=None)
     parser.add_argument("--save", action="store_true")
     args = parser.parse_args(argv)
@@ -124,8 +125,8 @@ def main(argv=None) -> int:
         config = replace(config, population=args.population)
     if args.generations:
         config = replace(config, generations=args.generations)
-    if args.seed_priority_order:
-        config = replace(config, seed_with_priority_order=True)
+    if args.random_start:
+        config = replace(config, start_from_baseline=False)
     weights = Weights()
 
     rows = compare(args.set, args.seeds, config, weights, args.workers)
@@ -137,7 +138,7 @@ def main(argv=None) -> int:
     print("All weeks are synthetic. Lower fitness is better.")
     if args.save:
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        out = ROOT / "research" / "experiments" / "scheduling" / f"ga-{args.set}-{stamp}"
+        out = ROOT / "research" / "experiments" / "scheduling" / f"ga-v2-{args.set}-{'random' if args.random_start else 'baseline-start'}-{stamp}"
         out.mkdir(parents=True, exist_ok=False)
         (out / "report.json").write_text(json.dumps({
             "set": args.set, "seeds": args.seeds, "ga_config": config.to_json(),

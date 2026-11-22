@@ -1,0 +1,113 @@
+{
+  "id": "h05-light-spread",
+  "set": "holdout",
+  "synthetic": true,
+  "description": "Plenty of time and three small tasks spread across the week.",
+  "now": "2026-11-09T08:00",
+  "settings": {
+    "horizonDays": 7,
+    "minSessionMinutes": 30,
+    "maxSessionMinutes": 60,
+    "breakMinutes": 15,
+    "dailyLimitMinutes": 240,
+    "perTaskDailyMinutes": 120,
+    "daysOff": []
+  },
+  "windows": [
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "20:00",
+      "end": "23:00"
+    },
+    {
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "09:00",
+      "end": "12:00"
+    },
+    {
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "14:00",
+      "end": "18:00"
+    },
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "14:00",
+      "end": "18:00"
+    }
+  ],
+  "commitments": [
+    {
+      "title": "Lecture",
+      "weekdays": [
+        1,
+        3
+      ],
+      "start": "14:00",
+      "end": "16:00"
+    },
+    {
+      "title": "Lab",
+      "weekdays": [
+        2,
+        4
+      ],
+      "start": "15:00",
+      "end": "17:00"
+    },
+    {
+      "title": "Tutorial",
+      "weekdays": [
+        5
+      ],
+      "start": "14:30",
+      "end": "16:30"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Weekly reading",
+      "due": "2026-11-11T23:59",
+      "estimatedMinutes": 60,
+      "completedMinutes": 0,
+      "weightPercent": 5,
+      "completed": false
+    },
+    {
+      "id": "t2",
+      "title": "Short quiz revision",
+      "due": "2026-11-13T10:00",
+      "estimatedMinutes": 90,
+      "completedMinutes": 0,
+      "weightPercent": 10,
+      "completed": false
+    },
+    {
+      "id": "t3",
+      "title": "Reflection journal",
+      "due": "2026-11-15T23:59",
+      "estimatedMinutes": 120,
+      "completedMinutes": 0,
+      "weightPercent": 10,
+      "completed": false
+    }
+  ]
+}

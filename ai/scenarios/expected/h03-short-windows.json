@@ -1,0 +1,47 @@
+{
+  "from": "2026-11-02T08:00",
+  "to": "2026-11-09T00:00",
+  "sessions": [
+    {
+      "taskId": "t1",
+      "start": "2026-11-02T12:00",
+      "minutes": 50
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-11-02T17:10",
+      "minutes": 50
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-02T21:00",
+      "minutes": 50
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-11-03T12:00",
+      "minutes": 50
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-03T17:10",
+      "minutes": 50
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-03T21:00",
+      "minutes": 50
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-04T12:00",
+      "minutes": 50
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-04T17:10",
+      "minutes": 40
+    }
+  ],
+  "unplaced": []
+}

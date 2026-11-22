@@ -15,7 +15,9 @@ from pathlib import Path
 
 SCENARIO_DIR = Path(__file__).resolve().parents[1] / "scenarios"
 EXPECTED_DIR = SCENARIO_DIR / "expected"
-SETS = ("development", "test")
+# "test" was used once for the first GA (and has been seen since);
+# "holdout" was frozen before the second GA was written.
+SETS = ("development", "test", "holdout")
 
 
 @dataclass(frozen=True)

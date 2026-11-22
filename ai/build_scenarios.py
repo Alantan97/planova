@@ -289,6 +289,100 @@ SCENARIOS = [
         commitments=[rng(WEEKDAYS, "19:00", "23:00", "Part-time work"),
                      rng(WEEKEND, "09:00", "13:00", "Family")],
     ),
+    # ---------------- holdout set ----------------
+    # Written and frozen on 22 November 2026 before the second GA version
+    # (flexible session lengths) existed. Several are tight on purpose: tight
+    # weeks are where the first GA lost to the baseline.
+    scenario(
+        "h01-tight-two-deadlines", "holdout",
+        "Two large tasks due within three days; free time barely covers them.",
+        "2026-11-04T09:00",
+        [
+            task("t1", "Programming project", "2026-11-06T23:59", 420, 30),
+            task("t2", "Report draft", "2026-11-07T12:00", 300, 20),
+            task("t3", "Quiz revision", "2026-11-09T09:00", 60, 10),
+        ],
+        windows=USUAL_WINDOWS + AFTERNOONS, commitments=CLASSES,
+    ),
+    scenario(
+        "h02-odd-lengths", "holdout",
+        "Remaining work in awkward amounts (55, 95, 145, 205 minutes).",
+        "2026-11-02T10:00",
+        [
+            task("t1", "Exercise set", "2026-11-04T23:59", 55, 5),
+            task("t2", "Lab report", "2026-11-05T23:59", 95, 15),
+            task("t3", "Essay", "2026-11-07T23:59", 145, 20),
+            task("t4", "Prototype", "2026-11-09T17:00", 205, 25),
+        ],
+        windows=USUAL_WINDOWS + AFTERNOONS, commitments=CLASSES,
+    ),
+    scenario(
+        "h03-short-windows", "holdout",
+        "Only 50-minute study gaps between commitments on weekdays.",
+        "2026-11-02T08:00",
+        [
+            task("t1", "Reading notes", "2026-11-05T23:59", 150, 10),
+            task("t2", "Assignment", "2026-11-08T23:59", 240, 20),
+        ],
+        windows=[rng(WEEKDAYS, "12:00", "12:50"), rng(WEEKDAYS, "17:10", "18:00"),
+                 rng(WEEKDAYS, "21:00", "21:50"), rng(WEEKEND, "10:00", "13:00")],
+        commitments=[rng(WEEKDAYS, "08:00", "12:00", "Classes")],
+    ),
+    scenario(
+        "h04-friday-replan", "holdout",
+        "Friday-night re-plan with two deadlines on Monday and missed work.",
+        "2026-11-06T21:00",
+        [
+            task("t1", "Assignment 3", "2026-11-09T09:00", 360, 25, done_minutes=60),
+            task("t2", "Quiz 4 revision", "2026-11-09T14:00", 120, 10),
+            task("t3", "Group slides", "2026-11-11T17:00", 180, 15, done_minutes=30),
+        ],
+        windows=USUAL_WINDOWS + AFTERNOONS, commitments=CLASSES,
+    ),
+    scenario(
+        "h05-light-spread", "holdout",
+        "Plenty of time and three small tasks spread across the week.",
+        "2026-11-09T08:00",
+        [
+            task("t1", "Weekly reading", "2026-11-11T23:59", 60, 5),
+            task("t2", "Short quiz revision", "2026-11-13T10:00", 90, 10),
+            task("t3", "Reflection journal", "2026-11-15T23:59", 120, 10),
+        ],
+        windows=USUAL_WINDOWS + AFTERNOONS, commitments=CLASSES,
+    ),
+    scenario(
+        "h06-day-limit-bound", "holdout",
+        "Low daily limit (90 min) with steady work all week.",
+        "2026-11-02T09:00",
+        [
+            task("t1", "Assignment", "2026-11-05T23:59", 180, 20),
+            task("t2", "Revision", "2026-11-08T23:59", 240, 20),
+        ],
+        windows=USUAL_WINDOWS + AFTERNOONS, commitments=CLASSES,
+        dailyLimitMinutes=90, perTaskDailyMinutes=60,
+    ),
+    scenario(
+        "h07-long-sessions", "holdout",
+        "Student prefers long sessions (45-120 min) and no weekend study.",
+        "2026-11-02T09:00",
+        [
+            task("t1", "Design project", "2026-11-06T23:59", 360, 30),
+            task("t2", "Case study", "2026-11-10T23:59", 240, 20),
+        ],
+        windows=USUAL_WINDOWS + AFTERNOONS, commitments=CLASSES,
+        minSessionMinutes=45, maxSessionMinutes=120, breakMinutes=20, daysOff=[6, 7],
+    ),
+    scenario(
+        "h08-overloaded-midterms", "holdout",
+        "Mid-term week: more due work than free time, three tests close together.",
+        "2026-11-09T12:00",
+        [
+            task("t1", "Mid-term A revision", "2026-11-11T09:00", 480, 30),
+            task("t2", "Mid-term B revision", "2026-11-12T09:00", 480, 30),
+            task("t3", "Mid-term C revision", "2026-11-13T14:00", 360, 25),
+        ],
+        windows=USUAL_WINDOWS + AFTERNOONS, commitments=CLASSES,
+    ),
 ]
 
 

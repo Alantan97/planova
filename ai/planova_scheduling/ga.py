@@ -5,20 +5,28 @@ plans, scores each with the objective (objective.py), and breeds better ones
 by recombining and slightly changing the best. Given the same seed it always
 returns the same plan.
 
-Chromosome. Each plannable task's remaining work is cut into chunks of at
-most the maximum session length (and at least the minimum, where possible).
-A chromosome is
-  - order: a permutation of the chunks (which get first pick of free time),
-  - day:   a preferred plan day for every chunk.
+Version 2 (22 November 2026). Version 1 cut each task into fixed, even
+chunks before placing them; on tight weeks those chunks packed free time
+less tightly than the rule-based planner and lost to it. Version 2 chooses
+each session's length while placing it, like the rule-based planner.
 
-Decoder. Chunks are placed one by one, in chromosome order, on their
-preferred day if possible, otherwise on the nearest usable day (earlier days
-first), at the earliest time that keeps every hard rule of the app:
-free study time only, no overlaps, breaks inside a free period, daily and
-per-task-per-day limits, days off and never past the deadline. A final pass
-places anything left over, in priority order, including pieces shorter than
-the minimum (only as a task's last session, as the app allows). So every
-decoded plan is valid; the GA only chooses between valid plans.
+Chromosome. Each plannable task gets "turns": enough for its remaining work
+at the minimum session length. A chromosome is
+  - order: a permutation of all turns (who picks free time first),
+  - day:   a preferred plan day (offset from the first day) for every turn.
+
+Decoder. Turns are taken in chromosome order. On its turn a task gets one
+session on its preferred day if possible, otherwise on the nearest usable
+day (earlier days first), at the earliest time that keeps every hard rule of
+the app, and as long as fits there, up to the maximum session length and the
+work left (the same length rule as the rule-based planner). A final pass
+places anything left over in priority order. Every decoded plan is valid.
+
+Because lengths are chosen while placing, the rule-based planner's own plan
+can be written as a chromosome (`encode`), and decoding it gives that exact
+plan back. With `start_from_baseline` the first population contains it, and
+elitism then guarantees the GA's result is never worse than the baseline on
+the objective.
 """
 
 from __future__ import annotations
@@ -34,86 +42,66 @@ from .plan import Plan, Session, Unplaced, UnplacedReason
 
 @dataclass(frozen=True)
 class GAConfig:
-    # Chosen on the development weeks only (22 November 2026): the smallest
-    # tried budget (40x120, 50x150, 60x200) never worse than the baseline in
-    # 20 runs per week. See docs/scheduling_evaluation.md.
-    population: int = 60
-    generations: int = 200
+    # Chosen on the development weeks only (22 November 2026): starting from
+    # the baseline's plan with 40x120 was never worse than the baseline in 20
+    # runs per week and is the cheapest setting tried (40x120, 60x200, with
+    # and without the baseline start). See docs/scheduling_evaluation.md.
+    population: int = 40
+    generations: int = 120
     tournament: int = 3
     crossover_rate: float = 0.9
     swap_rate: float = 0.3
-    day_mutation_rate: float | None = None  # None: 1 / number of chunks
+    day_mutation_rate: float | None = None  # None: 2 / number of turns
     elite: int = 2
-    seed_with_priority_order: bool = False
+    start_from_baseline: bool = True
 
     def to_json(self) -> dict:
         return asdict(self)
 
 
-# ------------------------------------------------------------------ chunks
-def chunk_sizes(remaining: int, min_len: int, max_len: int) -> list[int]:
-    """Even chunks within [min_len, max_len]; any remainder is left for the
-    final pass (it may then become a short last session)."""
-    if remaining < min_len:
-        return []
-    low = -(-remaining // max_len)          # fewest chunks
-    high = remaining // min_len             # most chunks
-    if low <= high:
-        n = low
-        base, extra = divmod(remaining, n)
-        return [base + 1] * extra + [base] * (n - extra)
-    n = high                                # cannot cover it all evenly
-    return [max_len] * n
-
-
 class Decoder:
     def __init__(self, ctx: Context):
         self.ctx = ctx
-        s = ctx.scenario.settings
-        self.s = s
+        self.s = ctx.scenario.settings
         self.priority = [t.id for t in ctx.eligible]  # already in priority order
-        self.chunks: list[tuple[str, int]] = []
+        self.turns: list[str] = []
         for task in ctx.eligible:
-            for size in chunk_sizes(task.remaining, s.min_session_minutes, s.max_session_minutes):
-                self.chunks.append((task.id, size))
-        self.day_index = [d for d, _ in ctx.days]
-        # Usable plan days on or before each task's due date.
+            self.turns += [task.id] * -(-task.remaining // self.s.min_session_minutes)
+        self.offsets = [d for d, _ in ctx.days]  # usable plan days
+        # Usable days (indices into ctx.days) that start before each deadline.
         self.days_for = {
-            t: [i for i, (d, slots) in enumerate(ctx.days) if slots[0][0] < ctx.due[t]]
+            t: [i for i, (_, slots) in enumerate(ctx.days) if slots[0][0] < ctx.due[t]]
             for t in self.priority
         }
 
-    # One plan under construction.
     def _fresh(self):
         return {
             "slots": [[[] for _ in slots] for _, slots in self.ctx.days],
             "day_used": [0] * len(self.ctx.days),
             "task_day": {},
             "placed": {t: 0 for t in self.priority},
-            "last_end": {t: -1 for t in self.priority},
+            "last_end": {t: 0 for t in self.priority},
             "sessions": [],
         }
 
-    def _try_day(self, state, task, i, want, need, after):
-        """Earliest placement on usable day i of between `need` and `want`
-        minutes; returns the length placed (0 if none)."""
+    def _try_day(self, state, task, i, want, need, after) -> int:
+        """Earliest session on usable day i of between `need` and `want`
+        minutes, starting no earlier than `after`. Returns its length or 0."""
         s = self.s
         due = self.ctx.due[task]
-        day_room = s.daily_limit_minutes - state["day_used"][i]
-        task_room = s.per_task_daily_minutes - state["task_day"].get((task, i), 0)
-        cap = min(want, day_room, task_room)
+        cap = min(want,
+                  s.daily_limit_minutes - state["day_used"][i],
+                  s.per_task_daily_minutes - state["task_day"].get((task, i), 0))
         if cap < need or cap <= 0:
             return 0
         brk = s.break_minutes
         for k, (a, b) in enumerate(self.ctx.days[i][1]):
             booked = state["slots"][i][k]
-            candidates = sorted({max(x, after, a) for x in [a] + [end + brk for _, end in booked]})
-            for c in candidates:
-                # Sessions in the same free period need a break between them:
-                # earlier ones must end `brk` before c, later ones cap the length.
-                if any(start < c and c < end + brk for start, end in booked):
+            for c in sorted({max(x, after, a) for x in [a] + [end + brk for _, end in booked]}):
+                # Sessions in the same free period need a break between them.
+                if any(start < c < end + brk or start == c for start, end in booked):
                     continue
-                limit = min([b, due] + [start - brk for start, _ in booked if start >= c])
+                limit = min([b, due] + [start - brk for start, _ in booked if start > c])
                 length = min(cap, limit - c)
                 if length >= need and length > 0:
                     booked.append((c, c + length))
@@ -126,62 +114,48 @@ class Decoder:
                     return length
         return 0
 
-    def _place(self, state, task, length, preferred, full_only):
-        days = self.days_for[task]
-        if not days:
+    def _turn(self, state, task, day_order) -> int:
+        left = self.ctx.remaining[task] - state["placed"][task]
+        if left <= 0:
             return 0
-        # Nearest usable day to the preferred one, earlier days first.
-        pos = min(range(len(days)), key=lambda j: (abs(days[j] - preferred), days[j]))
-        order = [days[pos]]
-        lo, hi = pos - 1, pos + 1
-        while lo >= 0 or hi < len(days):
-            if lo >= 0:
-                order.append(days[lo])
-                lo -= 1
-            if hi < len(days):
-                order.append(days[hi])
-                hi += 1
-        need = length if full_only else min(length, self.s.min_session_minutes)
-        for i in order:
-            placed = self._try_day(state, task, i, length, need, -1)
-            if placed:
-                return placed
+        s = self.s
+        if left < s.min_session_minutes:
+            # A piece shorter than the minimum must be the task's last session.
+            want, need, after = left, left, state["last_end"][task]
+        else:
+            want, need, after = min(left, s.max_session_minutes), s.min_session_minutes, 0
+        for i in day_order:
+            got = self._try_day(state, task, i, want, need, after)
+            if got:
+                return got
         return 0
+
+    def _nearest(self, task, preferred):
+        days = self.days_for[task]
+        return sorted(days, key=lambda i: (abs(self.ctx.days[i][0] - preferred),
+                                           self.ctx.days[i][0]))
 
     def decode(self, order, days):
         state = self._fresh()
-        s = self.s
         for gene in order:
-            task, size = self.chunks[gene]
-            left = min(size, self.ctx.remaining[task] - state["placed"][task])
-            if left <= 0:
-                continue
-            got = self._place(state, task, left, days[gene], full_only=True)
-            if not got:
-                got = self._place(state, task, left, days[gene], full_only=False)
-            # Anything not placed here is retried in the final pass.
+            task = self.turns[gene]
+            self._turn(state, task, self._nearest(task, days[gene]))
         # Final pass: leftovers in priority order, earliest day first.
         for task in self.priority:
-            while True:
-                left = self.ctx.remaining[task] - state["placed"][task]
-                if left <= 0:
-                    break
-                if left < s.min_session_minutes:
-                    # A short piece must be the task's last session.
-                    after = max(state["last_end"][task], 0)
-                    for i in self.days_for[task]:
-                        if self._try_day(state, task, i, left, left, after):
-                            break
-                    break
-                got = 0
-                for i in self.days_for[task]:
-                    got = self._try_day(state, task, i, min(left, s.max_session_minutes),
-                                        s.min_session_minutes, -1)
-                    if got:
-                        break
-                if not got:
-                    break
+            while self._turn(state, task, self.days_for[task]):
+                pass
         return state["sessions"]
+
+    def encode(self, plan: Plan):
+        """The chromosome whose decoding is `plan` (used for the baseline)."""
+        free = {t: [g for g, owner in enumerate(self.turns) if owner == t] for t in self.priority}
+        order, days = [], [self.offsets[0] if self.offsets else 0] * len(self.turns)
+        for session in sorted(plan.sessions, key=lambda x: x.start):
+            gene = free[session.task_id].pop(0)
+            order.append(gene)
+            days[gene] = self.ctx.minutes(session.start) // 1440
+        order += [g for t in self.priority for g in free[t]]
+        return order, days
 
     def to_plan(self, sessions) -> Plan:
         ctx = self.ctx
@@ -229,13 +203,13 @@ class GAResult:
 
 
 def run_ga(scenario, seed: int, config: GAConfig = GAConfig(),
-           weights: Weights = Weights()) -> GAResult:
+           weights: Weights = Weights(), baseline: Plan | None = None) -> GAResult:
     began = time.perf_counter()
     ctx = Context(scenario)
     decoder = Decoder(ctx)
     rng = random.Random(seed)
-    n = len(decoder.chunks)
-    usable = decoder.day_index
+    n = len(decoder.turns)
+    usable = decoder.offsets
     cache: dict[tuple, tuple[float, dict, list]] = {}
     evaluations = 0
 
@@ -254,25 +228,27 @@ def run_ga(scenario, seed: int, config: GAConfig = GAConfig(),
     def random_individual():
         order = list(range(n))
         rng.shuffle(order)
-        days = [rng.choice(usable) if usable else 0 for _ in range(n)]
-        return order, days
+        return order, [rng.choice(usable) if usable else 0 for _ in range(n)]
 
     population = [random_individual() for _ in range(config.population)]
-    if config.seed_with_priority_order and population:
-        # Chunks in priority order, all preferring the earliest day: close to
-        # the rule-based planner's choices (not identical; see the docs).
-        population[0] = (list(range(n)), [usable[0] if usable else 0] * n)
+    if config.start_from_baseline and population:
+        if baseline is None:
+            from .baseline import plan_week
+            baseline = plan_week(scenario)
+        population[0] = decoder.encode(baseline)
 
-    day_rate = config.day_mutation_rate if config.day_mutation_rate is not None else (1 / n if n else 0)
+    day_rate = config.day_mutation_rate if config.day_mutation_rate is not None else (2 / n if n else 0)
     history = []
     for _ in range(config.generations):
         scored = sorted(population, key=lambda ind: fitness(ind)[0])
         history.append(fitness(scored[0])[0])
         nxt = [(o[:], d[:]) for o, d in scored[:config.elite]]
+
+        def pick():
+            group = rng.sample(population, min(config.tournament, len(population)))
+            return min(group, key=lambda ind: fitness(ind)[0])
+
         while len(nxt) < config.population:
-            def pick():
-                group = rng.sample(population, min(config.tournament, len(population)))
-                return min(group, key=lambda ind: fitness(ind)[0])
             p1, p2 = pick(), pick()
             if rng.random() < config.crossover_rate:
                 order = _order_crossover(rng, p1[0], p2[0])
@@ -284,8 +260,10 @@ def run_ga(scenario, seed: int, config: GAConfig = GAConfig(),
                 order[i], order[j] = order[j], order[i]
             for g in range(n):
                 if usable and rng.random() < day_rate:
-                    days[g] = (days[g] + rng.choice((-1, 1))) if rng.random() < 0.7 else rng.choice(usable)
-                    days[g] = min(max(days[g], usable[0]), usable[-1])
+                    if rng.random() < 0.7:
+                        days[g] = min(max(days[g] + rng.choice((-1, 1)), usable[0]), usable[-1])
+                    else:
+                        days[g] = rng.choice(usable)
             nxt.append((order, days))
         population = nxt
 

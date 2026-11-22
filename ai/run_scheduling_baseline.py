@@ -57,7 +57,7 @@ def table(rows: list[dict]) -> str:
     lines = [head, "-" * len(head)]
     for row in rows:
         lines.append(f"{row['scenario']:<26}" + "".join(f"{row[key]:>14}" for key, _ in COLUMNS))
-    for set_name in ("development", "test"):
+    for set_name in ("development", "test", "holdout"):
         group = [r for r in rows if r["set"] == set_name]
         if group:
             lines.append(f"{'mean (' + set_name + ')':<26}" + "".join(
@@ -67,7 +67,7 @@ def table(rows: list[dict]) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--set", choices=["development", "test"], default=None)
+    parser.add_argument("--set", choices=["development", "test", "holdout"], default=None)
     parser.add_argument("--save", action="store_true")
     args = parser.parse_args(argv)
 

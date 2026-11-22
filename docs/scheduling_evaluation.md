@@ -2,7 +2,8 @@
 
 Started 22 November 2026. Increment 1: shared test weeks, plan scoring and
 the rule-based baseline. Increment 2: a Genetic Algorithm (GA) scored by
-exactly the same code, and its first comparison with the baseline (below).
+exactly the same code. GA version 1 lost to the baseline on 2 test weeks;
+version 2 fixed the cause and was then checked on new held-out weeks.
 Everything here is offline Python; the app still uses the rule-based planner.
 
 ## Why a baseline first
@@ -25,7 +26,7 @@ $env:PLANOVA_UPDATE_GOLDEN='1'; flutter test test/services/planning/scenario_gol
 
 ## Test weeks
 
-`ai/build_scenarios.py` writes 16 weeks to `ai/scenarios/`. All are
+`ai/build_scenarios.py` writes 24 weeks to `ai/scenarios/`. All are
 **synthetic**: realistic shapes for a UPSI undergraduate (weekday classes,
 evening and weekend study, tasks worth 5–40% of a course), but no real
 student, course or proforma is copied. They use the app's default study
@@ -34,12 +35,16 @@ preferences unless a week says otherwise.
 | Set | Weeks | Purpose |
 | --- | --- | --- |
 | development | d01–d08 | Building and tuning planners |
-| test | t01–t08 | Final results only; never used for tuning |
+| test | t01–t08 | Results for GA version 1; seen since, so no longer held out |
+| holdout | h01–h08 | Written and frozen before GA version 2 existed; final results only |
 
 Cases covered: light and normal weeks, clashing deadlines, heavy
 commitments, days off, an impossible workload, re-planning after missed
 sessions, tasks that need input (no due date, overdue, completed), strict
-preferences, long tasks due after the week, and no free time at all.
+preferences, long tasks due after the week, and no free time at all. The
+holdout weeks add tight deadlines, awkward amounts of work, 50-minute gaps,
+a Friday-night re-plan, a low daily limit, long-session preferences and an
+overloaded mid-term week.
 
 ## Scoring
 
@@ -114,30 +119,81 @@ same function.
 
 `ai/planova_scheduling/ga.py`. A GA is a **search method, not trained AI**:
 it keeps a population of candidate plans, scores them, and breeds better ones.
+The current code is version 2; version 1 is in Git history (commit a0fbaad).
 
-- **Chromosome**: each task's remaining work is cut into even chunks
-  (between the minimum and maximum session length). A chromosome is the
-  order of the chunks plus a preferred day for each chunk.
-- **Decoder**: places chunks in that order on the preferred day (or the
-  nearest usable day, earlier first) at the earliest time that keeps every
-  hard rule; a final pass places leftovers in priority order. Every decoded
-  plan is therefore valid.
-- **Operators**: tournament selection (3), order crossover on the chunk
-  order with uniform crossover on days (rate 0.9), swap mutation (0.3), day
-  mutation (1 / chunks, mostly ±1 day), 2 elites. Seeded, so repeatable.
-- **Budget, chosen on development weeks only**: population 60, 200
-  generations. Tried 40×120, 50×150 and 60×200 (10–20 runs per week); 60×200
-  was the smallest never worse than the baseline on any development week.
-  Starting from a priority-order individual made no difference, so it is off.
+**Version 2 (current)**
+
+- **Chromosome**: each task gets "turns", enough for its remaining work at
+  the minimum session length. A chromosome is the order of all turns plus a
+  preferred day for each turn.
+- **Decoder**: on its turn, a task gets one session on its preferred day (or
+  the nearest usable day, earlier first), at the earliest time that keeps
+  every hard rule, and **as long as fits there** up to the maximum length and
+  the work left (the baseline's own length rule). A final pass places
+  leftovers in priority order. Every decoded plan is valid.
+- **The baseline is reachable**: the baseline's plan can be written as a
+  chromosome and decodes back exactly (tested on all 24 weeks). By default
+  the first population includes it, so with elitism the GA is never worse
+  than the baseline on the objective. This is a safety net, not the source
+  of the gains: random starts reached the same results (below).
+- **Operators**: tournament selection (3), order crossover on turns with
+  uniform crossover on days (rate 0.9), swap mutation (0.3), day mutation
+  (2 / turns, mostly ±1 day), 2 elites. Seeded, so repeatable.
+- **Budget, chosen on development weeks only**: population 40, 120
+  generations, baseline start. Tried 40×120 and 60×200, each with and
+  without the baseline start (20 runs per week); this was the cheapest never
+  worse than the baseline (random start at 40×120 was worse in 2 of 20 runs
+  on d03). About 1–4 seconds per run in Python on a laptop.
+
+**Version 1 (replaced)** cut each task into fixed, even chunks before placing
+them. Results and the reason it lost are kept below.
 
 Run:
 
 ```powershell
 & ai/.venv/Scripts/python.exe ai/run_scheduling_ga.py --set development --seeds 10
-& ai/.venv/Scripts/python.exe ai/run_scheduling_ga.py --set test --seeds 30 --save
+& ai/.venv/Scripts/python.exe ai/run_scheduling_ga.py --set holdout --seeds 30 --save
 ```
 
-## Results: GA vs baseline (22 November 2026)
+`--random-start` leaves the baseline's plan out of the first population.
+
+## Results: GA version 2 vs baseline (22 November 2026)
+
+**Holdout weeks** (frozen before version 2 was written; run once with the
+fixed settings, 30 runs per week). Every run kept all hard rules.
+
+| Week | Baseline fitness | GA median | GA not worse | Day spread base/GA | Last-24h % base/GA | Missed min base/GA |
+| --- | --- | --- | --- | --- | --- | --- |
+| h01 tight two deadlines | 79311.9 | 64521.7 | 100% | 116 / 98 | 26 / 27 | **75 / 60** |
+| h02 odd lengths | 561.9 | 166.4 | 100% | 92 / 13 | 0 / 0 | 0 / 0 |
+| h03 short windows | 414.7 | 223.6 | 100% | 67 / 29 | 0 / 0 | 0 / 0 |
+| h04 Friday re-plan | 2087.3 | 1924.9 | 100% | 94 / 61 | 13 / 13 | 0 / 0 |
+| h05 light spread | 474.4 | 165.0 | 100% | 83 / 21 | 0 / 0 | 0 / 0 |
+| h06 day-limit bound | 260.4 | 228.9 | 100% | 32 / 28 | 0 / 0 | 0 / 0 |
+| h07 long sessions | 596.7 | 80.0 | 100% | 107 / 0 | 0 / 0 | 0 / 0 |
+| h08 overloaded mid-terms | 517572.9 | 515172.9 | 100% | 107 / 107 | 43 / 28 | 510 / 510 |
+
+Better on **all 8** holdout weeks (Wilcoxon signed-rank, one-sided, p =
+0.004). On the tight week h01 the GA places 15 more minutes of due work than
+the baseline; on the overloaded week h08 both miss the same work, but the GA
+moves more of it out of the last 24 hours. Elsewhere the main gain is a much
+more even week (e.g. h02 spread 92 → 13 minutes, h07 107 → 0) with the same
+deadlines met. With **random starts** the holdout results were identical
+(same medians on all 8 weeks), so the gains come from the search itself.
+
+Supporting results: development weeks, 20 runs each, better on all 8 (p =
+0.004). The old test weeks (seen since version 1, so weaker evidence), 30
+runs each: better on 6, equal on 2 (t02 exam week, t08 no free time), never
+worse (p = 0.016); on t07, where version 1 lost, version 2 places 15 more
+minutes of due work than the baseline (missed 45 → 30).
+
+**Conclusion**: on these synthetic weeks, GA version 2 meets deadlines at
+least as well as the app's rule-based planner and spreads study much more
+evenly, while keeping every rule the app enforces. It has not been tested
+with real students, on a phone, or against goals other than the one chosen
+above. It is not connected to the app.
+
+## Results: GA version 1 vs baseline (kept for the record)
 
 **Development weeks** (used for tuning, 20 runs each): the GA was never worse
 than the baseline and better on all 8 weeks (Wilcoxon signed-rank, one-sided,
@@ -171,9 +227,7 @@ baseline's "as long as fits, up to the maximum" rule, leaving small unusable
 gaps; on tight weeks that costs placed minutes. The GA cannot even express
 the baseline's plan there, so more generations would not help.
 
-**Conclusion so far**: on weeks with slack, the GA gives much more even
-plans with the same deadlines met; on tight weeks this version can be worse
-than the simple rules. It is not ready to replace the baseline. The next step
-is a decoder that chooses session lengths while placing (so the baseline's
-plan is always reachable), checked on development weeks and then on **new**
-held-out weeks, because these test weeks have now been seen.
+**Conclusion for version 1**: on weeks with slack it gave much more even
+plans; on tight weeks it could be worse than the simple rules. Version 2
+(above) chooses session lengths while placing, and was checked on new
+held-out weeks because these test weeks had been seen.

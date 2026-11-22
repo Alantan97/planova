@@ -1,0 +1,93 @@
+{
+  "from": "2026-11-09T12:00",
+  "to": "2026-11-16T00:00",
+  "sessions": [
+    {
+      "taskId": "t1",
+      "start": "2026-11-09T16:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-11-09T17:15",
+      "minutes": 45
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-09T20:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-09T21:15",
+      "minutes": 60
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-11-10T14:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-11-10T17:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-10T20:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-10T21:15",
+      "minutes": 60
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-11T16:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-11T17:15",
+      "minutes": 45
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-11-11T20:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-11-11T21:15",
+      "minutes": 60
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-11-12T14:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-11-12T17:00",
+      "minutes": 60
+    }
+  ],
+  "unplaced": [
+    {
+      "taskId": "t1",
+      "minutes": 255,
+      "reason": "notEnoughTimeBeforeDue"
+    },
+    {
+      "taskId": "t2",
+      "minutes": 135,
+      "reason": "notEnoughTimeBeforeDue"
+    },
+    {
+      "taskId": "t3",
+      "minutes": 120,
+      "reason": "notEnoughTimeBeforeDue"
+    }
+  ]
+}
