@@ -144,4 +144,5 @@ checks and plan scores. `ai/build_scenarios.py` writes the synthetic test weeks
 to `ai/scenarios/`; `ai/scenarios/expected/` holds the Dart planner's plans for
 them, checked by `test/services/planning/scenario_golden_test.dart` and
 `ai/tests/test_scheduling.py`. `ai/run_scheduling_baseline.py` prints the
-baseline table. See `docs/scheduling_evaluation.md`.
+baseline table. `objective.py` is the shared schedule goal and `ga.py` the
+Genetic Algorithm; `ai/run_scheduling_ga.py` compares them over repeated runs. See `docs/scheduling_evaluation.md`.
