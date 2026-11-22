@@ -19,7 +19,7 @@ are directly comparable.
 
 from __future__ import annotations
 
-import statistics
+import math
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 
@@ -84,6 +84,19 @@ class Context:
         return self.first_day + timedelta(minutes=minutes)
 
 
+def plain_std(values: list[int]) -> float:
+    """Population standard deviation, computed step by step exactly like the
+    Dart copy (statistics.pstdev uses exact fractions, which Dart lacks)."""
+    if not values:
+        return 0.0
+    mean = sum(values) / len(values)
+    total = 0.0
+    for v in values:
+        d = v - mean
+        total += d * d
+    return math.sqrt(total / len(values))
+
+
 def evaluate_sessions(ctx: Context, sessions, weights: Weights) -> tuple[float, dict]:
     """sessions: iterable of (task_id, start_minute, minutes)."""
     placed = {}
@@ -102,7 +115,7 @@ def evaluate_sessions(ctx: Context, sessions, weights: Weights) -> tuple[float, 
                  for t in ctx.due_in_period)
     later = sum(ctx.remaining[t] - placed.get(t, 0) for t in ctx.later)
     loads = [per_day.get(d, 0) for d, _ in ctx.days]
-    spread = statistics.pstdev(loads) if loads else 0.0
+    spread = plain_std(loads)
     parts = {
         "missed_minutes": missed,
         "buffer_minutes": in_buffer,

@@ -1,0 +1,52 @@
+{
+  "seed": 0,
+  "population": 40,
+  "generations": 120,
+  "startFromBaseline": true,
+  "fitness": 223.5696517302984,
+  "from": "2026-11-02T08:00",
+  "to": "2026-11-09T00:00",
+  "sessions": [
+    {
+      "taskId": "t2",
+      "start": "2026-11-02T12:00",
+      "minutes": 50
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-02T17:10",
+      "minutes": 30
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-11-03T12:00",
+      "minutes": 50
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-11-03T17:10",
+      "minutes": 50
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-11-04T12:00",
+      "minutes": 50
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-05T12:00",
+      "minutes": 50
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-06T12:00",
+      "minutes": 50
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-07T10:00",
+      "minutes": 60
+    }
+  ],
+  "unplaced": []
+}

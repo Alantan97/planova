@@ -178,8 +178,9 @@ Better on **all 8** holdout weeks (Wilcoxon signed-rank, one-sided, p =
 the baseline; on the overloaded week h08 both miss the same work, but the GA
 moves more of it out of the last 24 hours. Elsewhere the main gain is a much
 more even week (e.g. h02 spread 92 → 13 minutes, h07 107 → 0) with the same
-deadlines met. With **random starts** the holdout results were identical
-(same medians on all 8 weeks), so the gains come from the search itself.
+deadlines met. With **random starts** the holdout medians were the same on
+7 weeks and better on h08 (missed 510 → 495), so the gains come from the
+search itself, not from the baseline start.
 
 Supporting results: development weeks, 20 runs each, better on all 8 (p =
 0.004). The old test weeks (seen since version 1, so weaker evidence), 30
@@ -191,7 +192,39 @@ minutes of due work than the baseline (missed 45 → 30).
 least as well as the app's rule-based planner and spreads study much more
 evenly, while keeping every rule the app enforces. It has not been tested
 with real students, on a phone, or against goals other than the one chosen
-above. It is not connected to the app.
+above.
+
+**Random-number note.** These version 2 results were re-run on 22 November
+2026 after switching the GA from Python's built-in generator to a small
+shared generator (`ai/planova_scheduling/rng.py`, xorshift32) and a plain
+standard-deviation formula, so that the app's Dart copy can reproduce runs
+exactly. Settings and weeks were unchanged; this was not tuning. The holdout
+table above was identical before and after the switch.
+
+## The GA in the app (Dart)
+
+`lib/services/planning/ga_planner.dart` (`planWeekBalanced`) is a
+line-for-line copy of the Python GA, objective and generator, using the
+default settings above and seed 0. It returns the same `PlanProposal` type as
+the rule-based planner.
+
+It is held to the evaluated version by saved plans: `ai/export_ga_golden.py`
+writes the Python GA's plan and exact score for all 24 weeks to
+`ai/scenarios/expected_ga/`, and `test/services/planning/ga_planner_test.dart`
+requires the Dart GA to reproduce every one (sessions, unplaced work and the
+score to the last digit). `ai/tests/test_ga.py` fails if those files go out of
+date. The generator's first values are checked in both languages. After an
+intended GA change:
+
+```powershell
+& ai/.venv/Scripts/python.exe ai/export_ga_golden.py
+flutter test test/services/planning/ga_planner_test.dart
+```
+
+The Dart GA is not shown in the app yet (next increment). In the Dart test
+runner on a laptop it plans all 24 weeks in about 3 seconds; phone timing is
+still to be measured. Parity is tested on the Dart VM; the generator uses
+only 32-bit operations so web builds should match, but that is not tested.
 
 ## Results: GA version 1 vs baseline (kept for the record)
 

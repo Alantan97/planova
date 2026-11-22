@@ -1,0 +1,42 @@
+{
+  "seed": 0,
+  "population": 40,
+  "generations": 120,
+  "startFromBaseline": true,
+  "fitness": 164.97813183356476,
+  "from": "2026-11-09T08:00",
+  "to": "2026-11-16T00:00",
+  "sessions": [
+    {
+      "taskId": "t2",
+      "start": "2026-11-09T16:00",
+      "minutes": 30
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-11-10T14:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-11-11T16:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-11-12T14:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-11-13T14:00",
+      "minutes": 30
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-11-14T09:00",
+      "minutes": 30
+    }
+  ],
+  "unplaced": []
+}

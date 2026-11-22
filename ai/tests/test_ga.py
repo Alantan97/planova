@@ -1,5 +1,9 @@
+import json
 import unittest
 from dataclasses import replace
+
+import export_ga_golden
+from planova_scheduling.rng import Rng
 
 from planova_scheduling.baseline import plan_week
 from planova_scheduling.ga import Decoder, GAConfig, run_ga
@@ -69,6 +73,24 @@ class GARuns(unittest.TestCase):
         reasons = {u.task_id: u.reason.value for u in plan.unplaced}
         self.assertEqual(reasons["t2"], "needsDueDate")
         self.assertEqual(reasons["t3"], "overdue")
+
+
+class SharedWithDart(unittest.TestCase):
+    def test_random_numbers_match_the_dart_generator(self):
+        # Same values are checked in test/services/planning/ga_planner_test.dart.
+        a, b = Rng(0), Rng(42)
+        self.assertEqual([a.next_u32() for _ in range(3)], [2831543865, 3042595768, 445164014])
+        self.assertEqual([b.next_u32() for _ in range(3)], [289363370, 2328323471, 2829082676])
+
+    def test_saved_ga_plans_are_up_to_date(self):
+        # The app's Dart GA must reproduce these files exactly.
+        results = export_ga_golden.compute_all()
+        self.assertEqual(sorted(results), sorted(p.stem for p in SCENARIO_DIR.glob("*.json")))
+        for scenario_id, plan in results.items():
+            with self.subTest(scenario_id):
+                saved = json.loads((export_ga_golden.OUT / f"{scenario_id}.json")
+                                   .read_text(encoding="utf-8"))
+                self.assertEqual(saved, plan)
 
 
 class Objective(unittest.TestCase):

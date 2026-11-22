@@ -31,13 +31,13 @@ the objective.
 
 from __future__ import annotations
 
-import random
 import time
 from dataclasses import asdict, dataclass
 
 from .baseline import eligibility, priority_key
 from .objective import Context, Weights, evaluate_sessions
 from .plan import Plan, Session, Unplaced, UnplacedReason
+from .rng import Rng
 
 
 @dataclass(frozen=True)
@@ -181,15 +181,27 @@ class Decoder:
 
 
 # ------------------------------------------------------------------ GA
-def _order_crossover(rng: random.Random, a: list[int], b: list[int]) -> list[int]:
+# Every random choice below goes through Rng and happens in a fixed order, so
+# the Dart copy (lib/services/planning/ga_planner.dart) reproduces each run
+# exactly. Keep the two in step: the shared saved plans test it.
+def _order_crossover(rng: Rng, a: list[int], b: list[int]) -> list[int]:
     n = len(a)
     if n < 2:
         return a[:]
-    i, j = sorted(rng.sample(range(n), 2))
+    i, j = sorted(rng.sample_indices(n, 2))
     middle = a[i:j + 1]
     taken = set(middle)
     rest = [g for g in b if g not in taken]
     return rest[:i] + middle + rest[i:]
+
+
+def _best_index(values: list[float], indices) -> int:
+    """The index with the lowest value; the first one on ties."""
+    best = None
+    for i in indices:
+        if best is None or values[i] < values[best]:
+            best = i
+    return best
 
 
 @dataclass
@@ -207,7 +219,7 @@ def run_ga(scenario, seed: int, config: GAConfig = GAConfig(),
     began = time.perf_counter()
     ctx = Context(scenario)
     decoder = Decoder(ctx)
-    rng = random.Random(seed)
+    rng = Rng(seed)
     n = len(decoder.turns)
     usable = decoder.offsets
     cache: dict[tuple, tuple[float, dict, list]] = {}
@@ -240,13 +252,15 @@ def run_ga(scenario, seed: int, config: GAConfig = GAConfig(),
     day_rate = config.day_mutation_rate if config.day_mutation_rate is not None else (2 / n if n else 0)
     history = []
     for _ in range(config.generations):
-        scored = sorted(population, key=lambda ind: fitness(ind)[0])
-        history.append(fitness(scored[0])[0])
-        nxt = [(o[:], d[:]) for o, d in scored[:config.elite]]
+        values = [fitness(ind)[0] for ind in population]
+        # Stable: equal values keep population order (Dart sorts by (value, index)).
+        ranked = sorted(range(len(population)), key=lambda i: (values[i], i))
+        history.append(values[ranked[0]])
+        nxt = [(population[i][0][:], population[i][1][:]) for i in ranked[:config.elite]]
 
         def pick():
-            group = rng.sample(population, min(config.tournament, len(population)))
-            return min(group, key=lambda ind: fitness(ind)[0])
+            group = rng.sample_indices(len(population), min(config.tournament, len(population)))
+            return population[_best_index(values, group)]
 
         while len(nxt) < config.population:
             p1, p2 = pick(), pick()
@@ -256,7 +270,7 @@ def run_ga(scenario, seed: int, config: GAConfig = GAConfig(),
             else:
                 order, days = p1[0][:], p1[1][:]
             if n >= 2 and rng.random() < config.swap_rate:
-                i, j = rng.sample(range(n), 2)
+                i, j = rng.sample_indices(n, 2)
                 order[i], order[j] = order[j], order[i]
             for g in range(n):
                 if usable and rng.random() < day_rate:
@@ -267,7 +281,8 @@ def run_ga(scenario, seed: int, config: GAConfig = GAConfig(),
             nxt.append((order, days))
         population = nxt
 
-    best = min(population, key=lambda ind: fitness(ind)[0])
+    values = [fitness(ind)[0] for ind in population]
+    best = population[_best_index(values, range(len(population)))]
     value, parts, sessions = fitness(best)
     history.append(value)
     return GAResult(

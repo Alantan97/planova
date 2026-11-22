@@ -259,4 +259,18 @@ DateTime _roundUpToFive(DateTime t) {
 
 String _stamp(DateTime t) =>
     '${t.year}${_two(t.month)}${_two(t.day)}${_two(t.hour)}${_two(t.minute)}';
+
+// Shared with the balanced (GA) planner so both order tasks, start the plan
+// and name sessions in exactly the same way.
+
+/// Planning order: earliest due date, then higher grade weight, then more
+/// work remaining, then task ID.
+int comparePlanningPriority(AcademicTask a, AcademicTask b) => _priority(a, b);
+
+/// The first moment a plan made at [now] may use (next 5-minute mark).
+DateTime planStartFor(DateTime now) => _roundUpToFive(now);
+
+/// The ID of a proposed session for [taskId] starting at [start].
+String planSessionId(DateTime start, String taskId) =>
+    'plan-${_stamp(start)}-$taskId';
 String _two(int v) => v.toString().padLeft(2, '0');

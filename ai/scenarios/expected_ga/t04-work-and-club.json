@@ -1,0 +1,72 @@
+{
+  "seed": 0,
+  "population": 40,
+  "generations": 120,
+  "startFromBaseline": true,
+  "fitness": 328.30952244882405,
+  "from": "2026-10-19T09:00",
+  "to": "2026-10-26T00:00",
+  "sessions": [
+    {
+      "taskId": "t1",
+      "start": "2026-10-19T16:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-10-19T17:15",
+      "minutes": 45
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-10-20T14:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-10-20T17:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t1",
+      "start": "2026-10-21T16:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-10-21T17:15",
+      "minutes": 45
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-10-22T14:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-10-22T17:00",
+      "minutes": 60
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-10-23T14:00",
+      "minutes": 30
+    },
+    {
+      "taskId": "t2",
+      "start": "2026-10-23T16:30",
+      "minutes": 60
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-10-23T20:00",
+      "minutes": 30
+    },
+    {
+      "taskId": "t3",
+      "start": "2026-10-24T09:00",
+      "minutes": 60
+    }
+  ],
+  "unplaced": []
+}

@@ -51,7 +51,8 @@ lib/
   models/                   Immutable domain records
   services/
     auth/                   Account boundary (guest-only until Google sign-in)
-    planning/               Free study slots and the rule-based weekly planner
+    planning/               Free study slots, the rule-based weekly planner and
+                            the balanced (GA) planner
     proforma/               Local PDF extraction and template parsing
     ranking/                Versioned model evaluator and on-device ranking
 ```
@@ -108,6 +109,8 @@ place so native builds and future platform work continue to use standard tooling
 and their shared `WeeklyTimeRange`. `lib/services/planning/free_study_slots.dart`
 computes free study time (windows minus commitments) and
 `rule_based_planner.dart` fills it with sessions (see `docs/rule_based_planner.md`).
+`ga_planner.dart` is the balanced planner: the evaluated Genetic Algorithm,
+kept identical to the Python version (see `docs/scheduling_evaluation.md`).
 `StudyPlanRepository` stores accepted plans and recorded outcomes.
 
 ## Ranking integration
