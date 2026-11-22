@@ -90,7 +90,7 @@ void main() {
 
     // The remaining step opens the availability screen.
     await tapVisible(tester, find.byKey(const ValueKey('setup-availability')));
-    expect(find.text('When can you study?'), findsOneWidget);
+    expect(find.text('Your normal week.'), findsOneWidget);
     await dependencies.availability.saveWindow(
       StudyWindow(
         id: 'w1',

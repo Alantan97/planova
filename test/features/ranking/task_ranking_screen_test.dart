@@ -27,6 +27,9 @@ void main() {
           task.copyWith(assessmentWeightPercent: 25),
         );
       }
+      await dependencies.profile.save(
+        dependencies.profile.progress.copyWith(showExperimental: true),
+      );
       await tester.pumpWidget(MyApp(dependencies: dependencies));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('nav-courses')));

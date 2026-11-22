@@ -6,11 +6,14 @@ import '../../../core/widgets/study_components.dart';
 import '../../../data/repositories/availability_repository.dart';
 import '../../../data/repositories/profile_repository.dart';
 import '../../../data/repositories/task_repository.dart';
-import '../../setup/screens/setup_screen.dart';
+import '../../availability/screens/availability_screen.dart';
+import '../../courses/screens/courses_screen.dart';
+import '../../courses/start_proforma_import.dart';
 
 /// First-run checklist on Today. Each step is ticked from saved data, so it
-/// stays accurate after restarts. Tapping a step, or "Continue setup", opens
-/// the guided setup at that step. The card disappears once every step is done.
+/// stays accurate after restarts. Tapping a step opens the screen that does
+/// it; "Continue setup" reopens the guided journey at the first unfinished
+/// step. The card disappears once every step is done.
 class GetStartedCard extends StatelessWidget {
   const GetStartedCard({
     super.key,
@@ -23,7 +26,8 @@ class GetStartedCard extends StatelessWidget {
   final AvailabilityRepository availability;
   final AppClock clock;
 
-  /// When set, offers to resume the full guided journey.
+  /// Used to reopen the guided journey. Without it (never in the app), the
+  /// main button opens the first unfinished step's screen instead.
   final ProfileRepository? profile;
 
   /// Whether the card has anything left to show.
@@ -34,17 +38,29 @@ class GetStartedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void open(int step) => Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (_) => SetupScreen(
-          tasks: tasks,
-          availability: availability,
-          clock: clock,
-          initialStep: step,
+    void open(int step) => switch (step) {
+      0 => Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => CoursesScreen(repository: tasks, clock: clock),
         ),
       ),
-    );
+      1 => startProformaImport(context, tasks, clock),
+      _ => Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => AvailabilityScreen(repository: availability),
+        ),
+      ),
+    };
+
+    /// Journey steps 3, 4 and 5 are semester, courses and week.
+    void resumeJourney(int step) {
+      final profile = this.profile;
+      if (profile == null) return open(step);
+      profile.save(profile.progress.copyWith(completed: false, step: step + 3));
+    }
+
     final steps = [
       (
         key: 'setup-semester',
@@ -143,27 +159,16 @@ class GetStartedCard extends StatelessWidget {
               width: double.infinity,
               child: FilledButton(
                 key: const ValueKey('setup-continue'),
-                onPressed: () => open(next),
+                onPressed: () => resumeJourney(next),
                 child: Text(done == 0 ? 'Start setup' : 'Continue setup'),
               ),
             ),
-            if (profile != null)
-              Center(
-                child: TextButton(
-                  key: const ValueKey('setup-guided'),
-                  onPressed: () {
-                    final saved = profile!.progress;
-                    // Resume where the journey was left, or at this step.
-                    profile!.save(
-                      saved.copyWith(
-                        completed: false,
-                        step: saved.step >= 2 ? saved.step : next + 3,
-                      ),
-                    );
-                  },
-                  child: const Text('Use the step-by-step guide'),
-                ),
-              ),
+            const SizedBox(height: 8),
+            const Text(
+              'Opens the step-by-step guide. Or tap a step above to do just that.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: planovaMuted, fontSize: 12, height: 1.4),
+            ),
           ],
         ],
       ),

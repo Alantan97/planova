@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_theme.dart';
+import '../core/widgets/experimental_features.dart';
 import 'app_dependencies.dart';
 import 'app_shell.dart';
 import '../features/onboarding/onboarding_flow.dart';
@@ -56,6 +57,16 @@ class _MyAppState extends State<MyApp> {
     title: 'Planova',
     debugShowCheckedModeBanner: false,
     theme: buildPlanovaTheme(),
+    // Above the navigator, so pushed screens see it too.
+    builder: (context, child) => _dependencies == null
+        ? child!
+        : ListenableBuilder(
+            listenable: _dependencies!.profile,
+            builder: (context, _) => ExperimentalFeatures(
+              enabled: _dependencies!.profile.progress.showExperimental,
+              child: child!,
+            ),
+          ),
     home: _dependencies != null
         // New students see the guided journey first; returning students
         // (or "Finish later") go straight to the app.

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/time/app_clock.dart';
 import '../../../core/time/date_time_helpers.dart';
+import '../../../core/widgets/experimental_features.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../core/widgets/task_card.dart';
 import '../../../data/repositories/task_repository.dart';
@@ -108,21 +109,22 @@ class CourseOverviewScreen extends StatelessWidget {
               icon: const Icon(Icons.upload_file_outlined),
               label: const Text('Import proforma'),
             ),
-            OutlinedButton.icon(
-              key: const ValueKey('open-task-ranking'),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (_) => TaskRankingScreen(
-                    repository: repository,
-                    clock: clock,
-                    service: ranking,
+            if (ExperimentalFeatures.of(context))
+              OutlinedButton.icon(
+                key: const ValueKey('open-task-ranking'),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => TaskRankingScreen(
+                      repository: repository,
+                      clock: clock,
+                      service: ranking,
+                    ),
                   ),
                 ),
+                icon: const Icon(Icons.sort_rounded),
+                label: const Text('Prioritize · experimental'),
               ),
-              icon: const Icon(Icons.sort_rounded),
-              label: const Text('Prioritize · experimental'),
-            ),
           ],
         ),
         const SizedBox(height: 20),

@@ -13,6 +13,7 @@ class OnboardingProgress {
     this.displayName,
     this.accountType = AccountType.none,
     this.preferences = const StudyPreferences(),
+    this.showExperimental = false,
   });
 
   final bool completed;
@@ -25,6 +26,10 @@ class OnboardingProgress {
   /// Study preferences set on the Profile tab; the planner follows them.
   final StudyPreferences preferences;
 
+  /// Experimental features (task ranking, weekly learning) are shown only
+  /// when the student turns them on in Profile.
+  final bool showExperimental;
+
   OnboardingProgress copyWith({
     bool? completed,
     int? step,
@@ -32,11 +37,13 @@ class OnboardingProgress {
     bool clearName = false,
     AccountType? accountType,
     StudyPreferences? preferences,
+    bool? showExperimental,
   }) => OnboardingProgress(
     completed: completed ?? this.completed,
     step: step ?? this.step,
     displayName: clearName ? null : displayName ?? this.displayName,
     accountType: accountType ?? this.accountType,
     preferences: preferences ?? this.preferences,
+    showExperimental: showExperimental ?? this.showExperimental,
   );
 }

@@ -160,6 +160,31 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          Panel(
+            child: SwitchListTile(
+              key: const ValueKey('experimental-switch'),
+              contentPadding: EdgeInsets.zero,
+              value: progress.showExperimental,
+              activeThumbColor: planovaOnOrange,
+              activeTrackColor: planovaActionOrange,
+              onChanged: (on) =>
+                  profile.save(progress.copyWith(showExperimental: on)),
+              title: const Text(
+                'Experimental features',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+              subtitle: const Padding(
+                padding: EdgeInsets.only(top: 4),
+                child: Text(
+                  'Shows the task priority ranking (a research model that is '
+                  'not validated yet) and weekly learning topics from '
+                  'proformas. Planning does not use either.',
+                  style: TextStyle(color: planovaMuted, height: 1.4),
+                ),
+              ),
+            ),
+          ),
         ],
       );
     },

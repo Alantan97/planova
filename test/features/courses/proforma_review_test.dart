@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:planova/core/widgets/experimental_features.dart';
 import 'package:planova/app/app_dependencies.dart';
 import 'package:planova/core/theme/app_theme.dart';
 import 'package:planova/features/courses/screens/proforma_import_screen.dart';
@@ -17,8 +18,9 @@ import '../../support/widget_actions.dart';
 Future<void> mountImporter(
   WidgetTester tester,
   AppDependencies dependencies,
-  Future<ProformaDraft?> Function() loader,
-) async {
+  Future<ProformaDraft?> Function() loader, {
+  bool experimental = true,
+}) async {
   await dependencies.tasks.saveSemester(
     AcademicSemester(
       id: 's',
@@ -31,6 +33,9 @@ Future<void> mountImporter(
   await tester.pumpWidget(
     MaterialApp(
       theme: buildPlanovaTheme(),
+      // Weekly learning is an experimental feature; most tests here cover it.
+      builder: (context, child) =>
+          ExperimentalFeatures(enabled: experimental, child: child!),
       home: Builder(
         builder: (context) => Scaffold(
           body: TextButton(
@@ -132,6 +137,58 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('With experimental features off, weekly learning is saved '
+      'but not shown', (tester) async {
+    final dependencies = AppDependencies.demo();
+    addTearDown(dependencies.close);
+    final original = await draft();
+    final withWeekly = ProformaDraft(
+      courseCode: original.courseCode,
+      courseName: original.courseName,
+      documentSession: original.documentSession,
+      courseSource: original.courseSource,
+      assessments: original.assessments,
+      warnings: original.warnings,
+      weeklyLearning: [
+        WeeklyLearningDraft(
+          weekStart: 6,
+          weekEnd: 6,
+          topic: 'Hidden topic',
+          guidedNf2fHours: 1,
+          independentNf2fHours: 2,
+          onlineHours: const [null, 1, 0, null],
+          totalSltHours: 5,
+          source: ProformaSource(
+            fingerprint: original.courseSource.fingerprint,
+            fileName: 'example.pdf',
+            page: 4,
+            rowId: 'weekly-4-1',
+            excerpt: 'Hidden topic row',
+          ),
+        ),
+      ],
+    );
+    await mountImporter(
+      tester,
+      dependencies,
+      () async => withWeekly,
+      experimental: false,
+    );
+    await tapVisible(tester, find.text('Choose PDF'));
+    expect(find.textContaining('View weekly learning'), findsNothing);
+    await tapVisible(tester, find.text('Continue to assessments'));
+    await untick(tester, [0, 1, 2, 3, 4]);
+    await tapVisible(tester, find.text('Review import'));
+    expect(find.textContaining('weekly entries'), findsNothing);
+    await tapVisible(
+      tester,
+      find.text('I reviewed the course and selected assessments.'),
+    );
+    await tapVisible(tester, find.text('Save reviewed import'));
+    final saved = dependencies.tasks.courses.single.weeklyLearning.single;
+    expect(saved.confirmed.topic, 'Hidden topic');
+  });
+
   testWidgets(
     'Review weekly corrections, import them, then edit the saved course',
     (tester) async {
@@ -212,6 +269,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: buildPlanovaTheme(),
+          builder: (context, child) =>
+              ExperimentalFeatures(enabled: true, child: child!),
           home: CoursesScreen(
             repository: dependencies.tasks,
             clock: dependencies.clock,

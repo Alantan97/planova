@@ -7,7 +7,7 @@ Implemented 20 October 2026. This is local text extraction and template parsing,
 1. Tasks -> Courses & semesters -> create a semester if needed.
 2. In the target semester, choose Import proforma -> Choose PDF.
 3. Review the course code/name and document session. The selected app semester is an explicit choice; document offering-year fields and folder names do not set it.
-   Choose **View weekly learning**, expand an entry and choose **Edit entry** to correct its week, topic or planned hours. **Use changes** updates the review; **Use reviewed entries** returns to the import. Nothing is persisted until the final import save.
+   With **Profile → Experimental features** on, choose **View weekly learning**, expand an entry and choose **Edit entry** to correct its week, topic or planned hours. **Use changes** updates the review; **Use reviewed entries** returns to the import. Nothing is persisted until the final import save.
 4. Compare assessment drafts and source excerpts with the PDF. Repeated assessment types retain separate section/row IDs.
 5. Every new assessment starts selected; untick any to skip. Each selected task needs only a time estimate. Where the proforma prints the assessment's total SLT hours, that value is pre-filled as a labelled suggestion (hours × 60 minutes) that the student can change. A due date is optional ("Decide later"): proformas do not print assessment dates, so none is inferred, and a task without a due date is saved, shown as "No due date yet", and excluded from ranking until one is added. Title and grade weight are pre-filled and can be corrected under "Edit title or grade weight"; the confirmed percentage is saved separately from original source metadata. Difficulty and importance are no longer asked during import (they keep their defaults and remain editable under More details in the task form).
 6. Confirm review and save. A course-only import is allowed. Nothing is written on file selection, extraction, or cancellation.
@@ -102,6 +102,8 @@ chooser/device validation. Weekly topic and NF2F/Online workload extraction is a
 separate evaluation described below; this change does not create study sessions or retrain ranking.
 
 ## Weekly learning review and storage
+
+Requires **Profile → Experimental features** (off by default) since 22 November 2026. With the switch off, weekly rows are still read and saved with the import but not shown; nothing in planning uses them yet.
 
 The importer also recognizes the inspected UPSI weekly table using the Week, CLO,
 F2F, NF2F, Online and SLT header positions. It preserves PDF reading order to collect

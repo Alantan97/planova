@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/time/app_clock.dart';
 import '../../../core/time/date_time_helpers.dart';
 import '../../../core/widgets/effort_field.dart';
+import '../../../core/widgets/experimental_features.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../data/repositories/task_repository.dart';
 import '../../../models/academic_course.dart';
@@ -133,6 +134,12 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
   }
 
   bool _confirmed = false;
+
+  /// Weekly learning is still read and saved, but only shown to students who
+  /// turned on experimental features; nothing uses it yet.
+  bool get _showWeekly =>
+      ExperimentalFeatures.of(context) &&
+      widget.draft.weeklyLearning.isNotEmpty;
   bool _saving = false;
   String? _error;
   AcademicCourse? get _existing => widget.repository.courses
@@ -516,11 +523,13 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
         if (_existing != null)
           Panel(
             child: Text(
-              '${_existing!.label} already exists in this semester. Its name, tasks and saved weekly corrections will be kept. Only new source rows will be added; weekly records from another PDF version will not replace saved entries.',
+              _showWeekly
+                  ? '${_existing!.label} already exists in this semester. Its name, tasks and saved weekly corrections will be kept. Only new source rows will be added; weekly records from another PDF version will not replace saved entries.'
+                  : '${_existing!.label} already exists in this semester. Its name and tasks will be kept. Only new assessments will be added.',
               style: const TextStyle(height: 1.5),
             ),
           ),
-        if (widget.draft.weeklyLearning.isNotEmpty) ...[
+        if (_showWeekly) ...[
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _saving ? null : _reviewWeekly,
@@ -611,12 +620,12 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
       const SizedBox(height: 20),
       if (_selected.isEmpty)
         Text(
-          _newWeeklyCount == 0
+          _newWeeklyCount == 0 || !_showWeekly
               ? 'Only the course will be saved. No new tasks will be added.'
               : 'The course and $_newWeeklyCount weekly entries will be saved. No new tasks will be added.',
           style: const TextStyle(height: 1.5),
         ),
-      if (widget.draft.weeklyLearning.isNotEmpty)
+      if (_showWeekly)
         Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: Text(
@@ -671,9 +680,7 @@ class _ProformaReviewScreenState extends State<ProformaReviewScreen> {
             ? null
             : (value) => setState(() => _confirmed = value!),
         title: Text(
-          widget.draft.weeklyLearning.isEmpty
-              ? 'I reviewed the course and selected assessments.'
-              : 'I reviewed the course, weekly learning and selected assessments.',
+          !_showWeekly ? 'I reviewed the course and selected assessments.' : 'I reviewed the course, weekly learning and selected assessments.',
         ),
         activeColor: planovaActionOrange,
         checkColor: planovaOnOrange,

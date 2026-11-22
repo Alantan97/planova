@@ -231,7 +231,7 @@ void main() {
     expect(find.text('GET STARTED · 0 OF 3 DONE'), findsOneWidget);
     expect(d.profile.progress.step, 3);
 
-    await tapVisible(tester, find.byKey(const ValueKey('setup-guided')));
+    await tapVisible(tester, find.byKey(const ValueKey('setup-continue')));
     expect(find.text('STEP 2 OF 7 · SEMESTER'), findsOneWidget);
 
     // Back goes to the previous screen, not out of the journey.

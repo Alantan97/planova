@@ -20,7 +20,9 @@ lib/
     time/                   AppClock + SystemClock (real), DemoClock (preview),
                             and pure date/time helpers
     widgets/                UI shared across features (effort input, task card,
-                            session rows, counters, panels)
+                            session rows, counters, panels) and
+                            ExperimentalFeatures (the Profile switch, provided
+                            above every route)
   data/
     repositories/           Storage contracts and their shared rules
                             (tasks/courses, availability, study plan, profile)
@@ -28,10 +30,9 @@ lib/
     mock/                   Explicit sample tasks/sessions for the demo build
   features/
     onboarding/             Guided first-run journey; widgets/ holds the welcome
-                            screen, intro cards and "what is missing" panel
-    setup/                  Short setup screen; widgets/ holds the step widgets
-                            shared with the journey (semester, courses,
-                            availability, step intro and progress bar)
+                            screen, intro cards, "what is missing" panel and
+                            the step widgets (semester, courses, availability,
+                            step intro and progress bar)
     today/                  Overview, "Get started" card, "Needs your input"
     courses/                Courses tab, course/semester forms, proforma import
                             and review, weekly learning; start_proforma_import.dart

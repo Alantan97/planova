@@ -74,6 +74,7 @@ abstract final class ProfileCodec {
     'step': p.step,
     if (p.displayName != null) 'displayName': p.displayName,
     'accountType': p.accountType.name,
+    'showExperimental': p.showExperimental,
     'preferences': {
       'minSession': p.preferences.minSessionMinutes,
       'maxSession': p.preferences.maxSessionMinutes,
@@ -88,6 +89,8 @@ abstract final class ProfileCodec {
     final completed = map['completed'];
     final step = map['step'];
     final name = map['displayName'];
+    // Missing in records saved before the switch existed: off.
+    final experimental = map['showExperimental'] ?? false;
     final account = AccountType.values
         .where((a) => a.name == map['accountType'])
         .firstOrNull;
@@ -96,6 +99,7 @@ abstract final class ProfileCodec {
         step is! int ||
         step < 0 ||
         (name != null && name is! String) ||
+        experimental is! bool ||
         account == null) {
       throw const FormatException('Invalid saved profile.');
     }
@@ -105,6 +109,7 @@ abstract final class ProfileCodec {
       displayName: name as String?,
       accountType: account,
       preferences: _decodePreferences(map['preferences']),
+      showExperimental: experimental,
     );
   }
 

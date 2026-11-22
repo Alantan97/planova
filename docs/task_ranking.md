@@ -9,7 +9,7 @@ experimental integration and not independently validated student guidance.
 Use a full hot restart after these model/dependency changes. If an old app build
 cannot find the new asset, stop and run Flutter again. Restarting preserves local data.
 
-1. Open the Courses tab, then **Prioritize · experimental**.
+1. Turn on **Profile → Experimental features**, then open the Courses tab and **Prioritize · experimental**.
 2. For a task listed under Needs attention, open it, choose Edit task, and enter its
    confirmed assessment percentage under Task settings. Do not guess an unknown
    percentage or use the task's importance setting instead.

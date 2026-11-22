@@ -4,6 +4,7 @@ import '../../../core/errors/academic_save_error.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/time/app_clock.dart';
 import '../../../core/time/date_time_helpers.dart';
+import '../../../core/widgets/experimental_features.dart';
 import '../../../core/widgets/study_components.dart';
 import '../../../data/repositories/task_repository.dart';
 import '../../../models/academic_course.dart';
@@ -380,7 +381,8 @@ class _CoursesScreenState extends State<CoursesScreen> {
                 icon: const Icon(Icons.add, size: 18),
                 label: const Text('Add task'),
               ),
-              if (course.weeklyLearning.isNotEmpty)
+              if (course.weeklyLearning.isNotEmpty &&
+                  ExperimentalFeatures.of(context))
                 TextButton.icon(
                   icon: const Icon(Icons.menu_book_outlined, size: 18),
                   label: Text(
