@@ -56,11 +56,13 @@ class TodayScreen extends StatelessWidget {
       children: [
         Eyebrow(viewModel.dateLabel),
         const SizedBox(height: 8),
-        PageHeading(
-          title: profile?.progress.displayName == null
-              ? 'Today’s overview'
-              : 'Hi, ${profile!.progress.displayName}',
-        ),
+        if (profile?.progress.displayName case final name?) ...[
+          const SizedBox(height: 6),
+          Text(
+            'Hi, $name',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+        ],
         const SizedBox(height: 20),
         if (GetStartedCard.isNeeded(tasks, availability)) ...[
           GetStartedCard(

@@ -43,7 +43,7 @@ void main() {
     expect(find.textContaining('No study sessions today'), findsOneWidget);
     expect(find.textContaining('are samples'), findsNothing);
 
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.byKey(const ValueKey('nav-plan')));
     await tester.pumpAndSettle();
     expect(find.text('No study plan yet'), findsOneWidget);
     expect(find.text('No study sessions on this day.'), findsOneWidget);
@@ -148,7 +148,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     for (final tab in ['Plan', 'Profile']) {
-      await tester.tap(find.text(tab));
+      await tester.tap(find.byKey(ValueKey('nav-${tab.toLowerCase()}')));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     }

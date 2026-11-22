@@ -44,7 +44,6 @@ class ProfileScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const PageHeading(
-            title: 'Profile',
             subtitle: 'Your details, your week and how Planova plans.',
           ),
           const SizedBox(height: 20),

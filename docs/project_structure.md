@@ -11,8 +11,9 @@ assets/ranking/             Exported ranking model used by the experimental scre
 lib/
   main.dart                 Entry point
   app/                      Dependency composition (AppDependencies), startup
-                            (journey or app), and the navigation shell (Today, Plan,
-                            centre + quick-add, Courses, Profile)
+                            (journey or app), and the navigation shell; widgets/
+                            holds the bottom bar (pill tabs Today, Plan,
+                            Courses, Profile and a separate + for quick-add)
   core/
     errors/                 Shared user-facing error messages
     theme/                  Design tokens and Flutter theme

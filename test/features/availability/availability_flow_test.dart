@@ -6,7 +6,7 @@ import 'package:planova/app/planova_app.dart';
 import '../../support/widget_actions.dart';
 
 Future<void> openAvailability(WidgetTester tester) async {
-  await tester.tap(find.text('Profile'));
+  await tester.tap(find.byKey(const ValueKey('nav-profile')));
   await tester.pumpAndSettle();
   await tapVisible(tester, find.byKey(const ValueKey('open-availability')));
   expect(find.text('Your normal week.'), findsOneWidget);

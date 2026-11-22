@@ -15,7 +15,7 @@ void main() {
     addTearDown(d.tasks.dispose);
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.byKey(const ValueKey('nav-plan')));
     await tester.pumpAndSettle();
     for (var i = 0; i < 7; i++) {
       final rect = tester.getRect(find.byKey(ValueKey('day-$i')));

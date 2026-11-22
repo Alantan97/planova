@@ -41,7 +41,7 @@ void main() {
     );
     await tester.pumpWidget(MyApp(dependencies: dependencies));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Courses'));
+    await tester.tap(find.byKey(const ValueKey('nav-courses')));
     await tester.pumpAndSettle();
     await tapVisible(tester, find.text('Database assignment'));
     await tapVisible(tester, find.text('Edit task'));
@@ -74,7 +74,7 @@ void main() {
       addTearDown(dependencies.close);
       await tester.pumpWidget(MyApp(dependencies: dependencies));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Courses'));
+      await tester.tap(find.byKey(const ValueKey('nav-courses')));
       await tester.pumpAndSettle();
       await tapVisible(tester, find.text('Courses & semesters'));
       await tapVisible(tester, find.text('Add semester'));
@@ -140,7 +140,7 @@ void main() {
       addTearDown(dependencies.close);
       await tester.pumpWidget(MyApp(dependencies: dependencies));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Courses'));
+      await tester.tap(find.byKey(const ValueKey('nav-courses')));
       await tester.pumpAndSettle();
       await tapVisible(tester, find.text('Courses & semesters'));
       await tapVisible(tester, find.text('Add semester'));

@@ -53,10 +53,10 @@ void main() {
     addTearDown(d.tasks.dispose);
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Courses'));
+    await tester.tap(find.byKey(const ValueKey('nav-courses')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Your courses'), findsOneWidget);
+    expect(find.text('Courses'), findsNWidgets(2)); // header and tab
     expect(find.textContaining('Semester 1 · '), findsOneWidget);
     // The saved course comes first, then unlinked demo tasks by subject.
     expect(find.text('DES3113 · Mobile'), findsOneWidget);
@@ -99,7 +99,7 @@ void main() {
     addTearDown(d.tasks.dispose);
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Courses'));
+    await tester.tap(find.byKey(const ValueKey('nav-courses')));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -1500));

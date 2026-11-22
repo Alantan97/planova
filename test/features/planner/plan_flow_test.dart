@@ -163,7 +163,7 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.byKey(const ValueKey('nav-plan')));
     await tester.pumpAndSettle();
     expect(find.text('No study plan yet'), findsOneWidget);
 
@@ -184,7 +184,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Re-plan the next 7 days'), findsOneWidget);
-    await tester.tap(find.text('Today'));
+    await tester.tap(find.byKey(const ValueKey('nav-today')));
     await tester.pumpAndSettle();
     expect(find.text('Quiz 1'), findsWidgets);
     expect(find.text('1 study session · 1h planned'), findsOneWidget);
@@ -208,7 +208,7 @@ void main() {
     );
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.byKey(const ValueKey('nav-plan')));
     await tester.pumpAndSettle();
     await tapVisible(tester, find.byKey(const ValueKey('create-plan')));
     expect(find.text('No sessions could be planned'), findsOneWidget);
@@ -237,7 +237,7 @@ void main() {
     addTearDown(d.tasks.dispose);
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.byKey(const ValueKey('nav-plan')));
     await tester.pumpAndSettle();
     await tapVisible(tester, find.byKey(const ValueKey('create-plan')));
     expect(tester.takeException(), isNull);

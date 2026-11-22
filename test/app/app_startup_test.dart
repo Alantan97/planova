@@ -13,7 +13,7 @@ void main() {
     expect(find.text('Courses'), findsNothing);
     completer.complete(AppDependencies.demo());
     await tester.pumpAndSettle();
-    expect(find.text('Today'), findsOneWidget);
+    expect(find.byKey(const ValueKey('nav-today')), findsOneWidget);
     expect(find.text('Courses'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });

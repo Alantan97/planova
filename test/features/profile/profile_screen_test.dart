@@ -21,7 +21,7 @@ void main() {
     addTearDown(d.tasks.dispose);
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Profile'));
+    await tester.tap(find.byKey(const ValueKey('nav-profile')));
     await tester.pumpAndSettle();
 
     expect(find.text('Sam'), findsOneWidget);
@@ -44,7 +44,7 @@ void main() {
     addTearDown(d.tasks.dispose);
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Profile'));
+    await tester.tap(find.byKey(const ValueKey('nav-profile')));
     await tester.pumpAndSettle();
     expect(find.text('Add your name'), findsOneWidget);
 
@@ -74,7 +74,7 @@ void main() {
     addTearDown(d.tasks.dispose);
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Profile'));
+    await tester.tap(find.byKey(const ValueKey('nav-profile')));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -1500));

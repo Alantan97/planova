@@ -4,7 +4,7 @@ import 'package:planova/app/planova_app.dart';
 import 'package:planova/app/app_dependencies.dart';
 
 void main() {
-  testWidgets('Today shows branding and opens sample session details', (
+  testWidgets('Today shows its name and opens sample session details', (
     tester,
   ) async {
     final dependencies = AppDependencies.demo();
@@ -13,8 +13,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('planova'), findsNothing);
     expect(find.text('Sample study session'), findsOneWidget);
-    expect(find.text('Today’s overview'), findsOneWidget);
-    expect(find.bySemanticsLabel('Planova logo'), findsOneWidget);
+    expect(find.bySemanticsLabel('Planova logo'), findsNothing);
+    expect(find.text('Today'), findsNWidgets(2)); // header and tab
     await tester.ensureVisible(find.text('View session'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('View session'));
@@ -34,7 +34,7 @@ void main() {
       addTearDown(dependencies.tasks.dispose);
       await tester.pumpWidget(MyApp(dependencies: dependencies));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Plan'));
+      await tester.tap(find.byKey(const ValueKey('nav-plan')));
       await tester.pumpAndSettle();
       expect(find.text('105 min of study'), findsOneWidget);
       expect(find.text('Database lecture'), findsOneWidget);
@@ -72,7 +72,7 @@ void main() {
     await tester.pumpWidget(MyApp(dependencies: dependencies));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.byKey(const ValueKey('nav-plan')));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -350));
@@ -86,7 +86,7 @@ void main() {
     expect(tester.takeException(), isNull);
 
     for (final tab in ['Courses', 'Profile']) {
-      await tester.tap(find.text(tab));
+      await tester.tap(find.byKey(ValueKey('nav-${tab.toLowerCase()}')));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
@@ -100,13 +100,13 @@ void main() {
     addTearDown(dependencies.tasks.dispose);
     await tester.pumpWidget(MyApp(dependencies: dependencies));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.byKey(const ValueKey('nav-plan')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('day-3')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Courses'));
+    await tester.tap(find.byKey(const ValueKey('nav-courses')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.byKey(const ValueKey('nav-plan')));
     await tester.pumpAndSettle();
     expect(find.text('60 min of study'), findsOneWidget);
     expect(find.text('Outline the project report'), findsOneWidget);
@@ -120,7 +120,7 @@ void main() {
     addTearDown(dependencies.tasks.dispose);
     await tester.pumpWidget(MyApp(dependencies: dependencies));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Courses'));
+    await tester.tap(find.byKey(const ValueKey('nav-courses')));
     await tester.pumpAndSettle();
     expect(find.text('4 active · 1 completed'), findsOneWidget);
     // Tasks are grouped by course now, so the row may sit below the fold.
@@ -132,7 +132,7 @@ void main() {
     expect(find.text('25% of estimated time recorded'), findsOneWidget);
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.byKey(const ValueKey('nav-plan')));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('1 of 5 tasks completed'));
     await tester.pumpAndSettle();

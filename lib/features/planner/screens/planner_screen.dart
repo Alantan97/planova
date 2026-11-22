@@ -77,10 +77,7 @@ class PlannerScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const PageHeading(
-          title: 'Your study plan',
-          subtitle: 'Space for studying. Space for life.',
-        ),
+        const PageHeading(subtitle: 'Space for studying. Space for life.'),
         const SizedBox(height: 20),
         Row(
           children: [

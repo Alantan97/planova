@@ -217,7 +217,7 @@ void main() {
     );
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.byKey(const ValueKey('nav-plan')));
     await tester.pumpAndSettle();
 
     final button = find.byKey(const ValueKey('create-plan'));

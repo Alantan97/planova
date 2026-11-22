@@ -94,27 +94,31 @@ class DemoNote extends StatelessWidget {
 }
 
 class PageHeading extends StatelessWidget {
-  const PageHeading({
-    super.key,
-    required this.title,
-    this.subtitle,
-    this.action,
-  });
-  final String title;
+  const PageHeading({super.key, this.title, this.subtitle, this.action});
+
+  /// Null on the main tabs, whose name is already the header above.
+  final String? title;
   final String? subtitle;
   final Widget? action;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      final titleWidget = Text(
-        title,
-        style: const TextStyle(
-          fontSize: 28,
-          height: 1.15,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.7,
-        ),
+      const subtitleStyle = TextStyle(
+        color: planovaMuted,
+        fontSize: 14,
+        height: 1.4,
       );
+      final titleWidget = title == null
+          ? Text(subtitle ?? '', style: subtitleStyle)
+          : Text(
+              title!,
+              style: const TextStyle(
+                fontSize: 28,
+                height: 1.15,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.7,
+              ),
+            );
       final stackAction =
           constraints.maxWidth < 320 ||
           MediaQuery.textScalerOf(context).scale(14) > 18;
@@ -131,16 +135,9 @@ class PageHeading extends StatelessWidget {
             )
           else
             titleWidget,
-          if (subtitle != null) ...[
+          if (title != null && subtitle != null) ...[
             const SizedBox(height: 8),
-            Text(
-              subtitle!,
-              style: const TextStyle(
-                color: planovaMuted,
-                fontSize: 14,
-                height: 1.4,
-              ),
-            ),
+            Text(subtitle!, style: subtitleStyle),
           ],
           if (action != null && stackAction) ...[
             const SizedBox(height: 12),

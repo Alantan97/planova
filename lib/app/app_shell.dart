@@ -12,6 +12,7 @@ import '../features/courses/screens/course_overview_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/quick_add/quick_add_sheet.dart';
 import 'app_dependencies.dart';
+import 'widgets/planova_nav_bar.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key, required this.dependencies});
@@ -21,7 +22,7 @@ class AppShell extends StatefulWidget {
   State<AppShell> createState() => _AppShellState();
 }
 
-/// Tab order. The centre slot of the bar is the "+" button, not a tab.
+/// Tab order in the bottom bar. The "+" beside it is an action, not a tab.
 enum _Tab { today, plan, courses, profile }
 
 class _AppShellState extends State<AppShell> {
@@ -54,11 +55,28 @@ class _AppShellState extends State<AppShell> {
     setState(() => _tab = _Tab.plan);
   }
 
-  static const _addSlot = 2;
-  static int _barIndex(_Tab tab) =>
-      tab.index < _addSlot ? tab.index : tab.index + 1;
-  static _Tab _tabAt(int index) =>
-      _Tab.values[index < _addSlot ? index : index - 1];
+  static const _navItems = [
+    NavItem(
+      label: 'Today',
+      icon: Icons.wb_sunny_outlined,
+      selectedIcon: Icons.wb_sunny_rounded,
+    ),
+    NavItem(
+      label: 'Plan',
+      icon: Icons.calendar_month_outlined,
+      selectedIcon: Icons.calendar_month_rounded,
+    ),
+    NavItem(
+      label: 'Courses',
+      icon: Icons.school_outlined,
+      selectedIcon: Icons.school_rounded,
+    ),
+    NavItem(
+      label: 'Profile',
+      icon: Icons.person_outline_rounded,
+      selectedIcon: Icons.person_rounded,
+    ),
+  ];
 
   void _openQuickAdd(BuildContext context) => showQuickAddSheet(
     context,
@@ -88,7 +106,8 @@ class _AppShellState extends State<AppShell> {
               primary: false,
               slivers: [
                 SliverToBoxAdapter(
-                  child: _BrandHeader(
+                  child: _TabHeader(
+                    title: _navItems[_tab.index].label,
                     date: widget.dependencies.clock.now(),
                     preview: widget.dependencies.clock is DemoClock,
                   ),
@@ -136,74 +155,25 @@ class _AppShellState extends State<AppShell> {
           ),
         ),
       ),
-      bottomNavigationBar: DecoratedBox(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Color(0xFFE6E6E6))),
-        ),
-        child: NavigationBar(
-          selectedIndex: _barIndex(_tab),
-          onDestinationSelected: (index) {
-            if (index == _addSlot) {
-              _openQuickAdd(context);
-            } else {
-              setState(() => _tab = _tabAt(index));
-            }
-          },
-          destinations: const [
-            NavigationDestination(
-              tooltip: '',
-              icon: Icon(Icons.wb_sunny_outlined),
-              selectedIcon: Icon(Icons.wb_sunny_rounded),
-              label: 'Today',
-            ),
-            NavigationDestination(
-              tooltip: '',
-              icon: Icon(Icons.calendar_month_outlined),
-              selectedIcon: Icon(Icons.calendar_month_rounded),
-              label: 'Plan',
-            ),
-            NavigationDestination(
-              key: ValueKey('quick-add'),
-              tooltip: '',
-              icon: _AddIcon(),
-              label: 'Add',
-            ),
-            NavigationDestination(
-              tooltip: '',
-              icon: Icon(Icons.school_outlined),
-              selectedIcon: Icon(Icons.school_rounded),
-              label: 'Courses',
-            ),
-            NavigationDestination(
-              tooltip: '',
-              icon: Icon(Icons.person_outline_rounded),
-              selectedIcon: Icon(Icons.person_rounded),
-              label: 'Profile',
-            ),
-          ],
-        ),
+      bottomNavigationBar: PlanovaNavBar(
+        items: _navItems,
+        selectedIndex: _tab.index,
+        onSelect: (index) => setState(() => _tab = _Tab.values[index]),
+        onAdd: () => _openQuickAdd(context),
       ),
     ),
   );
 }
 
-/// The centre "+": a filled orange circle so it reads as an action, not a tab.
-class _AddIcon extends StatelessWidget {
-  const _AddIcon();
-  @override
-  Widget build(BuildContext context) => Container(
-    width: 44,
-    height: 32,
-    decoration: BoxDecoration(
-      color: planovaActionOrange,
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: const Icon(Icons.add_rounded, color: planovaOnOrange),
-  );
-}
-
-class _BrandHeader extends StatelessWidget {
-  const _BrandHeader({required this.date, required this.preview});
+/// Top of every tab: the tab's name in bold, plus the fixed date in the
+/// demo build.
+class _TabHeader extends StatelessWidget {
+  const _TabHeader({
+    required this.title,
+    required this.date,
+    required this.preview,
+  });
+  final String title;
   final DateTime date;
 
   /// Only the demo build uses a fixed date; the real app shows none here
@@ -211,25 +181,33 @@ class _BrandHeader extends StatelessWidget {
   final bool preview;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+    padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
     child: Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Expanded(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Image.asset(
-              'assets/branding/planova_wordmark_black.png',
-              width: 144,
-              height: 30,
-              fit: BoxFit.contain,
+          child: Semantics(
+            header: true,
+            // Very large text sizes shrink the name instead of cutting it.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              semanticLabel: 'Planova logo',
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: planovaInk,
+                  fontSize: 32,
+                  height: 1.1,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.8,
+                ),
+              ),
             ),
           ),
         ),
         if (preview) ...[
           const SizedBox(width: 12),
-          Expanded(
+          Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [

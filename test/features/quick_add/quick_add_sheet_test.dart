@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:planova/app/app_dependencies.dart';
 import 'package:planova/app/planova_app.dart';
+import 'package:planova/app/widgets/planova_nav_bar.dart';
 import 'package:planova/models/academic_task.dart';
 import 'package:planova/models/study_session.dart';
 
@@ -47,7 +48,7 @@ void main() {
     addTearDown(d.tasks.dispose);
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Courses'));
+    await tester.tap(find.byKey(const ValueKey('nav-courses')));
     await tester.pumpAndSettle();
     await _openSheet(tester);
     for (final key in ['task', 'session', 'commitment', 'proforma']) {
@@ -55,8 +56,8 @@ void main() {
     }
     await tester.tapAt(const Offset(10, 10)); // dismiss
     await tester.pumpAndSettle();
-    final bar = tester.widget<NavigationBar>(find.byType(NavigationBar));
-    expect(bar.selectedIndex, 3, reason: 'Courses stays selected');
+    final bar = tester.widget<PlanovaNavBar>(find.byType(PlanovaNavBar));
+    expect(bar.selectedIndex, 2, reason: 'Courses stays selected');
   });
 
   testWidgets('Task or assessment opens the task form', (tester) async {

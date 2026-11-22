@@ -18,17 +18,9 @@ void main() {
         await tester.pumpWidget(MyApp(dependencies: dependencies));
         await tester.pumpAndSettle();
         for (final tab in ['Today', 'Plan', 'Courses', 'Profile']) {
-          await tester.tap(find.text(tab));
+          await tester.tap(find.byKey(ValueKey('nav-${tab.toLowerCase()}')));
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull, reason: tab);
-          expect(
-            tester
-                .widgetList<NavigationDestination>(
-                  find.byType(NavigationDestination),
-                )
-                .every((destination) => destination.tooltip == ''),
-            isTrue,
-          );
           await expectLater(
             tester,
             meetsGuideline(androidTapTargetGuideline),
@@ -65,7 +57,7 @@ void main() {
       await tester.pumpWidget(MyApp(dependencies: dependencies));
       await tester.pumpAndSettle();
       for (final tab in ['Today', 'Plan', 'Courses', 'Profile']) {
-        await tester.tap(find.text(tab));
+        await tester.tap(find.byKey(ValueKey('nav-${tab.toLowerCase()}')));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: tab);
         await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
@@ -75,7 +67,7 @@ void main() {
       for (final task in dependencies.tasks.tasks.toList()) {
         await dependencies.tasks.delete(task.id);
       }
-      await tester.tap(find.text('Courses'));
+      await tester.tap(find.byKey(const ValueKey('nav-courses')));
       await tester.pumpAndSettle();
       await tester.drag(find.byType(CustomScrollView), const Offset(0, 2000));
       await tester.pumpAndSettle();

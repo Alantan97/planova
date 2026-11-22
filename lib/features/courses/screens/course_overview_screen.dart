@@ -87,7 +87,6 @@ class CourseOverviewScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         PageHeading(
-          title: 'Your courses',
           subtitle: [
             if (semester != null) semester.name,
             '$active active · ${tasks.length - active} completed',

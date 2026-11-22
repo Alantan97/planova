@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:planova/app/planova_app.dart';
 import 'package:planova/models/academic_task.dart';
@@ -20,7 +21,7 @@ void main() {
     );
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plan'));
+    await tester.tap(find.byKey(const ValueKey('nav-plan')));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('0 of 1 task completed'));
     await tester.pumpAndSettle();
