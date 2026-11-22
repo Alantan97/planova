@@ -41,7 +41,8 @@ lib/
     availability/           Weekly availability and commitment forms
     progress/               "This week" card on the Plan tab (studied vs planned
                             time and task totals)
-    profile/                Profile tab: name, account, semester, my week,
+    profile/                Profile tab and the study preferences screen: name,
+                            account, semester, my week,
                             study rules, how plans are made
     quick_add/              The centre + sheet (task, record session,
                             commitment, proforma)

@@ -45,7 +45,14 @@ example a Genetic Algorithm) should be compared against on the same inputs.
    is due inside the plan period, or "Continues after this week" otherwise.
 
 All limits live in `PlannerSettings` so the report and comparisons use the
-same values.
+same values. The numbers above are the defaults (the baseline). Since slice 2
+of the restructure, students can change them on Profile → Study preferences
+(`StudyPreferences`, saved with the profile): shortest and longest session,
+break, daily limit, time per task per day, and **days off** (weekdays on which
+nothing is planned). `PlannerSettings.fromPreferences` turns them into planner
+settings; every plan and re-plan uses the saved preferences. Choices are limited
+to listed options so invalid combinations cannot be saved. For evaluation, run
+the baseline with `const PlannerSettings()`.
 
 ## Measures for evaluation
 

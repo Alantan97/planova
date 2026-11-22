@@ -1,11 +1,13 @@
 import '../../models/academic_task.dart';
+import '../../models/study_preferences.dart';
 import '../../models/study_session.dart';
 import '../../models/weekly_availability.dart';
 import 'free_study_slots.dart';
 
-/// Tunable limits for the rule-based planner. Defaults agreed for the
-/// baseline; keep them here so the report and a later GA comparison use the
-/// same numbers.
+/// Limits for the rule-based planner. The defaults are the agreed baseline
+/// (and match [StudyPreferences] defaults), so the report and a later GA
+/// comparison can use the same numbers; students can change them on the
+/// Profile tab.
 class PlannerSettings {
   const PlannerSettings({
     this.horizonDays = 7,
@@ -14,13 +16,29 @@ class PlannerSettings {
     this.breakMinutes = 15,
     this.dailyLimitMinutes = 240,
     this.perTaskDailyMinutes = 120,
+    this.daysOff = const {},
   });
+
+  /// The student's saved preferences, over the fixed 7-day horizon.
+  PlannerSettings.fromPreferences(StudyPreferences p)
+    : this(
+        maxSessionMinutes: p.maxSessionMinutes,
+        minSessionMinutes: p.minSessionMinutes,
+        breakMinutes: p.breakMinutes,
+        dailyLimitMinutes: p.dailyLimitMinutes,
+        perTaskDailyMinutes: p.perTaskDailyMinutes,
+        daysOff: p.daysOff,
+      );
+
   final int horizonDays;
   final int maxSessionMinutes;
   final int minSessionMinutes;
   final int breakMinutes;
   final int dailyLimitMinutes;
   final int perTaskDailyMinutes;
+
+  /// Weekdays (1 = Monday … 7 = Sunday) on which nothing is planned.
+  final Set<int> daysOff;
 }
 
 enum UnplacedReason {
@@ -137,6 +155,7 @@ PlanProposal planWeek({
   final sessions = <StudySession>[];
   for (var d = 0; d < settings.horizonDays; d++) {
     final day = DateTime(firstDay.year, firstDay.month, firstDay.day + d);
+    if (settings.daysOff.contains(day.weekday)) continue;
     var dayUsed = 0;
     final taskToday = <String, int>{};
     for (final slot in slotsByWeekday[day.weekday] ?? const <FreeSlot>[]) {

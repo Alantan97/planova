@@ -10,9 +10,10 @@ import '../../../data/repositories/profile_repository.dart';
 import '../../../data/repositories/task_repository.dart';
 import '../../../models/onboarding_progress.dart';
 import '../../../services/auth/auth_service.dart';
-import '../../../services/planning/rule_based_planner.dart';
+import '../../../models/study_preferences.dart';
 import '../../availability/widgets/availability_summary_card.dart';
 import '../../courses/screens/courses_screen.dart';
+import 'study_preferences_screen.dart';
 
 /// The Profile tab: who you are, your semester and normal week, the rules the
 /// planner follows, and an honest note on how plans are made.
@@ -115,9 +116,17 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 18),
           AvailabilitySummaryCard(repository: availability),
           const SizedBox(height: 28),
-          const SectionTitle('Study rules'),
+          const SectionTitle('Study preferences'),
           const SizedBox(height: 18),
-          const _StudyRulesCard(settings: PlannerSettings()),
+          _StudyPreferencesCard(
+            preferences: progress.preferences,
+            onChange: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => StudyPreferencesScreen(profile: profile),
+              ),
+            ),
+          ),
           const SizedBox(height: 28),
           const SectionTitle('About Planova'),
           const SizedBox(height: 18),
@@ -258,14 +267,19 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-/// The planner's rules, shown so students know what to expect. They are
-/// fixed for now; making them adjustable is the next step.
-class _StudyRulesCard extends StatelessWidget {
-  const _StudyRulesCard({required this.settings});
-  final PlannerSettings settings;
+/// The student's study preferences in plain words, with a way to change
+/// them. The planner follows exactly these.
+class _StudyPreferencesCard extends StatelessWidget {
+  const _StudyPreferencesCard({
+    required this.preferences,
+    required this.onChange,
+  });
+  final StudyPreferences preferences;
+  final VoidCallback onChange;
 
   @override
   Widget build(BuildContext context) {
+    final p = preferences;
     Widget rule(IconData icon, String text) => Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -276,31 +290,43 @@ class _StudyRulesCard extends StatelessWidget {
         ],
       ),
     );
+    final daysOff = [
+      for (var d = 1; d <= 7; d++)
+        if (p.daysOff.contains(d)) weekdays[d - 1],
+    ];
     return Panel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           rule(
             Icons.timer_outlined,
-            'Sessions of ${settings.minSessionMinutes}–'
-            '${settings.maxSessionMinutes} min',
+            'Sessions of ${formatDuration(p.minSessionMinutes)}–'
+            '${formatDuration(p.maxSessionMinutes)}',
           ),
           rule(
             Icons.free_breakfast_outlined,
-            '${settings.breakMinutes} min break between sessions',
+            p.breakMinutes == 0
+                ? 'No break between sessions'
+                : '${formatDuration(p.breakMinutes)} break between sessions',
           ),
           rule(
             Icons.today_outlined,
-            'Up to ${formatDuration(settings.dailyLimitMinutes)} of study a day',
+            'Up to ${formatDuration(p.dailyLimitMinutes)} of study a day',
           ),
           rule(
             Icons.layers_outlined,
-            'Up to ${formatDuration(settings.perTaskDailyMinutes)} on one task a day',
+            'Up to ${formatDuration(p.perTaskDailyMinutes)} on one task a day',
           ),
-          const SizedBox(height: 2),
-          const Text(
-            'These are fixed for now. Changing them is coming next.',
-            style: TextStyle(color: planovaMuted, fontSize: 13),
+          rule(
+            Icons.weekend_outlined,
+            daysOff.isEmpty ? 'No days off' : 'Days off: ${daysOff.join(', ')}',
+          ),
+          const SizedBox(height: 4),
+          OutlinedButton.icon(
+            key: const ValueKey('open-preferences'),
+            onPressed: onChange,
+            icon: const Icon(Icons.tune_rounded),
+            label: const Text('Change preferences'),
           ),
         ],
       ),

@@ -8,6 +8,7 @@ import '../../../core/widgets/session_widgets.dart';
 import '../../../data/repositories/availability_repository.dart';
 import '../../../data/repositories/study_plan_repository.dart';
 import '../../../data/repositories/task_repository.dart';
+import '../../../services/planning/rule_based_planner.dart';
 import '../open_plan_proposal.dart';
 import '../widgets/plan_action_card.dart';
 import '../widgets/record_session_sheet.dart';
@@ -51,10 +52,14 @@ class PlannerScreen extends StatelessWidget {
     required this.availability,
     required this.tasks,
     this.plans,
+    this.settings = const PlannerSettings(),
   });
   final PlannerViewModel viewModel;
   final AvailabilityRepository availability;
   final TaskRepository tasks;
+
+  /// The student's study preferences, used when a plan is created.
+  final PlannerSettings settings;
 
   /// Null in the demo build (sample sessions only, no planning).
   final StudyPlanRepository? plans;
@@ -216,6 +221,7 @@ class PlannerScreen extends StatelessWidget {
                           tasks: tasks,
                           availability: availability,
                           clock: viewModel.clock,
+                          settings: settings,
                         ),
                         icon: const Icon(Icons.event_note_outlined),
                         label: const Text('Create my plan'),
@@ -277,6 +283,7 @@ class PlannerScreen extends StatelessWidget {
             tasks: tasks,
             availability: availability,
             clock: viewModel.clock,
+            settings: settings,
           ),
         ],
         const SizedBox(height: 28),

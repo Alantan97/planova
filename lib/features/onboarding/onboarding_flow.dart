@@ -350,10 +350,14 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         ],
       );
     }
+    final settings = PlannerSettings.fromPreferences(
+      _d.profile.progress.preferences,
+    );
     final proposal = planWeek(
       tasks: _d.tasks.tasks,
       availability: _d.availability.availability,
       now: _d.clock.now(),
+      settings: settings,
     );
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
@@ -407,6 +411,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                   tasks: _d.tasks,
                   availability: _d.availability,
                   clock: _d.clock,
+                  settings: settings,
                 );
                 // This step already says "Plan saved"; the snack bar would
                 // only cover the Continue button.

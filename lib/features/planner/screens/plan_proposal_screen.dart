@@ -326,6 +326,15 @@ class _Notice extends StatelessWidget {
   );
 }
 
+String _daysOff(Set<int> days) {
+  if (days.isEmpty) return '';
+  final names = [
+    for (var d = 1; d <= 7; d++)
+      if (days.contains(d)) weekdays[d - 1],
+  ];
+  return '\n• Nothing on your days off (${names.join(', ')}).';
+}
+
 /// The rules in plain words, so the plan is explainable to the student.
 class _Rules extends StatelessWidget {
   const _Rules(this.settings);
@@ -341,7 +350,7 @@ class _Rules extends StatelessWidget {
       ),
       children: [
         Text(
-          'Planova uses fixed rules, not AI:\n'
+          'Planova uses fixed rules and your study preferences, not AI:\n'
           '• Earliest due date first, then higher grade weight.\n'
           '• Only inside your free study time, never over commitments.\n'
           '• Every session ends before its task is due.\n'
@@ -349,7 +358,9 @@ class _Rules extends StatelessWidget {
           'with ${settings.breakMinutes} min breaks.\n'
           '• At most ${formatDuration(settings.dailyLimitMinutes)} a day, and '
           '${formatDuration(settings.perTaskDailyMinutes)} a day per task.\n'
-          '• Gaps shorter than ${settings.minSessionMinutes} min are left free.',
+          '• Gaps shorter than ${settings.minSessionMinutes} min are left free.'
+          '${_daysOff(settings.daysOff)}\n'
+          'Change these in Profile → Study preferences.',
           style: const TextStyle(color: planovaMuted, height: 1.6),
         ),
         const SizedBox(height: 8),

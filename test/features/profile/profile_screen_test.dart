@@ -30,8 +30,8 @@ void main() {
     expect(find.textContaining('2 courses'), findsOneWidget);
     await tester.ensureVisible(find.text('Weekly availability'));
     expect(find.text('Set availability'), findsOneWidget);
-    await tester.ensureVisible(find.text('Sessions of 30–60 min'));
-    expect(find.text('15 min break between sessions'), findsOneWidget);
+    await tester.ensureVisible(find.text('Sessions of 30m–1h'));
+    expect(find.text('15m break between sessions'), findsOneWidget);
     await tester.ensureVisible(find.textContaining('not trained AI'));
     expect(find.textContaining('not trained AI'), findsOneWidget);
     expect(tester.takeException(), isNull);

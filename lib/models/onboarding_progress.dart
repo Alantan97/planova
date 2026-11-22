@@ -1,3 +1,5 @@
+import 'study_preferences.dart';
+
 /// How the student entered the app. Only [guest] works today; [google] is
 /// reserved for real Google sign-in (Firebase Auth) later.
 enum AccountType { none, guest, google }
@@ -10,6 +12,7 @@ class OnboardingProgress {
     this.step = 0,
     this.displayName,
     this.accountType = AccountType.none,
+    this.preferences = const StudyPreferences(),
   });
 
   final bool completed;
@@ -19,16 +22,21 @@ class OnboardingProgress {
   final String? displayName;
   final AccountType accountType;
 
+  /// Study preferences set on the Profile tab; the planner follows them.
+  final StudyPreferences preferences;
+
   OnboardingProgress copyWith({
     bool? completed,
     int? step,
     String? displayName,
     bool clearName = false,
     AccountType? accountType,
+    StudyPreferences? preferences,
   }) => OnboardingProgress(
     completed: completed ?? this.completed,
     step: step ?? this.step,
     displayName: clearName ? null : displayName ?? this.displayName,
     accountType: accountType ?? this.accountType,
+    preferences: preferences ?? this.preferences,
   );
 }

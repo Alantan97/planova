@@ -10,6 +10,7 @@ import '../../../data/repositories/profile_repository.dart';
 import '../../../data/repositories/study_plan_repository.dart';
 import '../../../models/study_session.dart';
 import '../../planner/open_plan_proposal.dart';
+import '../../../services/planning/rule_based_planner.dart';
 import '../../planner/widgets/record_session_sheet.dart';
 import '../view_models/today_view_model.dart';
 import '../widgets/get_started_card.dart';
@@ -85,6 +86,11 @@ class TodayScreen extends StatelessWidget {
               tasks: tasks,
               availability: availability,
               clock: viewModel.clock,
+              settings: profile == null
+                  ? const PlannerSettings()
+                  : PlannerSettings.fromPreferences(
+                      profile!.progress.preferences,
+                    ),
             ),
           ),
           const SizedBox(height: 20),

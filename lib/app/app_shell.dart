@@ -11,6 +11,7 @@ import '../features/planner/view_models/planner_view_model.dart';
 import '../features/courses/screens/course_overview_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/quick_add/quick_add_sheet.dart';
+import '../services/planning/rule_based_planner.dart';
 import 'app_dependencies.dart';
 import 'widgets/planova_nav_bar.dart';
 
@@ -91,6 +92,7 @@ class _AppShellState extends State<AppShell> {
     listenable: Listenable.merge([
       widget.dependencies.tasks,
       widget.dependencies.availability,
+      widget.dependencies.profile,
       ?widget.dependencies.plans,
     ]),
     builder: (context, _) => Scaffold(
@@ -133,6 +135,9 @@ class _AppShellState extends State<AppShell> {
                           availability: widget.dependencies.availability,
                           tasks: widget.dependencies.tasks,
                           plans: widget.dependencies.plans,
+                          settings: PlannerSettings.fromPreferences(
+                            widget.dependencies.profile.progress.preferences,
+                          ),
                         ),
                       ),
                       _Tab.courses => CourseOverviewScreen(

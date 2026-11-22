@@ -6,6 +6,7 @@ import '../../../core/widgets/study_components.dart';
 import '../../../data/repositories/availability_repository.dart';
 import '../../../data/repositories/study_plan_repository.dart';
 import '../../../data/repositories/task_repository.dart';
+import '../../../services/planning/rule_based_planner.dart';
 import '../open_plan_proposal.dart';
 
 /// Plan-tab entry point for [openPlanProposal].
@@ -16,11 +17,13 @@ class PlanActionCard extends StatelessWidget {
     required this.tasks,
     required this.availability,
     required this.clock,
+    required this.settings,
   });
   final StudyPlanRepository plans;
   final TaskRepository tasks;
   final AvailabilityRepository availability;
   final AppClock clock;
+  final PlannerSettings settings;
 
   void _create(BuildContext context) => openPlanProposal(
     context,
@@ -28,6 +31,7 @@ class PlanActionCard extends StatelessWidget {
     tasks: tasks,
     availability: availability,
     clock: clock,
+    settings: settings,
   );
 
   @override

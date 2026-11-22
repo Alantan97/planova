@@ -1,6 +1,7 @@
 import 'package:sembast/sembast.dart';
 
 import '../../models/onboarding_progress.dart';
+import '../../models/study_preferences.dart';
 import '../repositories/profile_repository.dart';
 
 /// Saves journey progress as one record next to the other Planova records.
@@ -73,6 +74,14 @@ abstract final class ProfileCodec {
     'step': p.step,
     if (p.displayName != null) 'displayName': p.displayName,
     'accountType': p.accountType.name,
+    'preferences': {
+      'minSession': p.preferences.minSessionMinutes,
+      'maxSession': p.preferences.maxSessionMinutes,
+      'break': p.preferences.breakMinutes,
+      'dailyLimit': p.preferences.dailyLimitMinutes,
+      'perTaskDaily': p.preferences.perTaskDailyMinutes,
+      'daysOff': (p.preferences.daysOff.toList()..sort()),
+    },
   };
 
   static OnboardingProgress decode(Map<String, Object?> map) {
@@ -95,6 +104,35 @@ abstract final class ProfileCodec {
       step: step,
       displayName: name as String?,
       accountType: account,
+      preferences: _decodePreferences(map['preferences']),
     );
+  }
+
+  /// Records saved before preferences existed have none: use the defaults.
+  static StudyPreferences _decodePreferences(Object? value) {
+    if (value == null) return const StudyPreferences();
+    if (value is! Map) throw const FormatException('Invalid saved profile.');
+    int number(String key) {
+      final n = value[key];
+      if (n is! int) throw const FormatException('Invalid saved profile.');
+      return n;
+    }
+
+    final days = value['daysOff'];
+    if (days is! List || days.any((d) => d is! int)) {
+      throw const FormatException('Invalid saved profile.');
+    }
+    final preferences = StudyPreferences(
+      minSessionMinutes: number('minSession'),
+      maxSessionMinutes: number('maxSession'),
+      breakMinutes: number('break'),
+      dailyLimitMinutes: number('dailyLimit'),
+      perTaskDailyMinutes: number('perTaskDaily'),
+      daysOff: days.cast<int>().toSet(),
+    );
+    if (preferences.problem != null) {
+      throw const FormatException('Invalid saved profile.');
+    }
+    return preferences;
   }
 }
