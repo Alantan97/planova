@@ -35,6 +35,16 @@ void main() {
             ),
           )
           .dx;
+      // Tapping draws no ripple or pressed shade on the tab itself; only
+      // the sliding highlight marks the selection.
+      final tab = tester.widget<InkWell>(
+        find.byKey(const ValueKey('nav-courses')),
+      );
+      expect(tab.splashFactory, NoSplash.splashFactory);
+      for (final state in [WidgetState.pressed, WidgetState.hovered]) {
+        expect(tab.overlayColor!.resolve({state}), Colors.transparent);
+      }
+
       final start = highlightLeft();
       await tester.tap(find.byKey(const ValueKey('nav-courses')));
       await tester.pump(); // rebuild starts the slide

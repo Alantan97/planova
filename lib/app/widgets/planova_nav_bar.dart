@@ -40,7 +40,7 @@ class PlanovaNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final duration = MediaQuery.disableAnimationsOf(context)
         ? Duration.zero
-        : const Duration(milliseconds: 380);
+        : const Duration(milliseconds: 280);
     return SafeArea(
       top: false,
       child: Center(
@@ -142,6 +142,15 @@ class _NavButton extends StatelessWidget {
         child: InkWell(
           key: ValueKey('nav-${item.label.toLowerCase()}'),
           customBorder: const StadiumBorder(),
+          // No tap ripple or hover shade: they drew a grey pill on the
+          // tapped tab before the sliding highlight arrived. Keyboard focus
+          // still shows, so the bar stays usable without a touch screen.
+          splashFactory: NoSplash.splashFactory,
+          overlayColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.focused)
+                ? _selectedTint
+                : Colors.transparent,
+          ),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
