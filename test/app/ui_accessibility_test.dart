@@ -17,7 +17,7 @@ void main() {
         addTearDown(dependencies.close);
         await tester.pumpWidget(MyApp(dependencies: dependencies));
         await tester.pumpAndSettle();
-        for (final tab in ['Today', 'Courses', 'Plan', 'Progress']) {
+        for (final tab in ['Today', 'Plan', 'Courses', 'Profile']) {
           await tester.tap(find.text(tab));
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull, reason: tab);
@@ -64,7 +64,7 @@ void main() {
       addTearDown(dependencies.close);
       await tester.pumpWidget(MyApp(dependencies: dependencies));
       await tester.pumpAndSettle();
-      for (final tab in ['Today', 'Courses', 'Plan', 'Progress']) {
+      for (final tab in ['Today', 'Plan', 'Courses', 'Profile']) {
         await tester.tap(find.text(tab));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: tab);

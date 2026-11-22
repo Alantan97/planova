@@ -49,9 +49,8 @@ void main() {
     expect(find.text('No study sessions on this day.'), findsOneWidget);
     expect(find.textContaining('sample'), findsNothing);
 
-    await tester.tap(find.text('Progress'));
+    await tester.ensureVisible(find.text('0 of 0 tasks completed'));
     await tester.pumpAndSettle();
-    expect(find.text('No study plan yet'), findsOneWidget);
     expect(find.text('0 of 0 tasks completed'), findsOneWidget);
     expect(find.textContaining('sample'), findsNothing);
     expect(tester.takeException(), isNull);
@@ -148,7 +147,7 @@ void main() {
     await tester.pumpWidget(MyApp(dependencies: dependencies));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    for (final tab in ['Plan', 'Progress']) {
+    for (final tab in ['Plan', 'Profile']) {
       await tester.tap(find.text(tab));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);

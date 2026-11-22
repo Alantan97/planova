@@ -44,7 +44,9 @@ void main() {
       expect(dependencies.tasks.tasks.last.completedMinutes, 0);
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Progress'));
+      await tester.tap(find.text('Plan'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('2 of 6 tasks completed'));
       await tester.pumpAndSettle();
       expect(find.text('2 of 6 tasks completed'), findsOneWidget);
       expect(find.textContaining('3h 30m', findRichText: true), findsOneWidget);

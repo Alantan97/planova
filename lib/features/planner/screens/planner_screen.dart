@@ -11,7 +11,7 @@ import '../../../data/repositories/task_repository.dart';
 import '../open_plan_proposal.dart';
 import '../widgets/plan_action_card.dart';
 import '../widgets/record_session_sheet.dart';
-import '../../availability/widgets/availability_summary_card.dart';
+import '../../progress/widgets/week_progress_card.dart';
 import '../view_models/planner_view_model.dart';
 
 /// All seven days fit on a phone. Tiles stay at least 48 px wide (the
@@ -282,8 +282,14 @@ class PlannerScreen extends StatelessWidget {
             clock: viewModel.clock,
           ),
         ],
-        const SizedBox(height: 24),
-        AvailabilitySummaryCard(repository: availability),
+        const SizedBox(height: 28),
+        const SectionTitle('This week'),
+        const SizedBox(height: 18),
+        WeekProgressCard(
+          studyRepository: viewModel.repository,
+          taskRepository: tasks,
+          clock: viewModel.clock,
+        ),
         const SizedBox(height: 24),
         DemoNote(samples: samples),
       ],

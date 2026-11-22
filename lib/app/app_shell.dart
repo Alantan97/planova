@@ -9,7 +9,8 @@ import '../features/today/view_models/today_view_model.dart';
 import '../features/planner/screens/planner_screen.dart';
 import '../features/planner/view_models/planner_view_model.dart';
 import '../features/courses/screens/course_overview_screen.dart';
-import '../features/progress/screens/progress_screen.dart';
+import '../features/profile/screens/profile_screen.dart';
+import '../features/quick_add/quick_add_sheet.dart';
 import 'app_dependencies.dart';
 
 class AppShell extends StatefulWidget {
@@ -20,9 +21,15 @@ class AppShell extends StatefulWidget {
   State<AppShell> createState() => _AppShellState();
 }
 
+/// Tab order. The centre slot of the bar is the "+" button, not a tab.
+enum _Tab { today, plan, courses, profile }
+
 class _AppShellState extends State<AppShell> {
-  int _tab = 0;
-  final _scrollControllers = List.generate(4, (_) => ScrollController());
+  _Tab _tab = _Tab.today;
+  final _scrollControllers = List.generate(
+    _Tab.values.length,
+    (_) => ScrollController(),
+  );
   late final TodayViewModel _today = TodayViewModel(
     studyRepository: widget.dependencies.study,
     taskRepository: widget.dependencies.tasks,
@@ -44,8 +51,22 @@ class _AppShellState extends State<AppShell> {
 
   void _viewPlan() {
     _planner.showToday();
-    setState(() => _tab = 2);
+    setState(() => _tab = _Tab.plan);
   }
+
+  static const _addSlot = 2;
+  static int _barIndex(_Tab tab) =>
+      tab.index < _addSlot ? tab.index : tab.index + 1;
+  static _Tab _tabAt(int index) =>
+      _Tab.values[index < _addSlot ? index : index - 1];
+
+  void _openQuickAdd(BuildContext context) => showQuickAddSheet(
+    context,
+    tasks: widget.dependencies.tasks,
+    availability: widget.dependencies.availability,
+    clock: widget.dependencies.clock,
+    plans: widget.dependencies.plans,
+  );
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -62,8 +83,8 @@ class _AppShellState extends State<AppShell> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 640),
             child: CustomScrollView(
-              key: PageStorageKey('tab-$_tab'),
-              controller: _scrollControllers[_tab],
+              key: PageStorageKey('tab-${_tab.name}'),
+              controller: _scrollControllers[_tab.index],
               primary: false,
               slivers: [
                 SliverToBoxAdapter(
@@ -76,19 +97,14 @@ class _AppShellState extends State<AppShell> {
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                   sliver: SliverToBoxAdapter(
                     child: switch (_tab) {
-                      0 => TodayScreen(
+                      _Tab.today => TodayScreen(
                         viewModel: _today,
                         availability: widget.dependencies.availability,
                         onViewPlan: _viewPlan,
                         plans: widget.dependencies.plans,
                         profile: widget.dependencies.profile,
                       ),
-                      1 => CourseOverviewScreen(
-                        repository: widget.dependencies.tasks,
-                        clock: widget.dependencies.clock,
-                        ranking: widget.dependencies.ranking,
-                      ),
-                      2 => ListenableBuilder(
+                      _Tab.plan => ListenableBuilder(
                         listenable: Listenable.merge([
                           _planner,
                           widget.dependencies.availability,
@@ -100,9 +116,16 @@ class _AppShellState extends State<AppShell> {
                           plans: widget.dependencies.plans,
                         ),
                       ),
-                      _ => ProgressScreen(
-                        studyRepository: widget.dependencies.study,
-                        taskRepository: widget.dependencies.tasks,
+                      _Tab.courses => CourseOverviewScreen(
+                        repository: widget.dependencies.tasks,
+                        clock: widget.dependencies.clock,
+                        ranking: widget.dependencies.ranking,
+                      ),
+                      _Tab.profile => ProfileScreen(
+                        profile: widget.dependencies.profile,
+                        auth: widget.dependencies.auth,
+                        tasks: widget.dependencies.tasks,
+                        availability: widget.dependencies.availability,
                         clock: widget.dependencies.clock,
                       ),
                     },
@@ -118,8 +141,14 @@ class _AppShellState extends State<AppShell> {
           border: Border(top: BorderSide(color: Color(0xFFE6E6E6))),
         ),
         child: NavigationBar(
-          selectedIndex: _tab,
-          onDestinationSelected: (index) => setState(() => _tab = index),
+          selectedIndex: _barIndex(_tab),
+          onDestinationSelected: (index) {
+            if (index == _addSlot) {
+              _openQuickAdd(context);
+            } else {
+              setState(() => _tab = _tabAt(index));
+            }
+          },
           destinations: const [
             NavigationDestination(
               tooltip: '',
@@ -129,26 +158,47 @@ class _AppShellState extends State<AppShell> {
             ),
             NavigationDestination(
               tooltip: '',
+              icon: Icon(Icons.calendar_month_outlined),
+              selectedIcon: Icon(Icons.calendar_month_rounded),
+              label: 'Plan',
+            ),
+            NavigationDestination(
+              key: ValueKey('quick-add'),
+              tooltip: '',
+              icon: _AddIcon(),
+              label: 'Add',
+            ),
+            NavigationDestination(
+              tooltip: '',
               icon: Icon(Icons.school_outlined),
               selectedIcon: Icon(Icons.school_rounded),
               label: 'Courses',
             ),
             NavigationDestination(
               tooltip: '',
-              icon: Icon(Icons.calendar_month_outlined),
-              selectedIcon: Icon(Icons.calendar_month_rounded),
-              label: 'Plan',
-            ),
-            NavigationDestination(
-              tooltip: '',
-              icon: Icon(Icons.pie_chart_outline_rounded),
-              selectedIcon: Icon(Icons.pie_chart_rounded),
-              label: 'Progress',
+              icon: Icon(Icons.person_outline_rounded),
+              selectedIcon: Icon(Icons.person_rounded),
+              label: 'Profile',
             ),
           ],
         ),
       ),
     ),
+  );
+}
+
+/// The centre "+": a filled orange circle so it reads as an action, not a tab.
+class _AddIcon extends StatelessWidget {
+  const _AddIcon();
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 44,
+    height: 32,
+    decoration: BoxDecoration(
+      color: planovaActionOrange,
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: const Icon(Icons.add_rounded, color: planovaOnOrange),
   );
 }
 

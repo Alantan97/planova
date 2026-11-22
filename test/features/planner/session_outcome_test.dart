@@ -216,7 +216,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Partly done and done update the row, task and Progress', (
+  testWidgets('Partly done and done update the row, task and week progress', (
     tester,
   ) async {
     final d = await app();
@@ -249,7 +249,7 @@ void main() {
     expect(find.text('60 min · Done · 1h recorded'), findsOneWidget);
     expect(d.tasks.taskById('quiz')!.completedMinutes, 60);
 
-    await tester.tap(find.text('Progress'));
+    await tester.ensureVisible(find.text('THIS WEEK · STUDIED'));
     await tester.pumpAndSettle();
     expect(find.text('THIS WEEK · STUDIED'), findsOneWidget);
     expect(

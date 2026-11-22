@@ -11,7 +11,8 @@ assets/ranking/             Exported ranking model used by the experimental scre
 lib/
   main.dart                 Entry point
   app/                      Dependency composition (AppDependencies), startup
-                            (journey or app), and the four-tab navigation shell
+                            (journey or app), and the navigation shell (Today, Plan,
+                            centre + quick-add, Courses, Profile)
   core/
     errors/                 Shared user-facing error messages
     theme/                  Design tokens and Flutter theme
@@ -37,7 +38,12 @@ lib/
     planner/                Plan tab, plan proposal, record-session sheet;
                             open_plan_proposal.dart runs the planner for review
     availability/           Weekly availability and commitment forms
-    progress/               Studied vs planned time and task totals
+    progress/               "This week" card on the Plan tab (studied vs planned
+                            time and task totals)
+    profile/                Profile tab: name, account, semester, my week,
+                            study rules, how plans are made
+    quick_add/              The centre + sheet (task, record session,
+                            commitment, proforma)
     ranking/                Experimental priority screen and view model
   models/                   Immutable domain records
   services/

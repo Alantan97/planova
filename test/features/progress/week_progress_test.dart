@@ -5,9 +5,7 @@ import 'package:planova/models/academic_task.dart';
 import '../../support/test_apps.dart';
 
 void main() {
-  testWidgets('Progress counts tasks in plain words and has no empty card', (
-    tester,
-  ) async {
+  testWidgets('This week on Plan counts tasks in plain words', (tester) async {
     final d = await realModeApp();
     addTearDown(d.tasks.dispose);
     await d.tasks.add(
@@ -22,7 +20,9 @@ void main() {
     );
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Progress'));
+    await tester.tap(find.text('Plan'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('0 of 1 task completed'));
     await tester.pumpAndSettle();
     expect(find.text('0 of 1 task completed'), findsOneWidget);
     expect(find.text('Make space to reflect'), findsNothing);

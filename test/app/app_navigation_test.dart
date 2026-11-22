@@ -85,7 +85,7 @@ void main() {
     expect(find.text('A little breathing room.'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
-    for (final tab in ['Courses', 'Progress']) {
+    for (final tab in ['Courses', 'Profile']) {
       await tester.tap(find.text(tab));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -113,7 +113,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Tasks opens sample details and Progress shows shared totals', (
+  testWidgets('Courses opens sample details and Plan shows shared totals', (
     tester,
   ) async {
     final dependencies = AppDependencies.demo();
@@ -132,7 +132,9 @@ void main() {
     expect(find.text('25% of estimated time recorded'), findsOneWidget);
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Progress'));
+    await tester.tap(find.text('Plan'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('1 of 5 tasks completed'));
     await tester.pumpAndSettle();
     expect(find.text('1 of 5 tasks completed'), findsOneWidget);
     expect(find.textContaining('3h 30m', findRichText: true), findsOneWidget);

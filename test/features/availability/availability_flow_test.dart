@@ -6,7 +6,7 @@ import 'package:planova/app/planova_app.dart';
 import '../../support/widget_actions.dart';
 
 Future<void> openAvailability(WidgetTester tester) async {
-  await tester.tap(find.text('Plan'));
+  await tester.tap(find.text('Profile'));
   await tester.pumpAndSettle();
   await tapVisible(tester, find.byKey(const ValueKey('open-availability')));
   expect(find.text('Your normal week.'), findsOneWidget);
@@ -33,7 +33,7 @@ Future<void> chooseDays(WidgetTester tester, List<int> days) async {
 
 void main() {
   testWidgets(
-    'Add, edit and delete study windows and commitments from the Plan tab',
+    'Add, edit and delete study windows and commitments from the Profile tab',
     (tester) async {
       final dependencies = AppDependencies.demo();
       addTearDown(dependencies.tasks.dispose);
