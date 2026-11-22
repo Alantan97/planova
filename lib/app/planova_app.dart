@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_theme.dart';
@@ -44,6 +45,27 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  /// Development only. Closes storage first so no write lands after the
+  /// wipe, then opens a fresh, empty app (the welcome journey).
+  Future<void> _clearData() async {
+    final old = _dependencies!;
+    setState(() => _dependencies = null);
+    await WidgetsBinding.instance.endOfFrame;
+    await old.close();
+    try {
+      await old.eraseStorage!();
+    } catch (error) {
+      debugPrint('Could not clear Planova data: $error');
+    }
+    await _load();
+  }
+
+  /// Debug builds only, and only when this widget owns real storage.
+  bool get _canClearData =>
+      kDebugMode &&
+      widget.dependencies == null &&
+      _dependencies?.eraseStorage != null;
+
   @override
   void dispose() {
     if (widget.dependencies == null && _dependencies != null) {
@@ -73,7 +95,10 @@ class _MyAppState extends State<MyApp> {
         ? ListenableBuilder(
             listenable: _dependencies!.profile,
             builder: (context, _) => _dependencies!.profile.progress.completed
-                ? AppShell(dependencies: _dependencies!)
+                ? AppShell(
+                    dependencies: _dependencies!,
+                    onClearData: _canClearData ? _clearData : null,
+                  )
                 : OnboardingFlow(dependencies: _dependencies!),
           )
         : Scaffold(

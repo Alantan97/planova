@@ -1,3 +1,5 @@
+import 'package:sembast/sembast.dart';
+
 import '../core/time/app_clock.dart';
 import '../core/time/demo_clock.dart';
 import '../data/mock/mock_study_repository.dart';
@@ -26,6 +28,7 @@ class AppDependencies {
     this.plans,
     ProfileRepository? profile,
     this.auth = const GuestAuthService(),
+    this.eraseStorage,
   }) : ranking = ranking ?? LocalTaskRankingService(),
        availability = availability ?? MemoryAvailabilityRepository(),
        profile = profile ?? MemoryProfileRepository();
@@ -65,8 +68,25 @@ class AppDependencies {
       availability: availability,
       plans: plans,
       profile: profile,
+      eraseStorage: () async {
+        final database = await openTaskDatabase();
+        try {
+          await eraseLocalData(database);
+        } finally {
+          await database.close();
+        }
+      },
     );
   }
+
+  /// Deletes every saved Planova record (tasks, courses, semesters, week,
+  /// plan, profile). All of them live in the one `planova` store.
+  static Future<void> eraseLocalData(Database database) =>
+      StoreRef<String, Object?>('planova').drop(database);
+
+  /// Development only: deletes everything saved, after [close], so the app
+  /// can start again as a new student. Null for in-memory and demo data.
+  final Future<void> Function()? eraseStorage;
 
   /// Plans and availability first: they share the database [tasks] closes.
   Future<void> close() async {

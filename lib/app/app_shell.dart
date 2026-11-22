@@ -16,8 +16,11 @@ import 'app_dependencies.dart';
 import 'widgets/planova_nav_bar.dart';
 
 class AppShell extends StatefulWidget {
-  const AppShell({super.key, required this.dependencies});
+  const AppShell({super.key, required this.dependencies, this.onClearData});
   final AppDependencies dependencies;
+
+  /// Development only: wipes saved data and restarts the app.
+  final Future<void> Function()? onClearData;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -151,6 +154,7 @@ class _AppShellState extends State<AppShell> {
                         tasks: widget.dependencies.tasks,
                         availability: widget.dependencies.availability,
                         clock: widget.dependencies.clock,
+                        onClearData: widget.onClearData,
                       ),
                     },
                   ),

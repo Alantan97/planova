@@ -25,12 +25,16 @@ class ProfileScreen extends StatelessWidget {
     required this.tasks,
     required this.availability,
     required this.clock,
+    this.onClearData,
   });
   final ProfileRepository profile;
   final AuthService auth;
   final TaskRepository tasks;
   final AvailabilityRepository availability;
   final AppClock clock;
+
+  /// Development only (debug builds): wipes all saved data and restarts.
+  final Future<void> Function()? onClearData;
 
   static const _nameLimit = 40;
 
@@ -185,10 +189,67 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
           ),
+          if (onClearData != null) ...[
+            const SizedBox(height: 28),
+            const SectionTitle('Developer'),
+            const SizedBox(height: 18),
+            Panel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Debug builds only. Deletes every task, course, semester, '
+                    'weekly availability, plan and profile setting on this '
+                    'device, then starts again at the welcome screen.',
+                    style: TextStyle(color: planovaMuted, height: 1.4),
+                  ),
+                  const SizedBox(height: 14),
+                  OutlinedButton.icon(
+                    key: const ValueKey('clear-data'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                    onPressed: () => _confirmClear(context),
+                    icon: const Icon(Icons.delete_forever_outlined),
+                    label: const Text('Clear all data'),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       );
     },
   );
+
+  Future<void> _confirmClear(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear all data?'),
+        content: const Text(
+          'Everything saved on this device will be deleted. This cannot be '
+          'undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            key: const ValueKey('confirm-clear-data'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) await onClearData!();
+  }
 
   static String _accountLine(AccountType type) => switch (type) {
     AccountType.google => 'Signed in with Google',
