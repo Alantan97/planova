@@ -25,7 +25,7 @@ class IntroCardsState extends State<IntroCards> {
     (
       Icons.event_note_outlined,
       'Get a weekly plan',
-      'Tell Planova when you can study. It fills that time with sessions, earliest due date first.',
+      'Tell Planova when you can study. It fills that time with sessions that meet your deadlines.',
     ),
     (
       Icons.published_with_changes_rounded,

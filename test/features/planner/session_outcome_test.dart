@@ -204,10 +204,10 @@ void main() {
     expect(find.text('60 min · Missed'), findsOneWidget);
 
     await tapVisible(tester, find.byKey(const ValueKey('today-replan')));
-    expect(find.text('RULE-BASED PLAN · NOTHING SAVED YET'), findsOneWidget);
+    expect(find.text('BALANCED PLAN · NOTHING SAVED YET'), findsOneWidget);
     await tapVisible(tester, find.byKey(const ValueKey('proposal-accept')));
     expect(d.plans!.needsReplan, isFalse);
-    expect(find.text('RULE-BASED PLAN · NOTHING SAVED YET'), findsNothing);
+    expect(find.text('BALANCED PLAN · NOTHING SAVED YET'), findsNothing);
     expect(find.text('Your plan needs updating'), findsNothing);
     expect(
       d.plans!.savedSessions.where((s) => s.status == SessionStatus.missed),

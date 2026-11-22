@@ -5,7 +5,7 @@ import 'availability_repository.dart';
 import 'study_repository.dart';
 import 'task_repository.dart';
 
-/// Real (non-sample) study sessions: the accepted rule-based plan and what
+/// Real (non-sample) study sessions: the accepted study plan and what
 /// the student recorded for each session.
 ///
 /// Implements [StudyRepository], so Today, Plan and Progress read it exactly

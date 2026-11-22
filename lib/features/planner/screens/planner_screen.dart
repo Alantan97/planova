@@ -201,7 +201,7 @@ class PlannerScreen extends StatelessWidget {
                       samples
                           ? 'Sample plan · Fixed commitments shown separately'
                           : (plans?.hasPlan ?? false)
-                          ? 'Rule-based plan · Fixed commitments shown in grey'
+                          ? 'Your plan · Fixed commitments shown in grey'
                           : 'Planova fills your free study time for the next 7 days. You review it before it is saved.',
                       style: TextStyle(
                         color: Colors.white70,

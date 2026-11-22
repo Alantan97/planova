@@ -96,7 +96,7 @@ class AppDependencies {
     await tasks.close();
   }
 
-  /// The accepted rule-based plan. Null in the demo build, which shows
+  /// The accepted study plan. Null in the demo build, which shows
   /// labelled sample sessions instead and cannot create plans.
   final StudyPlanRepository? plans;
 

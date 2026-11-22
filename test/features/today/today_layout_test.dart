@@ -39,7 +39,7 @@ void main() {
     );
     await tester.pumpWidget(MyApp(dependencies: d));
     await tester.pumpAndSettle();
-    expect(find.text('Next study session · rule-based plan'), findsOneWidget);
+    expect(find.text('Next study session · your plan'), findsOneWidget);
     expect(find.text('Record session'), findsOneWidget);
     // The card already shows the task that is due next.
     expect(find.text('Next deadline'), findsNothing);

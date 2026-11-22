@@ -32,8 +32,8 @@ void main() {
     expect(find.text('Set availability'), findsOneWidget);
     await tester.ensureVisible(find.text('Sessions of 30m–1h'));
     expect(find.text('15m break between sessions'), findsOneWidget);
-    await tester.ensureVisible(find.textContaining('not trained AI'));
-    expect(find.textContaining('not trained AI'), findsOneWidget);
+    await tester.ensureVisible(find.textContaining('Neither is trained AI'));
+    expect(find.textContaining('Neither is trained AI'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

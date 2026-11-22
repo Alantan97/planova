@@ -169,7 +169,7 @@ void main() {
 
     // Cancel saves nothing.
     await tapVisible(tester, find.byKey(const ValueKey('create-plan')));
-    expect(find.text('RULE-BASED PLAN · NOTHING SAVED YET'), findsOneWidget);
+    expect(find.text('BALANCED PLAN · NOTHING SAVED YET'), findsOneWidget);
     expect(find.text('1 session · 1h · 1 task'), findsOneWidget);
     await tapVisible(tester, find.byKey(const ValueKey('proposal-cancel')));
     expect(d.plans!.hasPlan, isFalse);
@@ -180,7 +180,7 @@ void main() {
     expect(d.plans!.savedSessions.single.startsAt, DateTime(2026, 10, 14, 20));
     expect(find.text('Plan saved · 1 study session.'), findsOneWidget);
     expect(
-      find.text('Rule-based plan · Fixed commitments shown in grey'),
+      find.text('Your plan · Fixed commitments shown in grey'),
       findsOneWidget,
     );
     expect(find.text('Re-plan the next 7 days'), findsOneWidget);

@@ -155,10 +155,11 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Planova uses fixed, explainable rules, not trained AI. It '
-                  'fills your free study time with the task due soonest first, '
-                  'then the one worth more of your grade. You review every '
-                  'plan before it is saved.',
+                  'Planova offers two plans. Balanced uses a search method '
+                  '(a genetic algorithm) to find the most even week that still '
+                  'meets your deadlines. Earliest first follows fixed rules: '
+                  'the task due soonest goes first. Neither is trained AI, and '
+                  'you review every plan before it is saved.',
                   style: TextStyle(color: planovaMuted, height: 1.45),
                 ),
               ],

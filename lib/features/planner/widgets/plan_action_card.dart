@@ -55,7 +55,7 @@ class PlanActionCard extends StatelessWidget {
         Text(
           plans.hasPlan
               ? 'Re-planning replaces upcoming planned sessions. You review the new plan before anything changes.'
-              : 'Planova fills your free study time with sessions, earliest due date first. You review the plan before it is saved.',
+              : 'Planova fills your free study time with sessions: a balanced week, or earliest due date first. You review the plan before it is saved.',
           style: const TextStyle(color: planovaMuted, height: 1.45),
         ),
         const SizedBox(height: 14),

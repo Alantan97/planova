@@ -364,7 +364,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       children: [
         const StepIntro(
           'Your first plan',
-          'Planova fills your free study time for the next 7 days, earliest due date first. You review it before anything is saved.',
+          'Planova fills your free study time for the next 7 days. You choose a balanced plan or earliest due date first, and review it before anything is saved.',
         ),
         if (plans.hasPlan)
           const Panel(

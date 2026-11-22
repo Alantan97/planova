@@ -96,7 +96,7 @@ class NextSessionCard extends StatelessWidget {
               child: Text(
                 onOpen == null
                     ? 'Sample study session'
-                    : 'Next study session · rule-based plan',
+                    : 'Next study session · your plan',
                 style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 13,

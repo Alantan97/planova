@@ -11,7 +11,10 @@ example a Genetic Algorithm) should be compared against on the same inputs.
 
 1. Plan tab → **Create my plan** (or **Re-plan the next 7 days**).
 2. A proposal screen shows the sessions by day, work that could not fit, and
-   tasks that were not planned. Nothing is saved yet.
+   tasks that were not planned. Nothing is saved yet. Since 23 November 2026
+   it opens on the **Balanced** plan (the Genetic Algorithm in
+   `ga_planner.dart`, see `docs/scheduling_evaluation.md`); this rule-based
+   plan is the **Earliest first** option on the same screen.
 3. **Accept plan** saves it; **Cancel** leaves any accepted plan unchanged.
 4. Plan and Today show the accepted sessions, with recurring commitments shown
    as fixed blocks. Re-planning replaces only planned sessions inside the new
@@ -85,4 +88,4 @@ re-plan flag; plans saved in version 1 still load.
 
 ## Not included yet
 
-Automatic re-planning without review, notifications, and a GA comparison.
+Automatic re-planning without review and notifications. (The GA comparison is in `docs/scheduling_evaluation.md`.)

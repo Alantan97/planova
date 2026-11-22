@@ -221,9 +221,20 @@ intended GA change:
 flutter test test/services/planning/ga_planner_test.dart
 ```
 
-The Dart GA is not shown in the app yet (next increment). In the Dart test
-runner on a laptop it plans all 24 weeks in about 3 seconds; phone timing is
-still to be measured. Parity is tested on the Dart VM; the generator uses
+**In the app (23 November 2026).** The plan review screen makes both plans
+from the same inputs and opens on **Balanced** (the GA); **Earliest first**
+(the rule-based planner) is one tap away, and the student accepts either.
+A short comparison shows busiest day, days with study, work in the last day
+before it is due and, if any, due work not placed. "How this plan was made"
+explains the chosen method in plain words, including that the GA is a search
+method and not trained AI. The GA runs in a background isolate
+(`balanced_plan_runner.dart`) with a "Finding a balanced plan…" message; if
+it fails, the screen falls back to earliest first and says so. The seed is
+fixed, so the same inputs always give the same plan. Accepted plans are
+saved the same way whichever method made them.
+
+In the Dart test runner on a laptop the GA plans all 24 weeks in about 3
+seconds; phone timing is still to be measured. Parity is tested on the Dart VM; the generator uses
 only 32-bit operations so web builds should match, but that is not tested.
 
 ## Results: GA version 1 vs baseline (kept for the record)

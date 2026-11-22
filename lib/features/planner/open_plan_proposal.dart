@@ -4,13 +4,15 @@ import '../../core/time/app_clock.dart';
 import '../../data/repositories/availability_repository.dart';
 import '../../data/repositories/study_plan_repository.dart';
 import '../../data/repositories/task_repository.dart';
+import '../../services/planning/balanced_plan_runner.dart';
 import '../../services/planning/rule_based_planner.dart';
 import '../availability/screens/availability_screen.dart';
 import 'screens/plan_proposal_screen.dart';
 
-/// Runs the rule-based planner for the next 7 days with the student's study
-/// preferences ([settings]) and opens the proposal for review. Nothing is
-/// saved until the student accepts it.
+/// Opens the plan review for the next 7 days with the student's study
+/// preferences ([settings]). The screen makes both plans (balanced and
+/// earliest first) from the same inputs. Nothing is saved until the student
+/// accepts one.
 Future<void> openPlanProposal(
   BuildContext context, {
   required StudyPlanRepository plans,
@@ -19,8 +21,8 @@ Future<void> openPlanProposal(
   required AppClock clock,
   required PlannerSettings settings,
 }) {
-  final proposal = planWeek(
-    tasks: tasks.tasks,
+  final request = PlanRequest(
+    tasks: List.unmodifiable(tasks.tasks),
     availability: availability.availability,
     now: clock.now(),
     settings: settings,
@@ -31,9 +33,8 @@ Future<void> openPlanProposal(
     context,
     MaterialPageRoute<void>(
       builder: (routeContext) => PlanProposalScreen(
-        proposal: proposal,
+        request: request,
         repository: plans,
-        settings: settings,
         onSetAvailability: () => Navigator.pushReplacement(
           routeContext,
           MaterialPageRoute<void>(
