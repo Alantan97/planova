@@ -233,8 +233,38 @@ it fails, the screen falls back to earliest first and says so. The seed is
 fixed, so the same inputs always give the same plan. Accepted plans are
 saved the same way whichever method made them.
 
-In the Dart test runner on a laptop the GA plans all 24 weeks in about 3
-seconds; phone timing is still to be measured. Parity is tested on the Dart VM; the generator uses
+**On a phone (24 November 2026).** `tool/phone_benchmark/` runs the GA on
+all 24 test weeks in a release build on a real device. It times 5 runs per
+week after a warm-up, plus one run through the background isolate (what the
+student actually waits for), and checks each plan and score against the
+Python GA's saved result. Device: OPPO A6t 5G (CPH2853), Android 16.
+
+| Measure | Result |
+| --- | --- |
+| Plans and scores identical to the Python GA | **24 of 24 weeks**, in all 4 runs |
+| Typical week (median of the 24 weekly medians) | 0.26-0.28 s (0.30-0.35 s via the background isolate) |
+| Lightest week (t08 no free time) | about 0.05 s |
+| Heaviest week (t06 long tasks later, 67 turns) | 1.21-1.22 s (1.27-1.32 s via the background isolate) |
+| Run-to-run spread on one week | within about 10% |
+
+The benchmark ran 4 times in a row (Android relaunched it after it closed);
+ranges cover all 4 runs. Raw output is kept privately in
+research/experiments/scheduling/.
+
+So the settings chosen on the development weeks need no reduction: a
+typical plan is ready in about a third of a second, and the slowest test week
+in about 1.3 seconds, with the progress message shown meanwhile. Time grows
+with the amount of work to place (turns), so a student with far more work
+than t06 would wait longer; that has not been measured. Only one phone model
+was tested.
+
+Re-run it (phone connected with USB debugging; check the ID with
+`flutter devices`):
+
+```powershell
+& ai/.venv/Scripts/python.exe tool/phone_benchmark/make_weeks.py
+flutter run --release -d <device id> -t tool/phone_benchmark/main.dart
+``` Parity is tested on the Dart VM; the generator uses
 only 32-bit operations so web builds should match, but that is not tested.
 
 ## Results: GA version 1 vs baseline (kept for the record)
